@@ -1,2 +1,2 @@
 # InnoSync
-A smart collaboration platform for the Innopolis community that uses AI to streamline team formation and project recruitment.
+A smart collaboration platform for the Innopolis community that uses ML for team sycing and project recruitment.
