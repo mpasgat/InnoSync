@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    ports: ["8080:8080"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypass
+      POSTGRES_DB: registration
+    ports: ["5433:5432"]
+    healthcheck:
+      test: pg_isready -U myuser -d registration

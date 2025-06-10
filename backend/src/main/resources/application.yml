@@ -1,0 +1,15 @@
+server:
+  port: 8080
+
+spring:
+  security:
+    enabled: false
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/registration
+    username: myuser
+    password: mypass
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
