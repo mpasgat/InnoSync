@@ -116,5 +116,5 @@ docker-compose up --build
 ```
 ### 4)  Make simple hello request
 ```bash
-localhost:8080
+localhost:3000
 ```
