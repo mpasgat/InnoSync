@@ -1,11 +1,23 @@
-version: '3.8'
+version: "3.8"
+
 services:
   app:
     build: ./backend
-    ports: ["8080:8080"]
+    ports:
+      - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
+
+  frontend:
+    build: ./frontend/innosync
+    ports:
+      - "3000:3000"
+    depends_on:
+      - app
+    environment:
+      NODE_ENV: production
+    restart: unless-stopped
 
   postgres:
     image: postgres:15-alpine
@@ -13,6 +25,9 @@ services:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypass
       POSTGRES_DB: registration
-    ports: ["5433:5432"]
+    ports:
+      - "5433:5432"
     healthcheck:
-      test: pg_isready -U myuser -d registration
+      test: ["CMD", "pg_isready", "-U", "myuser", "-d", "registration"]
+      interval: 5s
+      retries: 5
