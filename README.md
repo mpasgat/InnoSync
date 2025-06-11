@@ -115,6 +115,5 @@ cd InnoSync
 docker-compose up --build
 ```
 ### 4)  Make simple hello request
-```bash
-localhost:3000
-```
+http://localhost:3000/
+
