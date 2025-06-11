@@ -3,7 +3,7 @@ server:
 
 spring:
   security:
-    enabled: false
+    unabled: false
 
   datasource:
     url: jdbc:postgresql://postgres:5432/registration
