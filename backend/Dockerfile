@@ -6,6 +6,7 @@ RUN ./mvnw clean package -DskipTests
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=0 /app/target/*.jar app.jar
+COPY .env .env
 #COPY src/main/resources/static /app/static
 EXPOSE 8080
 CMD ["java", "-jar", "app.jar"]
