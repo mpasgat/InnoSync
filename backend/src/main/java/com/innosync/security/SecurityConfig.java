@@ -34,7 +34,7 @@ public class SecurityConfig {
                                 "/swagger-ui/favicon-16x16.png",
                                 "/error"
                         ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin(login -> login.disable())

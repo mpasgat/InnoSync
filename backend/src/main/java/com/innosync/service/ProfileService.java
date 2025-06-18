@@ -24,24 +24,28 @@ public class ProfileService {
 
         Profile profile = profileRepository.findByUser(user).orElse(new Profile());
         profile.setUser(user);
-        profile.setDesiredPosition(request.getDesiredPosition());
-        profile.setTechStack(request.getTechStack());
-        profile.setLevel(request.getLevel());
-        profile.setGithubLink(request.getGithubLink());
-        profile.setLinkedinLink(request.getLinkedinLink());
+        profile.setTelegram(request.getTelegram());
+        profile.setGithub(request.getGithub());
         profile.setBio(request.getBio());
-
+        profile.setPosition(request.getPosition());
+        profile.setEducation(request.getEducation());
+        profile.setExpertise(request.getExpertise());
+        profile.setExpertiseLevel(request.getExpertiseLevel());
+        profile.setResume(request.getResume());
         profileRepository.save(profile);
 
         ProfileResponse response = new ProfileResponse();
         response.setEmail(user.getEmail());
         response.setFullName(user.getFullName());
-        response.setDesiredPosition(profile.getDesiredPosition());
-        response.setTechStack(profile.getTechStack());
-        response.setLevel(profile.getLevel());
-        response.setGithubLink(profile.getGithubLink());
-        response.setLinkedinLink(profile.getLinkedinLink());
+        response.setTelegram(profile.getTelegram());
+        response.setGithub(profile.getGithub());
         response.setBio(profile.getBio());
+        response.setPosition(profile.getPosition());
+        response.setEducation(profile.getEducation());
+        response.setExpertise(profile.getExpertise());
+        response.setExpertiseLevel(profile.getExpertiseLevel());
+        response.setResume(profile.getResume());
+
 
         return response;
     }
@@ -56,12 +60,14 @@ public class ProfileService {
         ProfileResponse response = new ProfileResponse();
         response.setEmail(user.getEmail());
         response.setFullName(user.getFullName());
-        response.setDesiredPosition(profile.getDesiredPosition());
-        response.setTechStack(profile.getTechStack());
-        response.setLevel(profile.getLevel());
-        response.setGithubLink(profile.getGithubLink());
-        response.setLinkedinLink(profile.getLinkedinLink());
+        response.setTelegram(profile.getTelegram());
+        response.setGithub(profile.getGithub());
         response.setBio(profile.getBio());
+        response.setPosition(profile.getPosition());
+        response.setEducation(profile.getEducation());
+        response.setExpertise(profile.getExpertise());
+        response.setExpertiseLevel(profile.getExpertiseLevel());
+        response.setResume(profile.getResume());
 
         return response;
     }
