@@ -1,7 +1,7 @@
 package com.innosync.service;
 
-import com.innosync.dto.ProfileRequest;
-import com.innosync.dto.ProfileResponse;
+import com.innosync.dto.profile.ProfileRequest;
+import com.innosync.dto.profile.ProfileResponse;
 import com.innosync.model.Profile;
 import com.innosync.model.User;
 import com.innosync.repository.ProfileRepository;
