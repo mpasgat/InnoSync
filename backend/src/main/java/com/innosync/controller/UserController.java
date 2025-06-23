@@ -10,8 +10,4 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "User API", description = "API for user authentication") // Swagger annotation
 public class UserController {
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "hello";
-    }
 }
