@@ -3,6 +3,10 @@ package com.innosync.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+import java.util.ArrayList;
+
+
 @Entity
 @Table(name = "user_profile")
 @Getter
@@ -39,4 +43,13 @@ public class Profile {
     private ExpertiseLevel expertiseLevel;
 
     private String resume; // URL or path
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_profile_technology",
+            joinColumns = @JoinColumn(name = "user_profile_id"),
+            inverseJoinColumns = @JoinColumn(name = "technology_id")
+    )
+    private List<Technology> technologies = new ArrayList<>();
+
 }

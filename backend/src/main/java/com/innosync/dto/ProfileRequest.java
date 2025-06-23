@@ -5,6 +5,9 @@ import com.innosync.model.Education;
 import com.innosync.model.ExpertiseLevel;
 import lombok.Data;
 
+import java.util.List;
+
+
 @Data
 public class ProfileRequest {
     private String telegram;
@@ -16,4 +19,9 @@ public class ProfileRequest {
     @JsonProperty("expertise_level")
     private ExpertiseLevel expertiseLevel;
     private String resume;
+    @JsonProperty("work_experience")
+    private List<WorkExperienceRequest> workExperience;
+    @JsonProperty("technologies")
+    private List<String> technologies;
+
 }
