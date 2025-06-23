@@ -4,6 +4,8 @@ import com.innosync.model.Education;
 import com.innosync.model.ExpertiseLevel;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class ProfileResponse {
     private String email;
@@ -16,4 +18,5 @@ public class ProfileResponse {
     private String expertise;
     private ExpertiseLevel expertiseLevel;
     private String resume;
+    private List<WorkExperienceResponse> workExperience;
 }
