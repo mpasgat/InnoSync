@@ -1,8 +1,11 @@
 package com.innosync.dto.profile;
 
+import com.innosync.dto.WorkExperienceResponse;
 import com.innosync.model.Education;
 import com.innosync.model.ExpertiseLevel;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class ProfileResponse {
@@ -16,4 +19,6 @@ public class ProfileResponse {
     private String expertise;
     private ExpertiseLevel expertiseLevel;
     private String resume;
+    private List<WorkExperienceResponse> workExperience;
+    private List<String> technologies;
 }
