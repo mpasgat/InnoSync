@@ -1,4 +1,4 @@
-package com.innosync.dto;
+package com.innosync.dto.project;
 
 import lombok.Data;
 
