@@ -11,6 +11,7 @@ import com.innosync.repository.UserRepository;
 import com.innosync.repository.WorkExperienceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,9 +28,9 @@ public class ProfileService {
     @Autowired
     private WorkExperienceRepository workExperienceRepository;
 
-
+    @Transactional
     public ProfileResponse createOrUpdateProfile(String email, ProfileRequest request) {
-        User user = userRepository.findByEmail(email)
+        final User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Profile profile = profileRepository.findByUser(user).orElse(new Profile());
@@ -42,15 +43,17 @@ public class ProfileService {
         profile.setExpertise(request.getExpertise());
         profile.setExpertiseLevel(request.getExpertiseLevel());
         profile.setResume(request.getResume());
-        profileRepository.save(profile);
 
-        workExperienceRepository.deleteByProfile(profile);
+        final Profile savedProfile = profileRepository.save(profile);
 
-        // add new entries
-        if (request.getWorkExperience() != null) {
+        // Удаляем старый опыт
+        workExperienceRepository.deleteByProfile(savedProfile);
+
+        // Добавляем новый опыт
+        if (request.getWorkExperience() != null && !request.getWorkExperience().isEmpty()) {
             List<WorkExperience> experiences = request.getWorkExperience().stream()
                     .map(req -> WorkExperience.builder()
-                            .profile(profile)
+                            .profile(savedProfile)
                             .startDate(req.getStartDate())
                             .endDate(req.getEndDate())
                             .position(req.getPosition())
@@ -62,22 +65,21 @@ public class ProfileService {
             workExperienceRepository.saveAll(experiences);
         }
 
-        ProfileResponse response = mapToResponse(profile, user);
-        return response;
+        return mapToResponse(savedProfile, user);
     }
 
     public ProfileResponse getMyProfile(String email) {
-        User user = userRepository.findByEmail(email)
+        final User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Profile profile = profileRepository.findByUser(user)
+        final Profile profile = profileRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Profile not found"));
 
         return mapToResponse(profile, user);
     }
 
     private ProfileResponse mapToResponse(Profile profile, User user) {
-        ProfileResponse response = new ProfileResponse();
+        final ProfileResponse response = new ProfileResponse();
         response.setEmail(user.getEmail());
         response.setFullName(user.getFullName());
         response.setTelegram(profile.getTelegram());
@@ -89,7 +91,6 @@ public class ProfileService {
         response.setExpertiseLevel(profile.getExpertiseLevel());
         response.setResume(profile.getResume());
 
-        // Load work experience and mape it into DTO
         List<WorkExperienceResponse> experienceResponses = workExperienceRepository.findByProfile(profile).stream()
                 .map(exp -> {
                     WorkExperienceResponse res = new WorkExperienceResponse();
