@@ -1,7 +1,6 @@
 package com.innosync.dto.profile;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.innosync.dto.WorkExperienceRequest;
 import com.innosync.model.Education;
 import com.innosync.model.ExpertiseLevel;
 import lombok.Data;

@@ -1,6 +1,5 @@
 package com.innosync.dto.profile;
 
-import com.innosync.dto.WorkExperienceResponse;
 import com.innosync.model.Education;
 import com.innosync.model.ExpertiseLevel;
 import lombok.Data;

@@ -1,6 +1,6 @@
 package com.innosync.service;
 
-import com.innosync.dto.WorkExperienceResponse;
+import com.innosync.dto.profile.WorkExperienceResponse;
 import com.innosync.dto.profile.ProfileRequest;
 import com.innosync.dto.profile.ProfileResponse;
 import com.innosync.model.Profile;
@@ -19,7 +19,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import java.util.List;
-import java.util.ArrayList;
 
 
 @Service
