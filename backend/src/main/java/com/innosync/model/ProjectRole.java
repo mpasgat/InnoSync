@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "project_role")
 @Getter
@@ -28,5 +31,11 @@ public class ProjectRole {
     @Enumerated(EnumType.STRING)
     private ExpertiseLevel expertiseLevel;
 
-    private String technologies;
+    @ManyToMany
+    @JoinTable(
+            name = "role_technology",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "technology_id")
+    )
+    private List<Technology> technologies = new ArrayList<>();
 }

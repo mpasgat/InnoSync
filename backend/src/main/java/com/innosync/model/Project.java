@@ -36,8 +36,6 @@ public class Project {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-//    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<ProjectRole> roles;
 
     @PrePersist
     protected void onCreate() {

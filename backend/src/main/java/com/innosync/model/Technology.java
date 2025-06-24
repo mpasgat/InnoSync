@@ -18,4 +18,8 @@ public class Technology {
 
     @Column(nullable = false, unique = true)
     private String name;
+
+    public Technology(String name) {
+        this.name = name;
+    }
 }
