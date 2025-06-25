@@ -1,4 +1,4 @@
-package com.innosync.dto;
+package com.innosync.dto.profile;
 
 import com.innosync.model.Education;
 import com.innosync.model.ExpertiseLevel;

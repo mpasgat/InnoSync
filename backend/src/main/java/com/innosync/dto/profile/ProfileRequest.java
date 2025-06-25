@@ -1,4 +1,4 @@
-package com.innosync.dto;
+package com.innosync.dto.profile;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.innosync.model.Education;

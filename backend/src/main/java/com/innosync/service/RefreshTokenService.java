@@ -1,14 +1,11 @@
 package com.innosync.service;
 
-import com.innosync.dto.AuthResponse;
+import com.innosync.dto.auth.AuthResponse;
 import com.innosync.model.RefreshToken;
 import com.innosync.model.User;
 import com.innosync.repository.RefreshTokenRepository;
 import com.innosync.repository.UserRepository;
 import com.innosync.security.JwtUtil;
-import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import lombok.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

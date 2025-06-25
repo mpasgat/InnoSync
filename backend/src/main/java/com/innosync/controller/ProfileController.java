@@ -1,7 +1,7 @@
 package com.innosync.controller;
 
-import com.innosync.dto.ProfileRequest;
-import com.innosync.dto.ProfileResponse;
+import com.innosync.dto.profile.ProfileRequest;
+import com.innosync.dto.profile.ProfileResponse;
 import com.innosync.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

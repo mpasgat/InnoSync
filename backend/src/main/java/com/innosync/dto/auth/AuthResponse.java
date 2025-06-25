@@ -1,4 +1,4 @@
-package com.innosync.dto;
+package com.innosync.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,6 +1,6 @@
 package com.innosync.controller;
 
-import com.innosync.dto.*;
+import com.innosync.dto.auth.*;
 import com.innosync.model.RefreshToken;
 import com.innosync.model.User;
 import com.innosync.repository.UserRepository;

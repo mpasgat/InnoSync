@@ -1,13 +1,13 @@
 package com.innosync.repository;
 
+import com.innosync.model.Project;
 import com.innosync.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByEmail(String email);
-    Optional<User> findById(Long id);
+public interface ProjectRepository extends JpaRepository<Project, Long> {
+    List<Project> findByRecruiter(User recruiter);
 }
