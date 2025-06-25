@@ -1,16 +1,22 @@
+// src/app/authentication/signup/page.tsx
 "use client";
-
 import Image from "next/image";
 import styles from "../page.module.css";
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+
+
 
 
 export default function SignUp() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
+    
     name: '',
     surname: '',
-    middlename: '',
+    middleName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -41,25 +47,58 @@ export default function SignUp() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    const newErrors = {
-      name: formData.name.trim() === '',
-      surname: formData.surname.trim() === '',
-      email: formData.email.trim() === '',
-      password: formData.password.trim() === '',
-      confirmPassword: formData.confirmPassword.trim() === '',
-      passwordMatch: formData.password !== formData.confirmPassword
-    };
-
-    setErrors(newErrors);
-
-    if (!newErrors.email && !newErrors.password && !newErrors.confirmPassword &&
-      !newErrors.passwordMatch) {
-      console.log('Signing up with:', formData);
-    }
+  const newErrors = {
+    name: formData.name.trim() === '',
+    surname: formData.surname.trim() === '',
+    email: formData.email.trim() === '',
+    password: formData.password.trim() === '',
+    confirmPassword: formData.confirmPassword.trim() === '',
+    passwordMatch: formData.password !== formData.confirmPassword
   };
+
+  setErrors(newErrors);
+
+  if (!Object.values(newErrors).some(Boolean)) {
+    // ✅ Combine name + surname + middlename into fullName
+    const fullName = `${formData.name} ${formData.surname} ${formData.middleName}`.trim();
+
+    try {
+      const res = await fetch('http://localhost:8080/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          fullName: fullName
+        })
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error('Signup failed:', errorData);
+        alert(`Signup failed: ${errorData.error || 'Unknown error'}`);
+        return;
+      }
+
+      const data = await res.json();
+      console.log('Signup successful:', data);
+      alert('Signup successful!');
+      router.push('/components/home');
+
+      // You can redirect to login page here
+    } catch (err) {
+      console.error('Network error during signup:', err);
+      alert('Signup failed due to network error');
+    }
+  }
+
+  };
+
   return (
     <div className={styles.parentContainer}>
       <div className={styles.signup}>
@@ -97,7 +136,7 @@ export default function SignUp() {
               </div>
               <div className={styles.middlename}>
                 <p className={styles.label}>Middle Name</p>
-                <input type="text" name="middlename" placeholder="Middle Name" className={styles.name__input} value={formData.middlename} onChange={handleChange} />
+                <input type="text" name="middleName" placeholder="Middle Name" className={styles.name__input} value={formData.middleName} onChange={handleChange} />
               </div>
             </div>
             <div className={styles.email}>
