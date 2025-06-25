@@ -1,14 +1,5 @@
 // src/app/authentication/signup/page.tsx
-
-<<<<<<< Updated upstream
-import React from "react";
-
-export default function SignupPage() {
-  return (
-    <div>
-      <h1>Signup Page</h1>
-      {/* Add your signup form here */}
-=======
+"use client";
 import Image from "next/image";
 import styles from "../page.module.css";
 import Link from 'next/link';
@@ -171,7 +162,7 @@ export default function SignUp() {
       <div className={styles.terms__container}>
         <p className={styles.terms}>By logging in with an account, you agree to Shorter.url&apos;s <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" className={styles.important}>Terms of service</a>, <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" className={styles.important}>Privacy Policy</a> and <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" className={styles.important}>Acceptable Use Policy</a></p>
       </div>
->>>>>>> Stashed changes
+
     </div>
   );
 }
