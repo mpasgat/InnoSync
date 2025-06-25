@@ -1,6 +1,6 @@
-<<<<<<< Updated upstream
+
 // src/app/authentication/login/page.tsx
-=======
+
 "use client";
 import Image from "next/image";
 import styles from "../page.module.css";
@@ -10,13 +10,12 @@ import { useRouter } from 'next/navigation';
 
 
 
->>>>>>> Stashed changes
+
 
 import React from "react";
 
 export default function LoginPage() {
-<<<<<<< Updated upstream
-=======
+
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -75,7 +74,7 @@ export default function LoginPage() {
 
 
 
->>>>>>> Stashed changes
+
   return (
     <div>
       <h1>Login Page</h1>
