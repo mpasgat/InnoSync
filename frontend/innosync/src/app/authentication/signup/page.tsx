@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 export default function SignUp() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    
+
     name: '',
     surname: '',
     middleName: '',
@@ -158,9 +158,6 @@ export default function SignUp() {
           </div>
           <button type="submit" className={styles.submit__btn}>Continue</button>
         </form>
-      </div>
-      <div className={styles.terms__container}>
-        <p className={styles.terms}>By logging in with an account, you agree to Shorter.url&apos;s <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" className={styles.important}>Terms of service</a>, <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" className={styles.important}>Privacy Policy</a> and <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" className={styles.important}>Acceptable Use Policy</a></p>
       </div>
     </div>
   );
