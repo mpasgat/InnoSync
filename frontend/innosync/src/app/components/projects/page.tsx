@@ -1,384 +1,507 @@
 "use client";
-import Navbar from "../navbar/page_logged_in"
-import { useState } from "react";
-import styles from "./page.module.css";
+import React, { useState } from 'react';
+import styles from './page.module.css';
+import Image from 'next/image';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface Project {
-  id: string;
-  title: string;
+  id: number;
   company: string;
+  logo: string;
+  title: string;
+  badge: string;
+  badgeType: 'fullTime' | 'internship' | 'partTime' | 'remote' | 'contract' | 'temporary';
   location: string;
   salary: string;
-  experienceLevel: string;
-  type: string;
-  description: string;
-  logo: string;
-  tags: string[];
-  daysRemaining: number;
-  teamSize: string;
-  skills: string[];
+  timeLeft: string;
+  featured?: boolean;
 }
 
-const ProjectListing = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+interface SearchBarProps {
+  tags: string[];
+  onRemoveTag: (tag: string) => void;
+  onAddTag: (tag: string) => void;
+}
 
-  // Filter states
-  const [experienceLevel, setExperienceLevel] = useState<string[]>([]);
-  const [projectType, setProjectType] = useState<string[]>([]);
-  const [teamSize, setTeamSize] = useState("");
-  const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
-  const [newSkill, setNewSkill] = useState("");
+interface ProjectCardProps {
+  project: Project;
+  onSelect: (project: Project) => void;
+  selected: boolean;
+}
 
-  // Mock project data
-  const projects: Project[] = [
-    {
-      id: "1",
-      title: "Technical Support Specialist",
-      company: "Google",
-      location: "Ohio, USA",
-      salary: "$35-$45k",
-      experienceLevel: "Entry Level",
-      type: "Academic",
-      description: "4 Days Remaining",
-      logo: "🔍",
-      tags: ["Full Time"],
-      daysRemaining: 4,
-      teamSize: "1-2",
-      skills: ["React", "UI/UX", "Figma"]
-    },
-    {
-      id: "2",
-      title: "UI/UX Designer",
-      company: "Adobe",
-      location: "Minnesota, USA",
-      salary: "$50-$75k",
-      experienceLevel: "Junior",
-      type: "Business",
-      description: "4 Days Remaining",
-      logo: "🎨",
-      tags: ["Full Time"],
-      daysRemaining: 4,
-      teamSize: "6-10",
-  skills: ["React", "UI/UX", "Figma"]
-    },
-    {
-      id: "3",
-      title: "Front End Developer",
-      company: "Meta",
-      location: "California, USA",
-      salary: "$50-$75k",
-      experienceLevel: "Mid",
-      type: "Business",
-      description: "4 Days Remaining",
-      logo: "🔧",
-      tags: ["Internship"],
-      daysRemaining: 4,
-      teamSize: "3-5",
-  skills: ["React", "UI/UX", "Figma"]
-    },
-    {
-      id: "4",
-      title: "Marketing Officer",
-      company: "Microsoft",
-      location: "Montana, USA",
-      salary: "$40-$60k",
-      experienceLevel: "Senior",
-      type: "Business",
-      description: "4 Days Remaining",
-      logo: "📈",
-      tags: ["Full Time"],
-      daysRemaining: 4,
-      teamSize: "3-5",
-  skills: ["React", "UI/UX", "Figma"]
-    },
-    {
-      id: "5",
-      title: "Networking Engineer",
-      company: "Cisco",
-      location: "Michigan, USA",
-      salary: "$90-$100k",
-      experienceLevel: "Mid",
-      type: "Academic",
-      description: "4 Days Remaining",
-      logo: "🌐",
-      tags: ["Full Time"],
-      daysRemaining: 4,
-      teamSize: "10+",
-  skills: ["React", "UI/UX", "Figma"]
-    },
-    {
-      id: "6",
-      title: "Senior UX Designer",
-      company: "Apple",
-      location: "Forty Lane",
-      salary: "2-5 Team Members",
-      experienceLevel: "Senior",
-      type: "Academic",
-      description: "Academic",
-      logo: "🍎",
-      tags: ["Full Time"],
-      daysRemaining: 5,
-      teamSize: "1-2",
-  skills: ["React", "UI/UX", "Figma"]
-    },
-    {
-      id: "7",
-      title: "Junior Graphic Designer",
-      company: "Facebook",
-      location: "Connecticut, USA",
-      salary: "$40-$50k",
-      experienceLevel: "Junior",
-      type: "Business",
-      description: "4 Days Remaining",
-      logo: "📘",
-      tags: ["Full Time"],
-      daysRemaining: 4,
-      teamSize: "6-10",
-  skills: ["React", "UI/UX", "Figma"]
-    },
-    {
-      id: "8",
-      title: "Product Designer",
-      company: "Twitter",
-      location: "6 Week, Turkey",
-      salary: "$50k-$75k",
-      experienceLevel: "Entry Level",
-      type: "Business",
-      description: "4 Days Remaining",
-      logo: "🐦",
-      tags: ["Full Time"],
-      daysRemaining: 4,
-      teamSize: "3-5",
-  skills: ["React", "UI/UX", "Figma"]
-    },
-  ];
+interface ProjectListProps {
+  projects: Project[];
+  onSelect: (project: Project) => void;
+  selectedId: number | null;
+}
 
-  const handleFilterToggle = (filter: string) => {
-    setSelectedFilters((prev) =>
-      prev.includes(filter)
-        ? prev.filter((f) => f !== filter)
-        : [...prev, filter],
-    );
-  };
+interface ProjectDescriptionProps {
+  project: Project | null;
+}
 
-  const handleExperienceLevelChange = (level: string, checked: boolean) => {
-    setExperienceLevel((prev) =>
-      checked ? [...prev, level] : prev.filter((l) => l !== level),
-    );
-  };
+interface FilterSidebarProps {
+  skills: string[];
+  onAddSkill: (skill: string) => void;
+  onRemoveSkill: (skill: string) => void;
+}
 
-  const handleProjectTypeChange = (type: string, checked: boolean) => {
-    setProjectType((prev) =>
-      checked ? [...prev, type] : prev.filter((t) => t !== type),
-    );
-  };
+const FilterCheckbox: React.FC<{ label: string; defaultChecked?: boolean }> = ({ label, defaultChecked }) => (
+  <label className={styles.checkboxLabel}>
+    <input type="checkbox" className={styles.checkbox} defaultChecked={defaultChecked} />
+    <span className={styles.customCheckbox}>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 8.5L7 11.5L12 5.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </span>
+    {label}
+  </label>
+);
 
-  const addSkill = () => {
-    if (newSkill.trim() && !requiredSkills.includes(newSkill.trim())) {
-      setRequiredSkills((prev) => [...prev, newSkill.trim()]);
-      setNewSkill("");
+const FilterSidebar: React.FC<FilterSidebarProps> = ({ skills, onAddSkill, onRemoveSkill }) => {
+  const [input, setInput] = useState('');
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const value = input.trim();
+      if (value) {
+        onAddSkill(value);
+        setInput('');
+      }
     }
   };
-
-  const removeSkill = (skill: string) => {
-    setRequiredSkills((prev) => prev.filter((s) => s !== skill));
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      addSkill();
-    }
-  };
-
-
-  // Filter the projects before displaying
-    const filteredProjects = projects.filter((project) => {
-    // Experience level
-    if (experienceLevel.length > 0 && !experienceLevel.includes(project.experienceLevel)) {
-        return false;
-    }
-
-    // Project type
-    if (projectType.length > 0 && !projectType.includes(project.type)) {
-        return false;
-    }
-
-    // Team size
-    if (teamSize && teamSize !== project.teamSize) {
-        return false;
-    }
-
-    // Required skills (match if project contains all required skills)
-    if (requiredSkills.length > 0) {
-        const lowerSkills = project.skills.map(s => s.toLowerCase());
-        const hasAllSkills = requiredSkills.every(skill =>
-        lowerSkills.includes(skill.toLowerCase())
-        );
-        if (!hasAllSkills) return false;
-    }
-
-    // Search term (in title or company)
-    const lowerSearch = searchTerm.toLowerCase();
-    if (
-        searchTerm &&
-        !project.title.toLowerCase().includes(lowerSearch) &&
-        !project.company.toLowerCase().includes(lowerSearch)
-    ) {
-        return false;
-    }
-
-    return true;
-    });
-
-
-
 
   return (
-    <div className={styles.container}>
-        <Navbar/>
-        <div className={styles.projectListing}>
-            
-        {/* Left Sidebar - Filters */}
-        <div className={styles.sidebar}>
-            <div className={styles.filterSection}>
-            <h3 className={styles.filterTitle}>Experience Level</h3>
-            <div className={styles.filterOptions}>
-                {["Entry Level", "Junior", "Mid", "Senior"].map((level) => (
-                <label key={level} className={styles.checkboxLabel}>
-                    <input
-                    type="checkbox"
-                    checked={experienceLevel.includes(level)}
-                    onChange={(e) =>
-                        handleExperienceLevelChange(level, e.target.checked)
-                    }
-                    className={styles.checkboxInput}
-                    />
-                    <span className={styles.checkboxText}>{level}</span>
-                </label>
-                ))}
-            </div>
-            </div>
-
-            <div className={styles.filterSection}>
-            <h3 className={styles.filterTitle}>Project Type</h3>
-            <div className={styles.filterOptions}>
-                {["Academic", "Business"].map((type) => (
-                <label key={type} className={styles.checkboxLabel}>
-                    <input
-                    type="checkbox"
-                    checked={projectType.includes(type)}
-                    onChange={(e) =>
-                        handleProjectTypeChange(type, e.target.checked)
-                    }
-                    className={styles.checkboxInput}
-                    />
-                    <span className={styles.checkboxText}>{type}</span>
-                </label>
-                ))}
-            </div>
-            </div>
-
-            <div className={styles.filterSection}>
-            <h3 className={styles.filterTitle}>Team Size</h3>
-            <select
-                value={teamSize}
-                onChange={(e) => setTeamSize(e.target.value)}
-                className={styles.teamSizeSelect}
-            >
-                <option value="">Select team size</option>
-                <option value="1-2">1-2 members</option>
-                <option value="3-5">3-5 members</option>
-                <option value="6-10">6-10 members</option>
-                <option value="10+">10+ members</option>
-            </select>
-            </div>
-
-            <div className={styles.filterSection}>
-            <h3 className={styles.filterTitle}>Required Skills</h3>
-            <div className={styles.skillsInputContainer}>
-                <input
-                type="text"
-                value={newSkill}
-                onChange={(e) => setNewSkill(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Add a skill"
-                className={styles.skillInput}
-                />
-                <button onClick={addSkill} className={styles.addSkillBtn}>
-                +
-                </button>
-            </div>
-            <div className={styles.skillsContainer}>
-                {requiredSkills.map((skill) => (
-                <div key={skill} className={styles.skillTag}>
-                    <span>{skill}</span>
-                    <button
-                    onClick={() => removeSkill(skill)}
-                    className={styles.removeSkillBtn}
-                    >
-                    ×
-                    </button>
-                </div>
-                ))}
-            </div>
-            </div>
+    <aside className={styles.sidebar}>
+      <div className={styles.filterSection}>
+        <h3>Experience Level</h3>
+        <div className={styles.checkboxGroup}>
+          {['Entry Level', 'Junior', 'Mid', 'Senior'].map(level => (
+            <FilterCheckbox key={level} label={level} defaultChecked />
+          ))}
         </div>
+      </div>
 
-        {/* Main Content */}
-        <div className={styles.mainContent}>
-            {/* Search Bar */}
-            <div className={styles.searchContainer}>
-            <div className={styles.searchWrapper}>
-                <div className={styles.searchIcon}>🔍</div>
-                <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search"
-                className={styles.searchInput}
-                />
-            </div>
-            </div>
-
-            {/* Filter Tags */}
-            <div className={styles.filterTags}>
-            {selectedFilters.map((filter) => (
-                <div key={filter} className={styles.filterTag}>
-                <span>{filter}</span>
-                <button
-                    onClick={() => handleFilterToggle(filter)}
-                    className={styles.removeFilterBtn}
-                >
-                    ×
-                </button>
-                </div>
-            ))}
-            </div>
-
-            {/* Project Cards */}
-            <div className={styles.projectsGrid}>
-            {filteredProjects.map((project) => (
-                <div key={project.id} className={styles.projectCard}>
-                <div className={styles.projectHeader}>
-                    <div className={styles.companyLogo}>{project.logo}</div>
-                    <div className={styles.projectInfo}>
-                    <h4 className={styles.projectTitle}>{project.title}</h4>
-                    <div className={styles.projectDetails}>
-                        <span className={styles.location}>📍 {project.location}</span>
-                        <span className={styles.salary}>💰 {project.salary}</span>
-                        <span className={styles.experience}>⏰ {project.description}</span>
-                    </div>
-                    </div>
-                    <button className={styles.applyBtn}>Apply Now →</button>
-                </div>
-                </div>
-            ))}
-            </div>
+      <div className={styles.filterSection}>
+        <h3>Project Type</h3>
+        <div className={styles.checkboxGroup}>
+          {['Paid', 'Academic', 'Volunteer'].map(type => (
+            <FilterCheckbox key={type} label={type} defaultChecked />
+          ))}
         </div>
+      </div>
+
+      <div className={styles.filterSection}>
+        <h3>Team Size</h3>
+        <select className={styles.dropdown}>
+          <option>Team Size</option>
+          <option>1-3</option>
+          <option>4-6</option>
+          <option>7+</option>
+        </select>
+      </div>
+
+      <div className={styles.filterSection}>
+        <h3>Required Skills</h3>
+        <div className={styles.searchInputWrapper}>
+          <svg className={styles.searchIcon} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <input
+            className={styles.searchInput}
+            placeholder="Search"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
         </div>
+        <div className={styles.tagList}>
+          {skills.map((skill) => (
+            <span key={skill} className={`${styles.skillTag} ${styles.selected}`}>
+              {skill}
+              <button className={styles.removeSkillBtn} onClick={() => onRemoveSkill(skill)}>
+                <Image src="/close_icon.svg" alt="Remove" width={15} height={15} />
+              </button>
+            </span>
+          ))}
+          <div style={{ width: '100%', height: 30 }} />
+        </div>
+      </div>
+    </aside>
+  );
+};
+
+const SearchBar: React.FC<SearchBarProps> = ({ tags, onRemoveTag, onAddTag }) => {
+  const [input, setInput] = useState('');
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const value = input.trim();
+      if (value) {
+        onAddTag(value);
+        setInput('');
+      }
+    }
+  };
+
+  return (
+    <div className={styles.searchBarContainer}>
+      <div className={styles.searchBar}>
+        <div className={styles.mainSearchWrapper}>
+          <svg className={styles.searchIcon} width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <input
+            className={styles.mainSearchInput}
+            placeholder="Search"
+            style={{ height: '100%' }}
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+        </div>
+      </div>
+      <div className={styles.selectedTags}>
+        {tags.map(tag => (
+          <span key={tag} className={styles.selectedTag}>
+            {tag}
+            <button onClick={() => onRemoveTag(tag)} className={styles.removeTagBtn} aria-label={`Remove ${tag}`} tabIndex={0}>
+              <Image src="/close_icon.svg" alt="Remove" width={15} height={15} />
+            </button>
+          </span>
+        ))}
+      </div>
     </div>
   );
 };
 
-export default ProjectListing;
+const mockProjects: Project[] = [
+  {
+    id: 1,
+    company: 'Google',
+    logo: '/company_logo.svg',
+    title: 'Technical Support Specialist',
+    badge: 'Full Time',
+    badgeType: 'fullTime',
+    location: 'Idaho, USA',
+    salary: '$15K-$20K',
+    timeLeft: '4 Days Remaining',
+  },
+  {
+    id: 2,
+    company: 'Youtube',
+    logo: '/company_logo.svg',
+    title: 'UI/UX Designer',
+    badge: 'Full Time',
+    badgeType: 'fullTime',
+    location: 'Minnesota, USA',
+    salary: '$10K-$15K',
+    timeLeft: '4 Days Remaining',
+  },
+  {
+    id: 3,
+    company: 'Reddit',
+    logo: '/company_logo.svg',
+    title: 'Front End Developer',
+    badge: 'Internship',
+    badgeType: 'internship',
+    location: 'Mymensingh, Bangladesh',
+    salary: '$10K-$15K',
+    timeLeft: '4 Days Remaining',
+  },
+  {
+    id: 4,
+    company: 'Freepik',
+    logo: '/company_logo.svg',
+    title: 'Marketing Officer',
+    badge: 'Full Time',
+    badgeType: 'fullTime',
+    location: 'Montana, USA',
+    salary: '$50K-$60K',
+    timeLeft: '4 Days Remaining',
+  },
+  {
+    id: 5,
+    company: 'Instagram',
+    logo: '/company_logo.svg',
+    title: 'Networking Engineer',
+    badge: 'Full Time',
+    badgeType: 'fullTime',
+    location: 'Michigan, USA',
+    salary: '$5K-$10K',
+    timeLeft: '4 Days Remaining',
+  },
+  {
+    id: 6,
+    company: 'Slack',
+    logo: '/company_logo.svg',
+    title: 'Senior UX Designer',
+    badge: 'Full Time',
+    badgeType: 'fullTime',
+    location: 'Entry Level',
+    salary: '2-3 Team Members',
+    timeLeft: 'Academic',
+    featured: true,
+  },
+  {
+    id: 7,
+    company: 'Facebook',
+    logo: '/company_logo.svg',
+    title: 'Junior Graphic Designer',
+    badge: 'Full Time',
+    badgeType: 'fullTime',
+    location: 'Mymensingh, Bangladesh',
+    salary: '$40K-$50K',
+    timeLeft: '4 Days Remaining',
+  },
+  {
+    id: 8,
+    company: 'Twitter',
+    logo: '/company_logo.svg',
+    title: 'Product Designer',
+    badge: 'Full Time',
+    badgeType: 'fullTime',
+    location: 'Sivas, Turkey',
+    salary: '$50K-$70K',
+    timeLeft: '4 Days Remaining',
+  },
+  {
+    id: 9,
+    company: 'Udemy',
+    logo: '/company_logo.svg',
+    title: 'Project Manager',
+    badge: 'Full Time',
+    badgeType: 'fullTime',
+    location: 'Ohio, USA',
+    salary: '$50K-$80K',
+    timeLeft: '4 Days Remaining',
+  },
+  {
+    id: 10,
+    company: 'Microsoft',
+    logo: '/company_logo.svg',
+    title: 'Marketing Manager',
+    badge: 'Temporary',
+    badgeType: 'temporary',
+    location: 'Konya, Turkey',
+    salary: '$20K-$25K',
+    timeLeft: '4 Days Remaining',
+  },
+  {
+    id: 11,
+    company: 'Apple',
+    logo: '/company_logo.svg',
+    title: 'Visual Designer',
+    badge: 'Part Time',
+    badgeType: 'partTime',
+    location: 'Washington, USA',
+    salary: '$10K-$15K',
+    timeLeft: '4 Days Remaining',
+  },
+  {
+    id: 12,
+    company: 'Figma',
+    logo: '/company_logo.svg',
+    title: 'Interaction Designer',
+    badge: 'Remote',
+    badgeType: 'remote',
+    location: 'Penn, USA',
+    salary: '$35K-$40K',
+    timeLeft: '4 Days Remaining',
+  },
+  {
+    id: 13,
+    company: 'Upwork',
+    logo: '/company_logo.svg',
+    title: 'Senior UX Designer',
+    badge: 'Contract Base',
+    badgeType: 'contract',
+    location: 'Sylhet, Bangladesh',
+    salary: '$30K-$35K',
+    timeLeft: '4 Days Remaining',
+  },
+];
+
+const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, selected }) => (
+  <div className={`${styles.projectCard} ${selected ? styles.selected : ''} ${project.featured ? styles.featured : ''}`}
+       onClick={() => onSelect(project)}>
+    <div className={styles.projectInfo}>
+      <div className={styles.companyLogoWrapper}>
+        <Image src={project.logo} alt={project.company + ' logo'} width={40} height={40} />
+      </div>
+      <div className={styles.projectDetails}>
+        <div className={styles.projectHeader}>
+          <h3 className={styles.projectTitle}>{project.title}</h3>
+          <span className={`${styles.badge} ${styles[project.badgeType]}`}>{project.badge}</span>
+        </div>
+        <div className={styles.projectMeta}>
+          <div className={styles.metaItem}>
+            <Image src="/location.svg" alt="Location" width={16} height={16} />
+            <span>{project.location}</span>
+          </div>
+          <div className={styles.metaItem}>
+            <Image src="/salary.svg" alt="Salary" width={16} height={16} />
+            <span>{project.salary}</span>
+          </div>
+          <div className={styles.metaItem}>
+            <Image src="/calendar.svg" alt="Time Left" width={16} height={16} />
+            <span>{project.timeLeft}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div className={styles.projectActions}>
+      <button className={styles.detailsBtn}>→</button>
+      <button className={styles.applyBtn + (selected ? ' ' + styles.selected : '')}>
+        Apply Now →
+      </button>
+    </div>
+  </div>
+);
+
+const ProjectList: React.FC<ProjectListProps> = ({ projects, onSelect, selectedId }) => (
+  <div className={styles.projectList}>
+    {projects.map((project, index) => (
+      <React.Fragment key={project.id}>
+        <ProjectCard
+          project={project}
+          onSelect={onSelect}
+          selected={selectedId === project.id}
+        />
+        {index < projects.length - 1 && <div className={styles.projectDivider} />}
+      </React.Fragment>
+    ))}
+  </div>
+);
+
+const ProjectDescription: React.FC<ProjectDescriptionProps> = ({ project }) => {
+  const availablePositions = ['Frontend Dev', 'Sys Admin', 'Backend Dev', 'DB Admin'];
+  const [selectedPosition, setSelectedPosition] = useState<string | null>(availablePositions[0]);
+
+  return (
+    <aside className={styles.projectDescription}>
+      <div className={styles.projectDescHeader}>
+        <div className={styles.projectDescLogoWrapper}>
+          {project?.logo && (
+            <Image src={project.logo} alt={project.company + ' logo'} width={80} height={80} className={styles.projectDescLogo} />
+          )}
+        </div>
+        <div className={styles.projectDescTitleBlock}>
+          <h2 className={styles.projectDescCompany}>{project?.company || 'InnoSync'}</h2>
+          <h3 className={styles.projectDescTitle}>{project?.title || ''}</h3>
+        </div>
+        <div className={styles.projectDescMetaRow}>
+          <div className={styles.projectDescMetaItem}>
+            <Image src="/location.svg" alt="Location" width={18} height={18} />
+            <span>{project?.location}</span>
+          </div>
+          <div className={styles.projectDescMetaItem}>
+            <Image src="/salary.svg" alt="Salary" width={18} height={18} />
+            <span>{project?.salary}</span>
+          </div>
+          <div className={styles.projectDescMetaItem}>
+            <Image src="/calendar.svg" alt="Time Left" width={18} height={18} />
+            <span>{project?.timeLeft}</span>
+          </div>
+        </div>
+      </div>
+      <div className={styles.projectDescBody}>
+        <p className={styles.projectDescText}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>
+        <div className={styles.projectDescSection}>
+          <h4 className={styles.projectDescSectionTitle}>Tech Stack</h4>
+          <div className={styles.tagList}>
+            {['PostgreSQL', 'Docker', 'React'].map(tech => (
+              <span key={tech} className={styles.tag}>{tech}</span>
+            ))}
+          </div>
+        </div>
+        <div className={styles.projectDescSection}>
+          <h4 className={styles.projectDescSectionTitle}>Available Positions</h4>
+          <div className={styles.tagList}>
+            {availablePositions.map(role => (
+              <span
+                key={role}
+                className={
+                  selectedPosition === role
+                    ? styles.tag
+                    : styles.positionTag
+                }
+                onClick={() => setSelectedPosition(role)}
+                style={{ cursor: 'pointer', transition: 'all 0.2s' }}
+              >
+                {role}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+      <button className={styles.mainApplyBtn} onClick={() => {
+        toast.success(`Application was successfully sent for ${selectedPosition} position`);
+      }}>
+        Apply Now
+      </button>
+    </aside>
+  );
+};
+
+const FindProjectPage = () => {
+  const [selectedTags, setSelectedTags] = useState(['Frontend Dev', 'Sys Admin', 'Backend Dev', 'DB Admin']);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(mockProjects[5]);
+  const [requiredSkills, setRequiredSkills] = useState([
+    'Angular', 'React', 'Vue', 'PostgreSQL', 'Docker', 'Figma', 'Git', 'Svelte', 'Python',
+  ]);
+
+  const handleRemoveTag = (tag: string) => {
+    setSelectedTags(tags => tags.filter(t => t !== tag));
+  };
+
+  const handleAddTag = (tag: string) => {
+    if (selectedTags.length >= 10) {
+      toast.error('You can only add up to 10 tags.');
+      return;
+    }
+    if (selectedTags.includes(tag)) {
+      toast.error('This tag is already added.');
+      return;
+    }
+    setSelectedTags(tags => [...tags, tag]);
+  };
+
+  const handleRemoveSkill = (skill: string) => {
+    setRequiredSkills(skills => skills.filter(s => s !== skill));
+  };
+
+  const handleAddSkill = (skill: string) => {
+    if (requiredSkills.length >= 10) {
+      toast.error('You can only add up to 10 skills.');
+      return;
+    }
+    if (requiredSkills.includes(skill)) {
+      toast.error('This skill is already added.');
+      return;
+    }
+    setRequiredSkills(skills => [...skills, skill]);
+  };
+
+  return (
+    <div className={styles.pageContainer}>
+      <ToastContainer aria-label="Notification" toastClassName="custom-toast" />
+      <SearchBar tags={selectedTags} onRemoveTag={handleRemoveTag} onAddTag={handleAddTag} />
+      <div className={styles.mainContainer}>
+        <FilterSidebar skills={requiredSkills} onAddSkill={handleAddSkill} onRemoveSkill={handleRemoveSkill} />
+        <main className={styles.mainContent}>
+          <ProjectList
+            projects={mockProjects}
+            onSelect={setSelectedProject}
+            selectedId={selectedProject?.id || null}
+          />
+        </main>
+        <ProjectDescription project={selectedProject} />
+      </div>
+    </div>
+  );
+};
+
+export default FindProjectPage;

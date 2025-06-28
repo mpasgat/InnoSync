@@ -1,6 +1,5 @@
-// components/Navbar.jsx
-import styles from "./page.module.css"; // create this CSS module too
-import React from "react";
+import Link from "next/link";
+import styles from "./page.module.css";
 
 const Navbar = () => {
   return (
@@ -8,39 +7,47 @@ const Navbar = () => {
       <div className={styles.navContent}>
         {/* Logo */}
         <div className={styles.logo}>
-          <span className={styles.logoText}>
-            Inno<span className={styles.logoAccent}>Sync</span>
-          </span>
+          <Link href="/" className={styles.logoLink}>
+            <span className={styles.logoText}>Inno</span>Sync
+          </Link>
         </div>
 
         {/* Navigation Links */}
         <div className={styles.navLinks}>
-          <button className={styles.navLink}>
-            <span>Find Project</span>
-            <svg className={styles.chevron} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="m6 9 6 6 6-6" />
+          <div className={styles.navItem}>
+            <Link href="/components/projects" className={styles.navLink}>
+              Find Project
+            </Link>
+            <svg className={styles.chevronIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-          </button>
-
-          <button className={styles.navLink}>
-            <span>Find Talent</span>
-            <svg className={styles.chevron} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="m6 9 6 6 6-6" />
+          </div>
+          <div className={styles.navItem}>
+            <Link href="/components/talent" className={styles.navLink}>
+              Find Talent
+            </Link>
+            <svg className={styles.chevronIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-          </button>
-
-          <button className={styles.navLink}>
-            <span>About Us</span>
-            <svg className={styles.chevron} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="m6 9 6 6 6-6" />
+          </div>
+          <div className={styles.navItem}>
+            <Link href="/components/about" className={styles.navLink}>
+              About Us
+            </Link>
+            <svg className={styles.chevronIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-          </button>
+          </div>
         </div>
 
         {/* Auth Buttons */}
         <div className={styles.authButtons}>
-          <button className={styles.loginButton}>Login</button>
-          <button className={styles.signupButton}>Sign Up</button>
+          <Link href="/authentication/login" className={styles.loginButton}>
+            Login
+          </Link>
+          <Link href="/authentication/signup" className={styles.signupButton}>
+            Sign Up
+          </Link>
         </div>
       </div>
     </nav>

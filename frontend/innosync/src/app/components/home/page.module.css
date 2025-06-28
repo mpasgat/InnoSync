@@ -2,15 +2,23 @@
 .container {
   min-height: 100vh;
   background-color: white;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-
-
 
 /* Hero Section */
 .hero {
-  max-width: 1280px;
+  width: 100%;
+  max-width: 1920px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 100vh;
 }
 
 .heroContent {
@@ -60,10 +68,6 @@
   .heroTitle {
     font-size: 3.75rem;
   }
-}
-
-.titleAccent {
-  color: #16a34a;
 }
 
 .heroSubtitle {
@@ -215,5 +219,260 @@
 @media (min-width: 768px) {
   .mobileMenuButton {
     display: none;
+  }
+}
+
+/* Figma-based HomePage Styles */
+.heroContentFigma {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 173px;
+  width: 100%;
+  max-width: 1632px;
+  margin: 0 auto;
+}
+
+.heroLeftFigma {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 782px;
+  flex: 0 0 auto;
+}
+
+.heroTitleFigma {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 105px;
+  line-height: 1.219;
+  color: #000;
+  margin: 0 0 5px 0;
+  max-width: 782px;
+  width: 100%;
+}
+
+.titleAccent {
+  color: #40BA21;
+}
+
+.heroSubtitleFigma {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  font-size: 36px;
+  line-height: 1.219;
+  color: #298217;
+  margin: 0 0 20px 0;
+  max-width: 782px;
+  width: 100%;
+}
+
+.ctaButtonsFigma {
+  display: flex;
+  flex-direction: row;
+  gap: 40px;
+  margin-bottom: 39px;
+  justify-content: flex-start;
+}
+
+.primaryCtaFigma {
+  background: #298217;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 13px 41px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 200px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.primaryCtaFigma:hover {
+  background: #206a13;
+}
+
+.secondaryCtaFigma {
+  background: #fff;
+  color: #298217;
+  border: 3px solid #298217;
+  border-radius: 20px;
+  padding: 13px 41px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 200px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.secondaryCtaFigma:hover {
+  background: #f6f6f6;
+}
+
+.trustedBySection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 150px;
+}
+.trustedByText {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: #A6A6A6;
+  line-height: 1.219;
+}
+.innopolisLogo {
+  width: 150px;
+  height: 41px;
+  object-fit: contain;
+}
+
+.heroRightFigma {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 768px;
+  height: 768px;
+  flex: 0 0 auto;
+  margin-top: -16px;
+}
+.heroIllustrationFigma {
+  width: 768px;
+  height: 768px;
+  object-fit: contain;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+  .heroContentFigma {
+    gap: 80px;
+    padding-left: 32px;
+    max-width: 1200px;
+  }
+  .heroRightFigma {
+    width: 500px;
+    height: 500px;
+  }
+  .heroIllustrationFigma {
+    width: 500px;
+    height: 500px;
+  }
+  .heroTitleFigma {
+    font-size: 64px;
+  }
+  .heroSubtitleFigma {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .hero {
+    padding: 40px 20px;
+    padding-top: 80px;
+  }
+  .heroContentFigma {
+    flex-direction: column;
+    gap: 60px;
+    align-items: center;
+    text-align: center;
+    max-width: 800px;
+    padding: 80px 20px 0 20px;
+  }
+  .heroLeftFigma {
+    align-items: center;
+    max-width: 100%;
+  }
+  .heroTitleFigma {
+    font-size: 48px;
+    text-align: center;
+  }
+  .heroSubtitleFigma {
+    font-size: 24px;
+    text-align: center;
+  }
+  .ctaButtonsFigma {
+    justify-content: center;
+  }
+  .trustedBySection {
+    align-items: center;
+  }
+  .heroRightFigma {
+    width: 400px;
+    height: 400px;
+  }
+  .heroIllustrationFigma {
+    width: 400px;
+    height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 60px 16px;
+  }
+  .heroContentFigma {
+    gap: 40px;
+    max-width: 600px;
+    padding: 60px 16px 0 16px;
+  }
+  .heroTitleFigma {
+    font-size: 36px;
+  }
+  .heroSubtitleFigma {
+    font-size: 20px;
+  }
+  .ctaButtonsFigma {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  .heroRightFigma {
+    width: 300px;
+    height: 300px;
+  }
+  .heroIllustrationFigma {
+    width: 300px;
+    height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 40px 16px;
+  }
+  .heroContentFigma {
+    max-width: 400px;
+    padding: 40px 16px 0 16px;
+  }
+  .heroTitleFigma {
+    font-size: 28px;
+  }
+  .heroSubtitleFigma {
+    font-size: 18px;
+  }
+  .primaryCtaFigma,
+  .secondaryCtaFigma {
+    width: 180px;
+    font-size: 18px;
+  }
+  .heroRightFigma {
+    width: 250px;
+    height: 250px;
+  }
+  .heroIllustrationFigma {
+    width: 250px;
+    height: 250px;
   }
 }

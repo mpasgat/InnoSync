@@ -1,0 +1,381 @@
+import React, { useState } from "react";
+import styles from "./page.module.css";
+import Image from "next/image";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+interface WorkExperience {
+  position: string;
+  company: string;
+  startMonth: string;
+  startYear: string;
+  endMonth: string;
+  endYear: string;
+  description: string;
+}
+
+interface FormData {
+  fullName?: string;
+  email?: string;
+  avatar?: string;
+  position?: string;
+  technologies?: string[];
+  expertise?: string;
+  experience?: string;
+  education?: string;
+  resume?: File;
+  workExperiences?: WorkExperience[];
+}
+
+type Step3Props = {
+  formData: FormData;
+  setFormData: (data: FormData) => void;
+  onBack: () => void;
+};
+
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+const YEARS = Array.from({ length: 30 }, (_, i) => (new Date().getFullYear() - i).toString());
+
+const initialWorkExp: WorkExperience = {
+  position: "",
+  company: "",
+  startMonth: "",
+  startYear: "",
+  endMonth: "",
+  endYear: "",
+  description: ""
+};
+
+export default function Step3({ formData, setFormData, onBack }: Step3Props) {
+  const [currentExp, setCurrentExp] = useState<WorkExperience>(initialWorkExp);
+  const [showStartMonthDropdown, setShowStartMonthDropdown] = useState(false);
+  const [showStartYearDropdown, setShowStartYearDropdown] = useState(false);
+  const [showEndMonthDropdown, setShowEndMonthDropdown] = useState(false);
+  const [showEndYearDropdown, setShowEndYearDropdown] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setCurrentExp({ ...currentExp, [e.target.name]: e.target.value });
+    if (error) setError("");
+  };
+
+  const handleDropdownSelect = (field: keyof WorkExperience, value: string) => {
+    setCurrentExp({ ...currentExp, [field]: value });
+    setShowStartMonthDropdown(false);
+    setShowStartYearDropdown(false);
+    setShowEndMonthDropdown(false);
+    setShowEndYearDropdown(false);
+    if (error) setError("");
+  };
+
+  const handleFinish = () => {
+    // Check if there's any partial data in current form
+    const hasPartialData = Object.values(currentExp).some(value => value.trim() !== "");
+
+    if (hasPartialData) {
+      if (!currentExp.position || !currentExp.company || !currentExp.startMonth ||
+          !currentExp.startYear || !currentExp.endMonth || !currentExp.endYear) {
+        setError("Please complete the current work experience or clear it before finishing.");
+        return;
+      }
+      // Add the current experience if all fields are filled
+      setFormData({
+        ...formData,
+        workExperiences: [...(formData.workExperiences || []), currentExp],
+      });
+    }
+
+    // Submit or navigate to next step
+    alert("Profile setup complete! (Implement submission logic)");
+  };
+
+  const handleAddAnother = () => {
+    if (!currentExp.position || !currentExp.company || !currentExp.startMonth ||
+        !currentExp.startYear || !currentExp.endMonth || !currentExp.endYear) {
+      toast.error('Please fill all required fields before adding.', {
+        position: 'top-center',
+        autoClose: 2500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'colored',
+      });
+      return;
+    }
+    setFormData({
+      ...formData,
+      workExperiences: [...(formData.workExperiences || []), currentExp],
+    });
+    setCurrentExp(initialWorkExp);
+    setError("");
+  };
+
+  const closeAllDropdowns = () => {
+    setShowStartMonthDropdown(false);
+    setShowStartYearDropdown(false);
+    setShowEndMonthDropdown(false);
+    setShowEndYearDropdown(false);
+  };
+
+  return (
+    <div className={styles.outerCard}>
+      <div className={styles.leftPanel}>
+        <div className={styles.avatarContainer}>
+          <div className={styles.avatarBox}>
+            {formData.avatar ? (
+              <img src={formData.avatar} alt="avatar" className={styles.avatarImg} />
+            ) : (
+              <span className={styles.avatarPlus}>+</span>
+            )}
+          </div>
+          <div className={styles.userInfo}>
+            <div className={styles.leftName}>{formData.fullName || "A.Baha Alimi"}</div>
+            <div className={styles.leftEmail}>{formData.email || "3llimi69@gmail.com"}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.rightPanel}>
+        <div className={styles.formContainer}>
+          <div className={styles.formGroup}>
+            <div className={styles.label}>Work Experience:</div>
+            <div className={styles.inputContainer}>
+              <input
+                className={styles.input}
+                name="position"
+                value={currentExp.position}
+                onChange={handleChange}
+                placeholder="Position"
+              />
+            </div>
+          </div>
+          <div className={styles.formGroup}>
+            <div className={styles.label}>Company:</div>
+            <div className={styles.inputContainer}>
+              <input
+                className={styles.input}
+                name="company"
+                value={currentExp.company}
+                onChange={handleChange}
+                placeholder="Company Name"
+              />
+            </div>
+          </div>
+          <div className={styles.formGroupRow}>
+            <div className={styles.formGroupHalf}>
+              <div className={styles.label}>Start Date:</div>
+              <div className={styles.inputContainer}>
+                <div className={styles.dateRow}>
+                  <div className={styles.dropdownContainer}>
+                    <button
+                      type="button"
+                      className={styles.dateDropdown}
+                      onClick={() => {
+                        closeAllDropdowns();
+                        setShowStartMonthDropdown(!showStartMonthDropdown);
+                      }}
+                    >
+                      <span className={styles.dropdownText}>
+                        {currentExp.startMonth || "Start"}
+                      </span>
+                      <Image
+                        src="/next_arrow.svg"
+                        alt="Dropdown"
+                        width={12}
+                        height={12}
+                        className={`${styles.dropdownArrow} ${showStartMonthDropdown ? styles.rotated : ''}`}
+                      />
+                    </button>
+                    {showStartMonthDropdown && (
+                      <div className={styles.dropdownMenu}>
+                        {MONTHS.map((month) => (
+                          <button
+                            key={month}
+                            type="button"
+                            className={styles.dropdownItem}
+                            onClick={() => handleDropdownSelect("startMonth", month)}
+                          >
+                            {month}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className={styles.dropdownContainer}>
+                    <button
+                      type="button"
+                      className={styles.dateDropdown}
+                      onClick={() => {
+                        closeAllDropdowns();
+                        setShowStartYearDropdown(!showStartYearDropdown);
+                      }}
+                    >
+                      <span className={styles.dropdownText}>
+                        {currentExp.startYear || "Year"}
+                      </span>
+                      <Image
+                        src="/next_arrow.svg"
+                        alt="Dropdown"
+                        width={12}
+                        height={12}
+                        className={`${styles.dropdownArrow} ${showStartYearDropdown ? styles.rotated : ''}`}
+                      />
+                    </button>
+                    {showStartYearDropdown && (
+                      <div className={styles.dropdownMenu}>
+                        {YEARS.map((year) => (
+                          <button
+                            key={year}
+                            type="button"
+                            className={styles.dropdownItem}
+                            onClick={() => handleDropdownSelect("startYear", year)}
+                          >
+                            {year}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className={styles.formGroupHalf}>
+              <div className={styles.label}>End Date:</div>
+              <div className={styles.inputContainer}>
+                <div className={styles.dateRow}>
+                  <div className={styles.dropdownContainer}>
+                    <button
+                      type="button"
+                      className={styles.dateDropdown}
+                      onClick={() => {
+                        closeAllDropdowns();
+                        setShowEndMonthDropdown(!showEndMonthDropdown);
+                      }}
+                    >
+                      <span className={styles.dropdownText}>
+                        {currentExp.endMonth || "End"}
+                      </span>
+                      <Image
+                        src="/next_arrow.svg"
+                        alt="Dropdown"
+                        width={12}
+                        height={12}
+                        className={`${styles.dropdownArrow} ${showEndMonthDropdown ? styles.rotated : ''}`}
+                      />
+                    </button>
+                    {showEndMonthDropdown && (
+                      <div className={styles.dropdownMenu}>
+                        {MONTHS.map((month) => (
+                          <button
+                            key={month}
+                            type="button"
+                            className={styles.dropdownItem}
+                            onClick={() => handleDropdownSelect("endMonth", month)}
+                          >
+                            {month}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className={styles.dropdownContainer}>
+                    <button
+                      type="button"
+                      className={styles.dateDropdown}
+                      onClick={() => {
+                        closeAllDropdowns();
+                        setShowEndYearDropdown(!showEndYearDropdown);
+                      }}
+                    >
+                      <span className={styles.dropdownText}>
+                        {currentExp.endYear || "Year"}
+                      </span>
+                      <Image
+                        src="/next_arrow.svg"
+                        alt="Dropdown"
+                        width={12}
+                        height={12}
+                        className={`${styles.dropdownArrow} ${showEndYearDropdown ? styles.rotated : ''}`}
+                      />
+                    </button>
+                    {showEndYearDropdown && (
+                      <div className={styles.dropdownMenu}>
+                        {YEARS.map((year) => (
+                          <button
+                            key={year}
+                            type="button"
+                            className={styles.dropdownItem}
+                            onClick={() => handleDropdownSelect("endYear", year)}
+                          >
+                            {year}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className={styles.formGroup}>
+            <div className={styles.label}>Work Description:</div>
+            <div className={styles.textareaContainer}>
+              <textarea
+                className={styles.textarea}
+                name="description"
+                value={currentExp.description}
+                onChange={handleChange}
+                placeholder="Work Description"
+                maxLength={300}
+              />
+            </div>
+          </div>
+          {error && (
+            <div className={styles.errorMessage}>{error}</div>
+          )}
+        </div>
+        <div className={styles.buttonContainer}>
+          <button className={styles.addAnotherButton} onClick={handleAddAnother} type="button">
+            <span className={styles.addAnotherText}>
+              ADD<br />ANOTHER
+            </span>
+            <Image
+              src="/add_circle.svg"
+              alt="Add"
+              width={35}
+              height={35}
+              className={styles.addIcon}
+            />
+          </button>
+          <button className={styles.backButton} onClick={onBack} type="button">
+            <Image
+              src="/next_arrow.svg"
+              alt="Back"
+              width={20}
+              height={20}
+              className={styles.backIcon}
+            />
+            Back
+          </button>
+          <button className={styles.finishButton} onClick={handleFinish} type="button">
+            Finish
+            <Image
+              src="/next_arrow.svg"
+              alt="Finish"
+              width={20}
+              height={20}
+              className={styles.nextIcon}
+            />
+          </button>
+        </div>
+      </div>
+      <ToastContainer aria-label="Error notification" />
+    </div>
+  );
+}
