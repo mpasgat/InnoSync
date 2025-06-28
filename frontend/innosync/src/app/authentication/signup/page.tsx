@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 export default function SignUp() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    
+
     name: '',
     surname: '',
     middleName: '',
@@ -126,12 +126,26 @@ export default function SignUp() {
             <div className={styles.name__inputs}>
               <div className={styles.name}>
                 <p className={styles.label}>Name</p>
-                <input type="text" name="name" placeholder="Name" className={`${styles.name__input} ${errors.name ? styles.error : ''}`} value={formData.name} onChange={handleChange} />
+                <div className={styles.inputWrapper}>
+                  <input type="text" name="name" placeholder="Name" className={`${styles.name__input} ${errors.name ? styles.error : ''}`} value={formData.name} onChange={handleChange} />
+                  {errors.name && (
+                    <span className={styles.inputErrorIcon}>
+                      <img src="/error_icon.svg" alt="error" width={16} height={16} />
+                    </span>
+                  )}
+                </div>
                 {errors.name && <p className={styles.errorMessage}>Name is required</p>}
               </div>
               <div className={styles.surname}>
                 <p className={styles.label}>Surname</p>
-                <input type="text" name="surname" placeholder="Surname" className={`${styles.name__input} ${errors.surname ? styles.error : ''}`} value={formData.surname} onChange={handleChange} />
+                <div className={styles.inputWrapper}>
+                  <input type="text" name="surname" placeholder="Surname" className={`${styles.name__input} ${errors.surname ? styles.error : ''}`} value={formData.surname} onChange={handleChange} />
+                  {errors.surname && (
+                    <span className={styles.inputErrorIcon}>
+                      <img src="/error_icon.svg" alt="error" width={16} height={16} />
+                    </span>
+                  )}
+                </div>
                 {errors.surname && <p className={styles.errorMessage}>Surname is required</p>}
               </div>
               <div className={styles.middlename}>
@@ -141,26 +155,44 @@ export default function SignUp() {
             </div>
             <div className={styles.email}>
               <p className={styles.label}>Email</p>
-              <input type="text" name="email" placeholder="Email" className={`${styles.input} ${errors.email ? styles.error : ''}`} value={formData.email} onChange={handleChange} />
+              <div className={styles.inputWrapper}>
+                <input type="text" name="email" placeholder="Email" className={`${styles.input} ${errors.email ? styles.error : ''}`} value={formData.email} onChange={handleChange} />
+                {errors.email && (
+                  <span className={styles.inputErrorIcon}>
+                    <img src="/error_icon.svg" alt="error" width={18} height={18} />
+                  </span>
+                )}
+              </div>
               {errors.email && <p className={styles.errorMessage}>Email is required</p>}
             </div>
             <div className={styles.password}>
               <p className={styles.label}>Password</p>
-              <input type="password" name="password" placeholder="Password" className={`${styles.input} ${errors.password ? styles.error : ''}`} value={formData.password} onChange={handleChange} />
+              <div className={styles.inputWrapper}>
+                <input type="password" name="password" placeholder="Password" className={`${styles.input} ${errors.password ? styles.error : ''}`} value={formData.password} onChange={handleChange} />
+                {errors.password && (
+                  <span className={styles.inputErrorIcon}>
+                    <img src="/error_icon.svg" alt="error" width={18} height={18} />
+                  </span>
+                )}
+              </div>
               {errors.password && <p className={styles.errorMessage}>Password is required</p>}
             </div>
             <div className={styles.confirm_password}>
               <p className={styles.label}>Confirm Password</p>
-              <input type="Password" name="confirmPassword" placeholder="Password" className={`${styles.input} ${errors.confirmPassword || errors.passwordMatch ? styles.error : ''}`} value={formData.confirmPassword} onChange={handleChange} />
+              <div className={styles.inputWrapper}>
+                <input type="Password" name="confirmPassword" placeholder="Password" className={`${styles.input} ${(errors.confirmPassword || errors.passwordMatch) ? styles.error : ''}`} value={formData.confirmPassword} onChange={handleChange} />
+                {(errors.confirmPassword || errors.passwordMatch) && (
+                  <span className={styles.inputErrorIcon}>
+                    <img src="/error_icon.svg" alt="error" width={18} height={18} />
+                  </span>
+                )}
+              </div>
               {errors.confirmPassword && <p className={styles.errorMessage}>Please confirm your password</p>}
               {errors.passwordMatch && <p className={styles.errorMessage}>Passwords don&apos;t match</p>}
             </div>
           </div>
           <button type="submit" className={styles.submit__btn}>Continue</button>
         </form>
-      </div>
-      <div className={styles.terms__container}>
-        <p className={styles.terms}>By logging in with an account, you agree to Shorter.url&apos;s <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" className={styles.important}>Terms of service</a>, <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" className={styles.important}>Privacy Policy</a> and <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" className={styles.important}>Acceptable Use Policy</a></p>
       </div>
     </div>
   );

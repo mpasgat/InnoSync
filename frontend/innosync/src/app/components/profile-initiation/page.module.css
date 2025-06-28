@@ -1,0 +1,616 @@
+.container {
+  min-height: 100vh;
+  min-width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F2F4F8;
+  font-family: 'Montserrat', sans-serif;
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+
+.outerCard {
+  width: 1000px;
+  min-height: 500px;
+  transition: min-height 0.3s cubic-bezier(0.4,0,0.2,1), max-height 0.3s cubic-bezier(0.4,0,0.2,1), width 0.3s cubic-bezier(0.4,0,0.2,1), padding 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s cubic-bezier(0.4,0,0.2,1), background 0.3s cubic-bezier(0.4,0,0.2,1);
+  will-change: min-height, max-height, width, padding;
+  background: #E4E4E4;
+  box-shadow: 0px 4px 4px 4px rgba(0,0,0,0.25);
+  border-radius: 20px;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.leftPanel {
+  width: 400px;
+  min-height: 100%;
+  flex: 1 1 auto;
+  background: #FFF;
+  border-radius: 30px 0 0 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.avatarContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 37px;
+  width: 208px;
+}
+
+.avatarBox {
+  width: 208px;
+  height: 200px;
+  background: rgba(230,230,230,0.42);
+  border: 4px dashed #34A853;
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  padding: 0;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 100px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.avatarPlus {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 64px;
+  font-weight: 300;
+  color: #298217;
+  line-height: 78px;
+  text-align: center;
+  width: 37px;
+  height: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  width: 208px;
+}
+
+.leftName, .leftEmail {
+  width: 208px;
+  height: 24px;
+  font-family: 'Montserrat', sans-serif;
+  font-style: normal;
+  font-weight: 300;
+  font-size: 20px;
+  line-height: 24px;
+  text-align: center;
+  color: #000;
+}
+
+.leftEmail {
+  margin-top: 9px;
+}
+
+.rightPanel {
+  width: 598px;
+  min-height: 100%;
+  flex: 1 1 auto;
+  background: #FFF;
+  border-radius: 0 30px 30px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 27px 61px 24px 61px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 475px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.formGroupRow {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+}
+
+.formGroupHalf {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 230px;
+}
+
+.label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: #000;
+  line-height: 24px;
+}
+
+.inputContainer {
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  height: 40px;
+  background: #FFF;
+  border: 2px solid #A6A6A6;
+  border-radius: 5px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 20px;
+  color: #A6A6A6;
+  padding: 8px 24px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+.input:focus {
+  border-color: #298217;
+  color: #222;
+  outline: none;
+}
+
+.input::placeholder {
+  color: #A6A6A6;
+}
+
+.textareaContainer {
+  width: 100%;
+}
+
+.textarea {
+  width: 100%;
+  height: 119px;
+  background: #FFF;
+  border: 2px solid #298217;
+  border-radius: 5px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  color: #A6A6A6;
+  padding: 8px 16px;
+  resize: none;
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+}
+
+.textarea:focus {
+  outline: none;
+  color: #222;
+}
+
+.textarea::placeholder {
+  color: #A6A6A6;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  gap: 10px;
+}
+
+.nextButton {
+  width: 100px;
+  height: 40px;
+  background: #298217;
+  border-radius: 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  color: #FFF;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 26px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.nextButton:hover {
+  background: #206c15;
+}
+
+.nextIcon {
+  filter: brightness(0) invert(1);
+}
+
+.resumeUploadBtn {
+  width: 230px;
+  display: block;
+  background: #fff;
+  color: #298217;
+  border: 1.5px solid #298217;
+  border-radius: 30px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 7px 57px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  align-self: center;
+}
+
+.resumeUploadBtn:hover {
+  background: #298217;
+  color: #fff;
+}
+
+.centeredRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+@media (max-width: 1100px) {
+  .outerCard {
+    width: 900px;
+    min-height: 450px;
+    transition: min-height 0.2s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .leftPanel, .rightPanel {
+    width: 50%;
+  }
+
+  .input, .textarea {
+    width: 95%;
+  }
+}
+
+@media (max-width: 800px) {
+  .outerCard {
+    flex-direction: column;
+    width: 90vw;
+    height: auto;
+    max-width: 500px;
+  }
+
+  .leftPanel, .rightPanel {
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .rightPanel {
+    padding: 20px;
+  }
+
+  .input, .textarea {
+    width: 100%;
+  }
+
+  .buttonContainer {
+    margin-top: 20px;
+  }
+}
+
+/* Step 2 Specific Styles */
+.techContainer {
+  width: 100%;
+  min-height: 40px;
+  background: #FFF;
+  border: 2px solid #A6A6A6;
+  border-radius: 5px;
+  padding: 8px 10px 8px 24px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+.techTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  width: 100%;
+}
+
+.techTag {
+  background: #298217;
+  border-radius: 20px;
+  padding: 3px 14px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 25px;
+}
+
+.techText {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  color: #FFF;
+  line-height: 18px;
+}
+
+.removeBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+}
+
+.closeIcon {
+  filter: brightness(0) invert(1);
+}
+
+.dropdownContainer {
+  position: relative;
+  width: 100%;
+}
+
+.dropdown {
+  width: 100%;
+  height: 40px;
+  background: #FFF;
+  border: 2px solid #A6A6A6;
+  border-radius: 5px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 15px;
+  color: #A6A6A6;
+  padding: 8px 24px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dropdown:hover {
+  border-color: #298217;
+}
+
+.dropdown.fullWidth {
+  width: 100%;
+}
+
+.dropdownText {
+  flex: 1;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  color: #A6A6A6;
+}
+
+.dropdownArrow {
+  transition: transform 0.2s;
+  filter: invert(0.5);
+}
+
+.dropdownArrow.rotated {
+  transform: rotate(90deg);
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #FFF;
+  border: 2px solid #A6A6A6;
+  border-top: none;
+  border-radius: 0 0 5px 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dropdownMenu.fullWidth {
+  width: 100%;
+}
+
+.dropdownItem {
+  width: 100%;
+  padding: 8px 24px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 15px;
+  color: #222;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.dropdownItem:hover {
+  background: #f8f9fa;
+}
+
+.dropdownItem:last-child {
+  border-bottom: none;
+}
+
+.backButton {
+  width: 100px;
+  height: 40px;
+  background: #298217;
+  border-radius: 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  color: #FFF;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 26px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.backButton:hover {
+  background: #206c15;
+}
+
+.backIcon {
+  filter: brightness(0) invert(1);
+  transform: rotate(180deg);
+}
+
+/* Step 3 Specific Styles */
+.dateRow {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.dateDropdown {
+  flex: 1;
+  height: 40px;
+  background: #FFF;
+  border: 2px solid #A6A6A6;
+  border-radius: 5px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 15px;
+  color: #A6A6A6;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dateDropdown:hover {
+  border-color: #298217;
+}
+
+.step3ButtonContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  padding-top: 20px;
+}
+
+.leftButtons {
+  display: flex;
+  align-items: center;
+}
+
+.rightButtons {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.addAnotherButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  margin-right: 16px;
+  transition: opacity 0.2s;
+}
+
+.addAnotherButton:hover {
+  opacity: 0.8;
+}
+
+.addAnotherText {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: #34A853;
+  line-height: 18px;
+  text-align: left;
+}
+
+.addIcon {
+  width: 35px;
+  height: 35px;
+  color: #34A853;
+  filter: none;
+}
+
+.finishButton {
+  width: 100px;
+  height: 40px;
+  background: #298217;
+  border-radius: 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  color: #FFF;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 26px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.finishButton:hover {
+  background: #206c15;
+}
+
+.errorMessage {
+  color: #dc2626;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  opacity: 0;
+  animation: fadeInError 0.4s ease forwards;
+}
+
+@keyframes fadeInError {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
