@@ -1,0 +1,385 @@
+.profilePanel {
+  width: 450px;
+  height: 983px;
+  background: #FFFFFF;
+  box-shadow: 0px 4px 4px 2px rgba(0, 0, 0, 0.25);
+  position: fixed;
+  left: 0;
+  top: 100px;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.profileHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  width: 375px;
+  margin: 38px 37px 0;
+}
+
+.profileImage {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.profileImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 209px;
+}
+
+.profileName {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.219;
+  color: #000;
+  margin: 0;
+}
+
+.profileEmail {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  align-self: stretch;
+}
+
+.emailIcon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emailText {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.219;
+  color: #000;
+  text-align: center;
+}
+
+.socialLinks {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.socialLink {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.socialIcon {
+  width: 15px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.socialLink span {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.219;
+  color: #000;
+}
+
+.profileDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 364px;
+  margin: 40px 59px 0;
+}
+
+.bioSection {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  gap: 4px;
+}
+
+.bioText {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 13px;
+  line-height: 1.219;
+  color: #000;
+  margin: 0;
+  align-self: stretch;
+}
+
+.skillsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 262px;
+}
+
+.skillsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sectionTitle {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.219;
+  color: #000;
+  margin: 0;
+  align-self: stretch;
+}
+
+.skillTags {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: stretch;
+  gap: 4px;
+}
+
+.tagRow {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  gap: 3px;
+}
+
+.skillTag {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  background: #298217;
+  color: #fff;
+  padding: 2px 5px;
+  border-radius: 10px;
+  height: 25px;
+  box-sizing: border-box;
+}
+
+.tagContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+/* Specific widths for different tags based on Figma */
+.frontendDev {
+  width: 125px;
+}
+
+.sysAdmin,
+.dbAdmin,
+.postgresql {
+  width: 104px;
+}
+
+.angular {
+  width: 89px;
+}
+
+.react,
+.vue {
+  width: 71px;
+}
+
+.docker,
+.figma,
+.svelte,
+.python {
+  width: 75px;
+}
+
+.git {
+  width: 54px;
+}
+
+.tagText {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.219;
+  color: #fff;
+  text-align: center;
+}
+
+.removeTag {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  width: 15px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.removeTag:hover {
+  opacity: 0.8;
+}
+
+.addTag {
+  width: 20px;
+  height: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.addTag:hover {
+  opacity: 0.8;
+}
+
+.settingsSection {
+  margin-top: 20px;
+}
+
+.settingItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settingLabel {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.219;
+  letter-spacing: -1%;
+  color: #000;
+}
+
+.toggleSwitch {
+  position: relative;
+  margin-left: auto;
+}
+
+.toggleSwitch input[type="checkbox"] {
+  display: none;
+}
+
+.toggleLabel {
+  display: block;
+  width: 62px;
+  height: 24px;
+  background: #a6a6a6;
+  border-radius: 60px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.toggleLabel::after {
+  content: '';
+  position: absolute;
+  top: 2.5px;
+  left: 2.12px;
+  width: 19.31px;
+  height: 19.2px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+.toggleSwitch input[type="checkbox"]:checked + .toggleLabel {
+  background: #298217;
+}
+
+.toggleSwitch input[type="checkbox"]:checked + .toggleLabel::after {
+  transform: translateX(38px);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .profilePanel {
+    position: static;
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    margin-bottom: 20px;
+    left: 0;
+    top: 0;
+  }
+
+  .profileHeader {
+    flex-direction: row;
+    align-items: center;
+    margin: 20px;
+    width: auto;
+  }
+
+  .profileImage {
+    width: 100px;
+    height: 100px;
+  }
+
+  .profileDetails {
+    margin: 20px;
+    width: auto;
+  }
+
+  .skillsSection {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .profilePanel {
+    padding: 20px;
+  }
+
+  .profileHeader {
+    flex-direction: column;
+    text-align: center;
+    margin: 20px;
+  }
+
+  .profileDetails {
+    margin: 20px;
+  }
+
+  .bioText {
+    font-size: 16px;
+  }
+
+  .sectionTitle {
+    font-size: 18px;
+  }
+
+  .tagRow {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}

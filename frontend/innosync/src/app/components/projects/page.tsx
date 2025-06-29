@@ -487,7 +487,6 @@ const FindProjectPage = () => {
 
   return (
     <div className={styles.pageContainer}>
-      <ToastContainer aria-label="Notification" toastClassName="custom-toast" />
       <SearchBar tags={selectedTags} onRemoveTag={handleRemoveTag} onAddTag={handleAddTag} />
       <div className={styles.mainContainer}>
         <FilterSidebar skills={requiredSkills} onAddSkill={handleAddSkill} onRemoveSkill={handleRemoveSkill} />
@@ -500,6 +499,7 @@ const FindProjectPage = () => {
         </main>
         <ProjectDescription project={selectedProject} />
       </div>
+      <ToastContainer />
     </div>
   );
 };
