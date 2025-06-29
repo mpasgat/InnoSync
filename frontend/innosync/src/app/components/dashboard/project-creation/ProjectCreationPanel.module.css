@@ -1,0 +1,461 @@
+/** Figma-perfect Project Creation Panel Styles **/
+
+.overlay {
+  position: static;
+  top: unset;
+  right: unset;
+  width: 100%;
+  height: 100%;
+  z-index: auto;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  background: none;
+  transition: none;
+  transform: none;
+}
+
+.panel {
+  background: rgba(206, 206, 206, 0.06);
+  backdrop-filter: blur(10px);
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  padding: 24px 20px;
+  max-width: 575px;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  overflow-y: auto;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.closeButton {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #9EA3A9;
+  cursor: pointer;
+  z-index: 1;
+  transition: color 0.2s;
+  font-family: 'Montserrat', sans-serif;
+}
+.closeButton:hover {
+  color: #298217;
+}
+
+.title {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 36px;
+  color: #000;
+  margin-bottom: 0;
+  margin-top: 0;
+  line-height: 1.22;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.rowGroup {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.rowGroup .fieldGroup {
+  flex: 1;
+}
+
+.panel input,
+.panel textarea {
+  background: #fff;
+  border: 2px solid #D9D9D9;
+  border-radius: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 15px;
+  color: #000;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border 0.2s;
+  width: 100%;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.panel select {
+  background: #ffffff;
+  border: 2px solid #a6a6a6;
+  border-radius: 5px;
+  padding: 8px 15px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 15px;
+  color: #a6a6a6;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2345413C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 16px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border 0.2s;
+  width: 100%;
+  height: 40px;
+}
+
+.panel textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.panel input:focus,
+.panel textarea:focus {
+  border-color: #298217;
+}
+
+.panel select:focus {
+  border-color: #298217;
+  color: #000;
+}
+
+.panel select.hasValue {
+  color: #000;
+}
+
+
+
+.panel input::placeholder,
+.panel textarea::placeholder {
+  color: rgba(0, 0, 0, 0.5);
+  opacity: 1;
+}
+
+.panel label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: #000;
+  margin-bottom: 0;
+}
+
+.positionInput {
+  background: #fff;
+  border: 2px solid #D9D9D9;
+  border-radius: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 15px;
+  color: #000;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border 0.2s;
+  width: 100%;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.positionInput:focus {
+  border-color: #298217;
+}
+
+.positionInput::placeholder {
+  color: rgba(0, 0, 0, 0.5);
+  opacity: 1;
+}
+
+.positionsChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.chip {
+  background: #298217;
+  color: #fff;
+  border-radius: 15px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-family: 'Montserrat', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 400;
+  gap: 8px;
+  height: 30px;
+  box-sizing: border-box;
+  border: none;
+}
+
+.chipRemove {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+  font-weight: bold;
+}
+
+.chipRemove:hover {
+  background: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: scale(1.1);
+}
+
+.chipRemoveIcon {
+  filter: brightness(0) invert(1);
+  pointer-events: none;
+}
+
+/* Team Members Styles */
+.teamMembersContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  width: 100%;
+}
+
+.memberSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.memberHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.positionTag {
+  background: #298217;
+  color: #fff;
+  border-radius: 10px;
+  padding: 2px 5px;
+  font-size: 13px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  text-align: center;
+  min-width: 115px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skillsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.skillTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.skillTag {
+  background: #298217;
+  color: #fff;
+  border-radius: 10px;
+  padding: 2px 5px;
+  font-size: 13px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  height: 25px;
+  min-width: 60px;
+  box-sizing: border-box;
+}
+
+.skillRemove {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 15px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+  font-weight: bold;
+}
+
+.skillRemove:hover {
+  background: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: scale(1.1);
+}
+
+.skillRemoveIcon {
+  filter: brightness(0) invert(1);
+  pointer-events: none;
+}
+
+.skillInput {
+  background: #fff;
+  border: 2px solid #D9D9D9;
+  border-radius: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 15px;
+  color: #000;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border 0.2s;
+  width: 100%;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.skillInput:focus {
+  border-color: #298217;
+}
+
+.skillInput::placeholder {
+  color: rgba(0, 0, 0, 0.5);
+  opacity: 1;
+}
+
+.toggleGroup {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: #000;
+  letter-spacing: -0.01em;
+}
+
+.toggleSwitch {
+  position: relative;
+  width: 62px;
+  height: 24px;
+  background: #A6A6A6;
+  border-radius: 60px;
+  transition: background 0.3s;
+  cursor: pointer;
+}
+
+.toggleSwitch.checked {
+  background: #298217;
+}
+
+.toggleHandle {
+  position: absolute;
+  top: 2.5px;
+  left: 2.13px;
+  width: 19.31px;
+  height: 19.2px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+.toggleSwitch.checked .toggleHandle {
+  transform: translateX(38px);
+}
+
+.submitButton {
+  background: #298217;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 26px;
+  cursor: pointer;
+  transition: background 0.2s;
+  align-self: flex-end;
+  min-width: 190px;
+  height: 40px;
+}
+
+.submitButton:hover {
+  background: #206915;
+}
+
+.buttonRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.backButton {
+  background: #fff;
+  color: #298217;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  border: 2px solid #298217;
+  border-radius: 10px;
+  padding: 8px 26px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 120px;
+  height: 40px;
+}
+
+.backButton:hover {
+  background: #298217;
+  color: #fff;
+}
+
+@media (max-width: 600px) {
+  .panel {
+    max-width: 100%;
+    padding: 20px 16px;
+  }
+
+  .rowGroup {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .submitButton {
+    align-self: stretch;
+  }
+}

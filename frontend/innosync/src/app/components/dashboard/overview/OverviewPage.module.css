@@ -1,0 +1,89 @@
+/* Overview Page Specific Styles */
+
+.overviewContent {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.overviewContent h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 32px;
+  color: #000;
+  margin: 0 0 16px 0;
+}
+
+.overviewContent p {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px;
+  color: #666;
+  line-height: 1.5;
+  margin: 0 0 32px 0;
+}
+
+.overviewStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 32px;
+}
+
+.statCard {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.statCard h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: #666;
+  margin: 0 0 12px 0;
+}
+
+.statCard .statNumber {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 36px;
+  color: #298217;
+  margin: 0;
+}
+
+.tabPane h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 28px;
+  color: #000;
+  margin: 0 0 16px 0;
+}
+
+.tabPane p {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  color: #666;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Responsive Design for Overview Page */
+@media (max-width: 768px) {
+  .overviewStats {
+    grid-template-columns: 1fr;
+  }
+
+  .statCard {
+    margin-bottom: 16px;
+  }
+}
