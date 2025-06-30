@@ -106,7 +106,7 @@ public class ProfileService {
         response.setEducation(profile.getEducation());
         response.setExpertise(profile.getExpertise());
         response.setExpertiseLevel(profile.getExpertiseLevel());
-//        response.setResume(profile.getResume());
+        response.setId(profile.getId());
 
         // Опыт работы
         List<WorkExperienceResponse> experienceResponses = workExperienceRepository.findByProfile(profile).stream()
