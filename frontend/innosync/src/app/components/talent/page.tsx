@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import styles from "./page.module.css";
-import Navbar from "../navbar/page_logged_in";
+//import Navbar from "../navbar/page_logged_in";
 
 interface Candidate {
   id: string;
@@ -106,7 +106,7 @@ export default function CandidateListing() {
 
   return (
     <div className={styles.container}>
-      <Navbar />
+      {/* <Navbar /> */}
       <div className={styles.projectListing}>
         {/* Sidebar */}
         <div className={styles.sidebar}>

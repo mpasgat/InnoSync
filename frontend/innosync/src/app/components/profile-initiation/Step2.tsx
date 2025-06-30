@@ -21,9 +21,9 @@ type Step2Props = {
   onBack: () => void;
 };
 
-const EXPERTISE_LEVELS = ["Beginner", "Intermediate", "Advanced", "Expert"];
+const EXPERTISE_LEVELS = ["ENTRY", "JUNIOR", "MID", "SENIOR", "RESEARCHER"];
 const EXPERIENCE_YEARS = ["< 1 year", "1-2 years", "3-5 years", "5+ years"];
-const EDUCATION_DEGREES = ["High School", "Bachelor's", "Master's", "PhD", "Bootcamp", "Self-taught"];
+const EDUCATION_DEGREES = ["NO_DEGREE", "BACHELOR", "MASTER", "PHD"];
 
 export default function Step2({ formData, setFormData, onNext, onBack }: Step2Props) {
   const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
