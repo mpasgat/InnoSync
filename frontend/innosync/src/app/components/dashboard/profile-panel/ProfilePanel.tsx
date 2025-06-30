@@ -1,23 +1,63 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from "./ProfilePanel.module.css";
 
+interface ProfileData {
+  email: string;
+  fullName: string;
+  telegram: string;
+  github: string;
+  bio: string;
+  position: string;
+  education: string;
+  expertise: string;
+  expertiseLevel: string;
+  resume: string;
+  workExperience: Array<{
+    startDate: string;
+    endDate: string;
+    position: string;
+    company: string;
+    description: string;
+  }>;
+  technologies: string[];
+}
+
 export default function ProfilePanel() {
-  const [positions, setPositions] = useState([
-    "Frontend Dev",
-    "Sys Admin",
-    "DB Admin"
-  ]);
-
-  const [technologies, setTechnologies] = useState([
-    "Angular", "React", "Vue", "PostgreSQL",
-    "Docker", "Figma", "Git", "Svelte", "Python"
-  ]);
-
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [positions, setPositions] = useState<string[]>([]);
+  const [technologies, setTechnologies] = useState<string[]>([]);
   const [quickSyncEnabled, setQuickSyncEnabled] = useState(false);
+
+  useEffect(() => {
+    async function loadProfile() {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:8080/api/profile/me", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setProfile(data);
+          setPositions(data.position ? [data.position] : []);
+          setTechnologies(data.technologies || []);
+        } else {
+          console.log("Error loading profile:", res);
+          // handle error, maybe show a toast
+        }
+      } catch (err) {
+        console.log("Error loading profile:", err);
+        // handle error, maybe show a toast
+      }
+    }
+    loadProfile();
+  }, []);
 
   const removePosition = (index: number) => {
     setPositions(positions.filter((_, i) => i !== index));
@@ -27,7 +67,7 @@ export default function ProfilePanel() {
     setTechnologies(technologies.filter((_, i) => i !== index));
   };
 
-    const handleQuickSyncToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleQuickSyncToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
     const isEnabled = e.target.checked;
     setQuickSyncEnabled(isEnabled);
 
@@ -63,7 +103,7 @@ export default function ProfilePanel() {
         <div className={styles.profileImage}>
           <Image
             src="/profile_image.png"
-            alt="Ahmed Baha Eddine Alimi"
+            alt={profile ? profile.fullName : "Profile"}
             width={150}
             height={150}
             className={styles.profileImg}
@@ -71,7 +111,7 @@ export default function ProfilePanel() {
         </div>
         <div className={styles.profileInfo}>
           <h3 className={styles.profileName}>
-            Ahmed Baha Eddine<br />Alimi
+            {profile ? profile.fullName : "Loading..."}
           </h3>
           <div className={styles.profileEmail}>
             <div className={styles.emailIcon}>
@@ -82,7 +122,7 @@ export default function ProfilePanel() {
                 height={24}
               />
             </div>
-            <span className={styles.emailText}>3llimi69@gmail.com</span>
+            <span className={styles.emailText}>{profile ? profile.email : ""}</span>
           </div>
           <div className={styles.socialLinks}>
             <div className={styles.socialLink}>
@@ -94,7 +134,7 @@ export default function ProfilePanel() {
                   height={15}
                 />
               </div>
-              <span>@Allimi3</span>
+              <span>{profile ? profile.telegram : ""}</span>
             </div>
             <div className={styles.socialLink}>
               <div className={styles.socialIcon}>
@@ -105,7 +145,7 @@ export default function ProfilePanel() {
                   height={15}
                 />
               </div>
-              <span>3llimi</span>
+              <span>{profile ? profile.github : ""}</span>
             </div>
           </div>
         </div>
@@ -117,7 +157,7 @@ export default function ProfilePanel() {
         <div className={styles.bioSection}>
           <p className={styles.bioText}>
             <strong>Bio:</strong><br />
-            I am a Computer Science student at Innopolis University, studying on a full scholarship from the Russian Government. With a solid foundation in web and mobile development, coupled with experience in competitive programming, I have cultivated a diverse skill set through active participation in numerous hackathons and competitions. Always eager to learn and grow, I am constantly seeking new challenges and opportunities to apply my knowledge to real-world projects.
+            {profile ? profile.bio : ""}
           </p>
         </div>
 
@@ -128,56 +168,24 @@ export default function ProfilePanel() {
             <h4 className={styles.sectionTitle}>Positions:</h4>
             <div className={styles.skillTags}>
               <div className={styles.tagRow}>
-                <span className={`${styles.skillTag} ${styles.frontendDev}`}>
-                  <div className={styles.tagContent}>
-                    <span className={styles.tagText}>Frontend Dev</span>
-                    <button
-                      className={styles.removeTag}
-                      onClick={() => removePosition(0)}
-                    >
-                      <Image
-                        src="/close_icon.svg"
-                        alt="Remove"
-                        width={15}
-                        height={15}
-                      />
-                    </button>
-                  </div>
-                </span>
-                <span className={`${styles.skillTag} ${styles.sysAdmin}`}>
-                  <div className={styles.tagContent}>
-                    <span className={styles.tagText}>Sys Admin</span>
-                    <button
-                      className={styles.removeTag}
-                      onClick={() => removePosition(1)}
-                    >
-                      <Image
-                        src="/close_icon.svg"
-                        alt="Remove"
-                        width={15}
-                        height={15}
-                      />
-                    </button>
-                  </div>
-                </span>
-              </div>
-              <div className={styles.tagRow}>
-                <span className={`${styles.skillTag} ${styles.dbAdmin}`}>
-                  <div className={styles.tagContent}>
-                    <span className={styles.tagText}>DB Admin</span>
-                    <button
-                      className={styles.removeTag}
-                      onClick={() => removePosition(2)}
-                    >
-                      <Image
-                        src="/close_icon.svg"
-                        alt="Remove"
-                        width={15}
-                        height={15}
-                      />
-                    </button>
-                  </div>
-                </span>
+                {positions.map((pos, idx) => (
+                  <span key={pos} className={styles.skillTag}>
+                    <div className={styles.tagContent}>
+                      <span className={styles.tagText}>{pos}</span>
+                      <button
+                        className={styles.removeTag}
+                        onClick={() => removePosition(idx)}
+                      >
+                        <Image
+                          src="/close_icon.svg"
+                          alt="Remove"
+                          width={15}
+                          height={15}
+                        />
+                      </button>
+                    </div>
+                  </span>
+                ))}
                 <button className={styles.addTag}>
                   <Image
                     src="/add_circle.svg"
@@ -195,154 +203,24 @@ export default function ProfilePanel() {
             <h4 className={styles.sectionTitle}>Technologies:</h4>
             <div className={styles.skillTags}>
               <div className={styles.tagRow}>
-                <span className={`${styles.skillTag} ${styles.angular}`}>
-                  <div className={styles.tagContent}>
-                    <span className={styles.tagText}>Angular</span>
-                    <button
-                      className={styles.removeTag}
-                      onClick={() => removeTechnology(0)}
-                    >
-                      <Image
-                        src="/close_icon.svg"
-                        alt="Remove"
-                        width={15}
-                        height={15}
-                      />
-                    </button>
-                  </div>
-                </span>
-                <span className={`${styles.skillTag} ${styles.react}`}>
-                  <div className={styles.tagContent}>
-                    <span className={styles.tagText}>React</span>
-                    <button
-                      className={styles.removeTag}
-                      onClick={() => removeTechnology(1)}
-                    >
-                      <Image
-                        src="/close_icon.svg"
-                        alt="Remove"
-                        width={15}
-                        height={15}
-                      />
-                    </button>
-                  </div>
-                </span>
-                <span className={`${styles.skillTag} ${styles.vue}`}>
-                  <div className={styles.tagContent}>
-                    <span className={styles.tagText}>Vue</span>
-                    <button
-                      className={styles.removeTag}
-                      onClick={() => removeTechnology(2)}
-                    >
-                      <Image
-                        src="/close_icon.svg"
-                        alt="Remove"
-                        width={15}
-                        height={15}
-                      />
-                    </button>
-                  </div>
-                </span>
-              </div>
-              <div className={styles.tagRow}>
-                <span className={`${styles.skillTag} ${styles.postgresql}`}>
-                  <div className={styles.tagContent}>
-                    <span className={styles.tagText}>PostgreSQL</span>
-                    <button
-                      className={styles.removeTag}
-                      onClick={() => removeTechnology(3)}
-                    >
-                      <Image
-                        src="/close_icon.svg"
-                        alt="Remove"
-                        width={15}
-                        height={15}
-                      />
-                    </button>
-                  </div>
-                </span>
-                <span className={`${styles.skillTag} ${styles.docker}`}>
-                  <div className={styles.tagContent}>
-                    <span className={styles.tagText}>Docker</span>
-                    <button
-                      className={styles.removeTag}
-                      onClick={() => removeTechnology(4)}
-                    >
-                      <Image
-                        src="/close_icon.svg"
-                        alt="Remove"
-                        width={15}
-                        height={15}
-                      />
-                    </button>
-                  </div>
-                </span>
-                <span className={`${styles.skillTag} ${styles.figma}`}>
-                  <div className={styles.tagContent}>
-                    <span className={styles.tagText}>Figma</span>
-                    <button
-                      className={styles.removeTag}
-                      onClick={() => removeTechnology(5)}
-                    >
-                      <Image
-                        src="/close_icon.svg"
-                        alt="Remove"
-                        width={15}
-                        height={15}
-                      />
-                    </button>
-                  </div>
-                </span>
-              </div>
-              <div className={styles.tagRow}>
-                <span className={`${styles.skillTag} ${styles.git}`}>
-                  <div className={styles.tagContent}>
-                    <span className={styles.tagText}>Git</span>
-                    <button
-                      className={styles.removeTag}
-                      onClick={() => removeTechnology(6)}
-                    >
-                      <Image
-                        src="/close_icon.svg"
-                        alt="Remove"
-                        width={15}
-                        height={15}
-                      />
-                    </button>
-                  </div>
-                </span>
-                <span className={`${styles.skillTag} ${styles.svelte}`}>
-                  <div className={styles.tagContent}>
-                    <span className={styles.tagText}>Svelte</span>
-                    <button
-                      className={styles.removeTag}
-                      onClick={() => removeTechnology(7)}
-                    >
-                      <Image
-                        src="/close_icon.svg"
-                        alt="Remove"
-                        width={15}
-                        height={15}
-                      />
-                    </button>
-                  </div>
-                </span>
-                <span className={`${styles.skillTag} ${styles.python}`}>
-                  <div className={styles.tagContent}>
-                    <span className={styles.tagText}>Python</span>
-                    <button
-                      className={styles.removeTag}
-                      onClick={() => removeTechnology(8)}
-                    >
-                      <Image
-                        src="/close_icon.svg"
-                        alt="Remove"
-                        width={15}
-                        height={15}
-                      />
-                    </button>
-                  </div>
-                </span>
+                {technologies.map((tech, idx) => (
+                  <span key={tech} className={styles.skillTag}>
+                    <div className={styles.tagContent}>
+                      <span className={styles.tagText}>{tech}</span>
+                      <button
+                        className={styles.removeTag}
+                        onClick={() => removeTechnology(idx)}
+                      >
+                        <Image
+                          src="/close_icon.svg"
+                          alt="Remove"
+                          width={15}
+                          height={15}
+                        />
+                      </button>
+                    </div>
+                  </span>
+                ))}
                 <button className={styles.addTag}>
                   <Image
                     src="/add_circle.svg"

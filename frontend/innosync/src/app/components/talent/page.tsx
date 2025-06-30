@@ -163,7 +163,7 @@ export default function CandidateListing() {
 
         {/* Main content */}
         <div className={styles.mainContent}>
-          <div className={styles.projectsGrid}>
+          <div className={styles.projectsGrid} style={{ maxHeight: '70vh', overflowY: 'auto' }}>
             {filteredCandidates.length === 0 ? (
               <p>No matching candidates.</p>
             ) : (

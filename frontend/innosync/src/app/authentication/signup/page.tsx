@@ -91,6 +91,9 @@ export default function SignUp() {
       if (data.accessToken) {
         localStorage.setItem('token', data.accessToken);
       }
+      if (data.refreshToken) {
+        localStorage.setItem('refreshToken', data.refreshToken);
+      }
       router.push('/components/home');
 
       // You can redirect to login page here

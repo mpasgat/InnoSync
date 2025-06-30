@@ -59,6 +59,9 @@ export default function LoginPage() {
       if (data.accessToken) {
         localStorage.setItem('token', data.accessToken);
       }
+      if (data.refreshToken) {
+        localStorage.setItem('refreshToken', data.refreshToken);
+      }
       router.push('/components/home');
     } catch (err) {
       setGeneralError("Network error. Please try again later.");
