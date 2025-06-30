@@ -56,6 +56,9 @@ export default function LoginPage() {
 
       const data = await res.json();
       console.log("Login success:", data);
+      if (data.accessToken) {
+        localStorage.setItem('token', data.accessToken);
+      }
       router.push('/components/home');
     } catch (err) {
       setGeneralError("Network error. Please try again later.");

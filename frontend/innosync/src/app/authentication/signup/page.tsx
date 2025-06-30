@@ -88,6 +88,9 @@ export default function SignUp() {
       const data = await res.json();
       console.log('Signup successful:', data);
       alert('Signup successful!');
+      if (data.accessToken) {
+        localStorage.setItem('token', data.accessToken);
+      }
       router.push('/components/home');
 
       // You can redirect to login page here
