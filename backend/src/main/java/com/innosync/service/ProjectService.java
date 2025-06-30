@@ -2,6 +2,7 @@ package com.innosync.service;
 
 import com.innosync.dto.project.ProjectRequest;
 import com.innosync.dto.project.ProjectResponse;
+import com.innosync.dto.project.ProjectRoleResponse;
 import com.innosync.model.Project;
 import com.innosync.model.User;
 import com.innosync.repository.ProjectRepository;
