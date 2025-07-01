@@ -5,7 +5,7 @@ import Image from "next/image";
 interface FormData {
   fullName?: string;
   email?: string;
-  avatar?: string;
+  avatar?: File;
   position?: string;
   technologies?: string[];
   expertise?: string;
@@ -48,6 +48,15 @@ export default function Step2({ formData, setFormData, onNext, onBack }: Step2Pr
     setShowExperienceDropdown(false);
     setShowEducationDropdown(false);
   };
+
+  // const fileToBase64 = (file: File): Promise<string> => {
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     reader.onload = () => resolve(reader.result as string);
+  //     reader.onerror = reject;
+  //     reader.readAsDataURL(file);
+  //   });
+  // };
 
   const handleResumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
