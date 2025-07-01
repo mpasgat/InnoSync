@@ -17,16 +17,22 @@ public class JwtUtil {
     private final long expirationMs = 10 * 24 * 60 * 60 * 1000;
 
     public String generateToken(String email) {
+        long currentTimeMillis = System.currentTimeMillis();
+        
+        String subject = (email != null && email.isEmpty()) ? "<<EMPTY>>" : email;
+        
         return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+                .setSubject(subject)
+                .setIssuedAt(new Date(currentTimeMillis))
+                .setExpiration(new Date(currentTimeMillis + expirationMs))
+                .claim("nonce", System.nanoTime())
                 .signWith(secretKey)
                 .compact();
     }
 
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+        String subject = extractClaim(token, Claims::getSubject);
+        return "<<EMPTY>>".equals(subject) ? "" : subject;
     }
 
     public Date extractExpiration(String token) {
@@ -38,13 +44,16 @@ public class JwtUtil {
     }
 
     public boolean validateToken(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            return false;
+        }
         try {
             Jwts.parserBuilder()
                     .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token);
             return true;
-        } catch (JwtException e) {
+        } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
