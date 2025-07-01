@@ -1,8 +1,10 @@
+"use client";
 import React, { useState } from "react";
 import styles from "./page.module.css";
 import Image from "next/image";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useRouter } from "next/navigation";
 
 interface WorkExperience {
   position: string;
@@ -56,6 +58,7 @@ const initialWorkExp: WorkExperience = {
 
 export default function Step3({ formData, setFormData, onBack }: Step3Props) {
   const token = localStorage.getItem("token");
+  const router = useRouter();
   const [currentExp, setCurrentExp] = useState<WorkExperience>(initialWorkExp);
   const [showStartMonthDropdown, setShowStartMonthDropdown] = useState(false);
   const [showStartYearDropdown, setShowStartYearDropdown] = useState(false);
@@ -93,44 +96,6 @@ export default function Step3({ formData, setFormData, onBack }: Step3Props) {
     //let profilePictureRef = "";
     //let resumeRef = "";
 
-    // Upload avatar if present and is a File
-    if (formData.avatar && formData.avatar instanceof File) {
-      const formDataObj = new FormData();
-      formDataObj.append("file", formData.avatar);
-      const res = await fetch("http://localhost:8080/api/profile/upload-profile-picture", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-        body: formDataObj,
-      });
-      if (res.ok) {
-        //profilePictureRef = await res.json();
-        toast.success("Profile picture uploaded successfully!");
-      } else {
-        toast.error("Failed to upload profile picture.");
-      }
-    }
-
-    // Upload resume if present and is a File
-    if (formData.resume && formData.resume instanceof File) {
-      const formDataObj = new FormData();
-      formDataObj.append("file", formData.resume);
-      const res = await fetch("http://localhost:8080/api/profile/upload-resume", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-        body: formDataObj,
-      });
-      if (res.ok) {
-        //resumeRef = await res.json();
-        toast.success("Resume uploaded successfully!");
-      } else {
-        toast.error("Failed to upload resume.");
-      }
-    }
-
     const hasPartialData = Object.values(currentExp).some(value => value.trim() !== "");
 
     if (hasPartialData) {
@@ -167,7 +132,8 @@ export default function Step3({ formData, setFormData, onBack }: Step3Props) {
       technologies: formData.technologies || [],
     };
 
-    // Submit the profile
+    // 1. Submit the profile JSON
+    //let profileId = null;
     try {
       const response = await fetch("http://localhost:8080/api/profile", {
         method: "POST",
@@ -184,18 +150,63 @@ export default function Step3({ formData, setFormData, onBack }: Step3Props) {
         return;
       }
   
-      // **Final success message**
+      //const data = await response.json();
+      //profileId = data.id;
+  
       toast.success("Profile successfully created!", {
         position: 'top-center',
         autoClose: 2500,
       });
-  
-      // Optionally redirect or update UI here
-  
     } catch (err) {
       console.error("Submission error:", err);
       toast.error("Something went wrong. Please try again later.");
+      return;
     }
+
+    // 2. Upload avatar if present and is a File
+    if (formData.avatar && formData.avatar instanceof File) {
+      const formDataObj = new FormData();
+      formDataObj.append("file", formData.avatar);
+      const res = await fetch("http://localhost:8080/api/profile/upload-profile-picture", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+        body: formDataObj,
+      });
+      if (res.ok) {
+        //profilePictureRef = await res.json();
+        toast.success("Profile picture uploaded successfully!");
+      } else {
+        toast.error("Failed to upload profile picture.");
+        return;
+      }
+    }
+
+    // 3. Upload resume if present and is a File
+    if (formData.resume && formData.resume instanceof File) {
+      const formDataObj = new FormData();
+      formDataObj.append("file", formData.resume);
+      const res = await fetch("http://localhost:8080/api/profile/upload-resume", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+        body: formDataObj,
+      });
+      if (res.ok) {
+        //resumeRef = await res.json();
+        toast.success("Resume uploaded successfully!");
+      } else {
+        toast.error("Failed to upload resume.");
+        return;
+      }
+    }
+
+    // 4. Navigate to dashboard/overview if all succeeded
+    setTimeout(() => {
+      router.push("/dashboard/overview");
+    }, 1000);
   };
 
   const handleAddAnother = () => {

@@ -94,7 +94,7 @@ export default function SignUp() {
       if (data.refreshToken) {
         localStorage.setItem('refreshToken', data.refreshToken);
       }
-      router.push('/components/home');
+      router.push('/components/profile-initiation');
 
       // You can redirect to login page here
     } catch (err) {
