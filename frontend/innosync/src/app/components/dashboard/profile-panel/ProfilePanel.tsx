@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import styles from "./ProfilePanel.module.css";
 
 interface ProfileData {
+  id: number;
   email: string;
   fullName: string;
   telegram: string;
@@ -16,6 +17,7 @@ interface ProfileData {
   expertise: string;
   expertiseLevel: string;
   resume: string;
+  profilePicture: string;
   workExperience: Array<{
     startDate: string;
     endDate: string;
@@ -28,6 +30,8 @@ interface ProfileData {
 
 export default function ProfilePanel() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [profilePicUrl, setProfilePicUrl] = useState<string>("");
+  const [resumeUrl, setResumeUrl] = useState<string>("");
   const [positions, setPositions] = useState<string[]>([]);
   const [technologies, setTechnologies] = useState<string[]>([]);
   const [quickSyncEnabled, setQuickSyncEnabled] = useState(false);
@@ -47,13 +51,33 @@ export default function ProfilePanel() {
           setProfile(data);
           setPositions(data.position ? [data.position] : []);
           setTechnologies(data.technologies || []);
+
+          // Fetch profile picture
+          if (data.id) {
+            const picRes = await fetch(`http://localhost:8080/api/profile/${data.id}/picture`, {
+              headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (picRes.ok) {
+              // If backend returns a URL, use it directly. If it returns a blob, create an object URL.
+              const blob = await picRes.blob();
+              setProfilePicUrl(URL.createObjectURL(blob));
+            }
+
+            // Fetch resume
+            const resumeRes = await fetch(`http://localhost:8080/api/profile/${data.id}/resume`, {
+              headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (resumeRes.ok) {
+              const blob = await resumeRes.blob();
+              setResumeUrl(URL.createObjectURL(blob));
+            }
+          }
         } else {
-          console.log("Error loading profile:", res);
-          // handle error, maybe show a toast
+          toast.error("Failed to load profile.");
         }
       } catch (err) {
         console.log("Error loading profile:", err);
-        // handle error, maybe show a toast
+        toast.error("Error loading profile.");
       }
     }
     loadProfile();
@@ -102,7 +126,7 @@ export default function ProfilePanel() {
       <div className={styles.profileHeader}>
         <div className={styles.profileImage}>
           <Image
-            src="/profile_image.png"
+            src={profilePicUrl || "/profile_image.png"}
             alt={profile ? profile.fullName : "Profile"}
             width={150}
             height={150}
@@ -148,6 +172,14 @@ export default function ProfilePanel() {
               <span>{profile ? profile.github : ""}</span>
             </div>
           </div>
+          {/* Resume download link */}
+          {resumeUrl && (
+            <div style={{ marginTop: "10px" }}>
+              <a href={resumeUrl} download="resume.pdf" target="_blank" rel="noopener noreferrer">
+                Download Resume
+              </a>
+            </div>
+          )}
         </div>
       </div>
 

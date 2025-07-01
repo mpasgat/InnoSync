@@ -8,7 +8,7 @@ interface FormData {
   telegram?: string;
   github?: string;
   bio?: string;
-  avatar?: string;
+  avatar?: File;
 }
 
 type Step1Props = {
@@ -16,6 +16,15 @@ type Step1Props = {
   setFormData: (data: FormData) => void;
   onNext: () => void;
 };
+
+// const fileToBase64 = (file: File): Promise<string> => {
+//   return new Promise((resolve, reject) => {
+//     const reader = new FileReader();
+//     reader.onload = () => resolve(reader.result as string);
+//     reader.onerror = reject;
+//     reader.readAsDataURL(file);
+//   });
+// };
 
 export default function Step1({ formData, setFormData, onNext }: Step1Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -31,14 +40,7 @@ export default function Step1({ formData, setFormData, onNext }: Step1Props) {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const result = ev.target?.result;
-        if (typeof result === 'string') {
-          setFormData({ ...formData, avatar: result });
-        }
-      };
-      reader.readAsDataURL(file);
+      setFormData({ ...formData, avatar: file });
     }
   };
 
@@ -49,7 +51,13 @@ export default function Step1({ formData, setFormData, onNext }: Step1Props) {
           <div className={styles.avatarBox} onClick={handleAvatarClick}>
             {formData.avatar ? (
               <Image
-                src={formData.avatar}
+                src={
+                  typeof formData.avatar === "string"
+                    ? formData.avatar
+                    : formData.avatar
+                    ? URL.createObjectURL(formData.avatar)
+                    : ""
+                }
                 alt="avatar"
                 className={styles.avatarImg}
                 width={80}

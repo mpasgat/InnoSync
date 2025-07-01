@@ -17,7 +17,7 @@ interface WorkExperience {
 interface FormData {
   fullName?: string;
   email?: string;
-  avatar?: string;
+  avatar?: File;
   position?: string;
   technologies?: string[];
   expertise?: string;
@@ -68,6 +68,16 @@ export default function Step3({ formData, setFormData, onBack }: Step3Props) {
     if (error) setError("");
   };
 
+  // const fileToBase64 = (file: File): Promise<string> => {
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     reader.onload = () => resolve(reader.result as string);
+  //     reader.onerror = reject;
+  //     reader.readAsDataURL(file);
+  //   });
+  // };
+  
+
   const handleDropdownSelect = (field: keyof WorkExperience, value: string) => {
     setCurrentExp({ ...currentExp, [field]: value });
     setShowStartMonthDropdown(false);
@@ -77,98 +87,116 @@ export default function Step3({ formData, setFormData, onBack }: Step3Props) {
     if (error) setError("");
   };
 
-  // const handleFinish = () => {
-  //   // Check if there's any partial data in current form
-  //   const hasPartialData = Object.values(currentExp).some(value => value.trim() !== "");
 
-  //   if (hasPartialData) {
-  //     if (!currentExp.position || !currentExp.company || !currentExp.startMonth ||
-  //         !currentExp.startYear || !currentExp.endMonth || !currentExp.endYear) {
-  //       setError("Please complete the current work experience or clear it before finishing.");
-  //       return;
-  //     }
-  //     // Add the current experience if all fields are filled
-  //     setFormData({
-  //       ...formData,
-  //       workExperiences: [...(formData.workExperiences || []), currentExp],
-  //     });
-  //   }
 
-  //   // Submit or navigate to next step
-  //   alert("Profile setup complete! (Implement submission logic)");
-  // };
-
-  
   const handleFinish = async () => {
-  const hasPartialData = Object.values(currentExp).some(value => value.trim() !== "");
+    //let profilePictureRef = "";
+    //let resumeRef = "";
 
-  if (hasPartialData) {
-    if (!currentExp.position || !currentExp.company || !currentExp.startMonth ||
-        !currentExp.startYear || !currentExp.endMonth || !currentExp.endYear) {
-      setError("Please complete the current work experience or clear it before finishing.");
-      return;
+    // Upload avatar if present and is a File
+    if (formData.avatar && formData.avatar instanceof File) {
+      const formDataObj = new FormData();
+      formDataObj.append("file", formData.avatar);
+      const res = await fetch("http://localhost:8080/api/profile/upload-profile-picture", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+        body: formDataObj,
+      });
+      if (res.ok) {
+        //profilePictureRef = await res.json();
+        toast.success("Profile picture uploaded successfully!");
+      } else {
+        toast.error("Failed to upload profile picture.");
+      }
     }
-  }
-  const workExperiences = [
-    ...(formData.workExperiences || []),
-    ...(hasPartialData ? [currentExp] : [])
-  ];
 
-  // Hardcode startDate and endDate as '2025-06-30' for each work experience
-  const transformedWorkExperience = workExperiences.map(exp => ({
-    startDate: "2025-06-30",
-    endDate: "2025-06-30",
-    position: exp.position,
-    company: exp.company,
-    description: exp.description,
-  }));
+    // Upload resume if present and is a File
+    if (formData.resume && formData.resume instanceof File) {
+      const formDataObj = new FormData();
+      formDataObj.append("file", formData.resume);
+      const res = await fetch("http://localhost:8080/api/profile/upload-resume", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+        body: formDataObj,
+      });
+      if (res.ok) {
+        //resumeRef = await res.json();
+        toast.success("Resume uploaded successfully!");
+      } else {
+        toast.error("Failed to upload resume.");
+      }
+    }
 
-  // Ensure payload order matches the required schema
-  const payload = {
-    telegram: formData.telegram || "",
-    github: formData.github || "",
-    bio: formData.bio || "",
-    position: formData.position || "",
-    education: formData.education || "NO_DEGREE",
-    expertise: formData.expertise || "",
-    resume: "resumeforjob",
-    expertise_level: formData.expertiseLevel || "ENTRY",
-    work_experience: transformedWorkExperience,
-    technologies: formData.technologies || [],
+    const hasPartialData = Object.values(currentExp).some(value => value.trim() !== "");
+
+    if (hasPartialData) {
+      if (!currentExp.position || !currentExp.company || !currentExp.startMonth ||
+          !currentExp.startYear || !currentExp.endMonth || !currentExp.endYear) {
+        setError("Please complete the current work experience or clear it before finishing.");
+        return;
+      }
+    }
+    const workExperiences = [
+      ...(formData.workExperiences || []),
+      ...(hasPartialData ? [currentExp] : [])
+    ];
+
+    // Hardcode startDate and endDate as '2025-06-30' for each work experience
+    const transformedWorkExperience = workExperiences.map(exp => ({
+      startDate: "2025-06-30",
+      endDate: "2025-06-30",
+      position: exp.position,
+      company: exp.company,
+      description: exp.description,
+    }));
+
+    // Build the profile payload (no resume/profilePicture fields)
+    const payload = {
+      telegram: formData.telegram || "",
+      github: formData.github || "",
+      bio: formData.bio || "",
+      position: formData.position || "",
+      education: formData.education || "NO_DEGREE",
+      expertise: formData.expertise || "",
+      expertise_level: formData.expertiseLevel || "ENTRY",
+      work_experience: transformedWorkExperience,
+      technologies: formData.technologies || [],
+    };
+
+    // Submit the profile
+    try {
+      const response = await fetch("http://localhost:8080/api/profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        toast.error(`Error: ${errorData.message || "Failed to create user."}`);
+        return;
+      }
+  
+      // **Final success message**
+      toast.success("Profile successfully created!", {
+        position: 'top-center',
+        autoClose: 2500,
+      });
+  
+      // Optionally redirect or update UI here
+  
+    } catch (err) {
+      console.error("Submission error:", err);
+      toast.error("Something went wrong. Please try again later.");
+    }
   };
-
-  try {
-    console.log("Payload:", payload);
-
-    const response = await fetch("http://localhost:8080/api/profile", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      toast.error(`Error: ${errorData.message || "Failed to create user."}`);
-      return;
-    }
-
-    toast.success("Profile successfully created!", {
-      position: 'top-center',
-      autoClose: 2500,
-    });
-
-    // You can add navigation here if needed:
-    // router.push("/dashboard");
-
-  } catch (err) {
-    console.error("Submission error:", err);
-    toast.error("Something went wrong. Please try again later.");
-  }
-};
-
 
   const handleAddAnother = () => {
     if (!currentExp.position || !currentExp.company || !currentExp.startMonth ||
