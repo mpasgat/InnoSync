@@ -21,10 +21,13 @@ interface FormData {
   position?: string;
   technologies?: string[];
   expertise?: string;
-  experience?: string;
+  bio?: string;
   education?: string;
   resume?: File;
   workExperiences?: WorkExperience[];
+  telegram?: string;
+  github?: string;
+  expertiseLevel?: string
 }
 
 type Step3Props = {
@@ -50,7 +53,9 @@ const initialWorkExp: WorkExperience = {
   description: ""
 };
 
+
 export default function Step3({ formData, setFormData, onBack }: Step3Props) {
+  const token = localStorage.getItem("token");
   const [currentExp, setCurrentExp] = useState<WorkExperience>(initialWorkExp);
   const [showStartMonthDropdown, setShowStartMonthDropdown] = useState(false);
   const [showStartYearDropdown, setShowStartYearDropdown] = useState(false);
@@ -72,26 +77,98 @@ export default function Step3({ formData, setFormData, onBack }: Step3Props) {
     if (error) setError("");
   };
 
-  const handleFinish = () => {
-    // Check if there's any partial data in current form
-    const hasPartialData = Object.values(currentExp).some(value => value.trim() !== "");
+  // const handleFinish = () => {
+  //   // Check if there's any partial data in current form
+  //   const hasPartialData = Object.values(currentExp).some(value => value.trim() !== "");
 
-    if (hasPartialData) {
-      if (!currentExp.position || !currentExp.company || !currentExp.startMonth ||
-          !currentExp.startYear || !currentExp.endMonth || !currentExp.endYear) {
-        setError("Please complete the current work experience or clear it before finishing.");
-        return;
-      }
-      // Add the current experience if all fields are filled
-      setFormData({
-        ...formData,
-        workExperiences: [...(formData.workExperiences || []), currentExp],
-      });
+  //   if (hasPartialData) {
+  //     if (!currentExp.position || !currentExp.company || !currentExp.startMonth ||
+  //         !currentExp.startYear || !currentExp.endMonth || !currentExp.endYear) {
+  //       setError("Please complete the current work experience or clear it before finishing.");
+  //       return;
+  //     }
+  //     // Add the current experience if all fields are filled
+  //     setFormData({
+  //       ...formData,
+  //       workExperiences: [...(formData.workExperiences || []), currentExp],
+  //     });
+  //   }
+
+  //   // Submit or navigate to next step
+  //   alert("Profile setup complete! (Implement submission logic)");
+  // };
+
+  
+  const handleFinish = async () => {
+  const hasPartialData = Object.values(currentExp).some(value => value.trim() !== "");
+
+  if (hasPartialData) {
+    if (!currentExp.position || !currentExp.company || !currentExp.startMonth ||
+        !currentExp.startYear || !currentExp.endMonth || !currentExp.endYear) {
+      setError("Please complete the current work experience or clear it before finishing.");
+      return;
+    }
+  }
+  const workExperiences = [
+    ...(formData.workExperiences || []),
+    ...(hasPartialData ? [currentExp] : [])
+  ];
+
+  // Hardcode startDate and endDate as '2025-06-30' for each work experience
+  const transformedWorkExperience = workExperiences.map(exp => ({
+    startDate: "2025-06-30",
+    endDate: "2025-06-30",
+    position: exp.position,
+    company: exp.company,
+    description: exp.description,
+  }));
+
+  // Ensure payload order matches the required schema
+  const payload = {
+    telegram: formData.telegram || "",
+    github: formData.github || "",
+    bio: formData.bio || "",
+    position: formData.position || "",
+    education: formData.education || "NO_DEGREE",
+    expertise: formData.expertise || "",
+    resume: "resumeforjob",
+    expertise_level: formData.expertiseLevel || "ENTRY",
+    work_experience: transformedWorkExperience,
+    technologies: formData.technologies || [],
+  };
+
+  try {
+    console.log("Payload:", payload);
+
+    const response = await fetch("http://localhost:8080/api/profile", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      toast.error(`Error: ${errorData.message || "Failed to create user."}`);
+      return;
     }
 
-    // Submit or navigate to next step
-    alert("Profile setup complete! (Implement submission logic)");
-  };
+    toast.success("Profile successfully created!", {
+      position: 'top-center',
+      autoClose: 2500,
+    });
+
+    // You can add navigation here if needed:
+    // router.push("/dashboard");
+
+  } catch (err) {
+    console.error("Submission error:", err);
+    toast.error("Something went wrong. Please try again later.");
+  }
+};
+
 
   const handleAddAnother = () => {
     if (!currentExp.position || !currentExp.company || !currentExp.startMonth ||

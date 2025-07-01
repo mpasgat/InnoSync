@@ -106,7 +106,7 @@ public class ProfileService {
         response.setEducation(profile.getEducation());
         response.setExpertise(profile.getExpertise());
         response.setExpertiseLevel(profile.getExpertiseLevel());
-        response.setResume(profile.getResume());
+        response.setId(profile.getId());
 
         // Опыт работы
         List<WorkExperienceResponse> experienceResponses = workExperienceRepository.findByProfile(profile).stream()
@@ -130,5 +130,26 @@ public class ProfileService {
         response.setTechnologies(technologyNames);
 
         return response;
+    }
+
+
+    public Profile getProfileByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return profileRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Profile not found"));
+    }
+
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public void save(Profile profile) {
+        profileRepository.save(profile);
+    }
+
+    public Profile getProfileById(Long id) {
+        return profileRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Profile not found"));
     }
 }

@@ -2,6 +2,7 @@ package com.innosync.service;
 
 import com.innosync.dto.project.ProjectRequest;
 import com.innosync.dto.project.ProjectResponse;
+import com.innosync.dto.project.ProjectRoleResponse;
 import com.innosync.model.Project;
 import com.innosync.model.User;
 import com.innosync.repository.ProjectRepository;
@@ -25,6 +26,8 @@ public class ProjectService {
         Project project = Project.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
+                .projectType(request.getProjectType())
+                .teamSize(request.getTeamSize())
                 .recruiter(recruiter)
                 .build();
 
@@ -56,6 +59,8 @@ public class ProjectService {
         dto.setDescription(project.getDescription());
         dto.setCreatedAt(project.getCreatedAt());
         dto.setUpdatedAt(project.getUpdatedAt());
+        dto.setProjectType(project.getProjectType());
+        dto.setTeamSize(project.getTeamSize());
         return dto;
     }
 }
