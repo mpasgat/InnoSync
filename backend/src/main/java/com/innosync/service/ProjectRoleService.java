@@ -14,6 +14,8 @@ import com.innosync.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +40,7 @@ public class ProjectRoleService {
         this.technologyRepository = technologyRepository;
     }
     public ProjectRoleResponse addRoleToProject(Long projectId, ProjectRoleRequest request, String creatorEmail) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
 
         if (!project.getRecruiter().getEmail().equals(creatorEmail)) {
             throw new AccessDeniedException("You are not the creator of this project.");

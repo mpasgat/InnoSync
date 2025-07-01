@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -27,6 +28,9 @@ class ProjectRepositoryIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TestEntityManager entityManager;
 
     private User recruiter1;
     private User recruiter2;
@@ -175,13 +179,14 @@ class ProjectRepositoryIntegrationTest {
         LocalDateTime originalUpdatedAt = savedProject.getUpdatedAt();
 
         // Wait a bit to ensure timestamp difference
-        Thread.sleep(10);
+        Thread.sleep(100); // Increase sleep time
 
         // When
         savedProject.setTitle("Updated Title");
         savedProject.setDescription("Updated description");
         savedProject.setProjectType(ProjectType.ACADEMIC);
         Project updatedProject = projectRepository.save(savedProject);
+        entityManager.flush(); // Force flush to trigger @PreUpdate
 
         // Then
         assertThat(updatedProject.getTitle()).isEqualTo("Updated Title");

@@ -6,8 +6,10 @@ import com.innosync.model.*;
 import com.innosync.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -31,7 +33,7 @@ public class InvitationService {
         }
 
         ProjectRole role = projectRoleRepository.findById(projectRoleId)
-                .orElseThrow(() -> new RuntimeException("Project role not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project role not found"));
 
         if (!role.getProject().getRecruiter().getEmail().equals(recruiterEmail)) {
             throw new AccessDeniedException("Only project recruiter can send invitations");
@@ -39,14 +41,14 @@ public class InvitationService {
 
         if (invitationRepository.existsByRecipientIdAndProjectRoleIdAndStatus(
                 recipientId, projectRoleId, InvitationStatus.INVITED)) {
-            throw new RuntimeException("Invitation already exists");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Invitation already exists");
         }
 
         User recruiter = userRepository.findByEmail(recruiterEmail)
-                .orElseThrow(() -> new RuntimeException("Recruiter not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Recruiter not found"));
 
         User recipient = userRepository.findById(recipientId)
-                .orElseThrow(() -> new RuntimeException("Recipient user not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipient user not found"));
 
         Invitation invitation = new Invitation();
         invitation.setProjectRole(role);
@@ -62,14 +64,14 @@ public class InvitationService {
     @Transactional
     public InvitationResponse respondToInvitation(Long invitationId, InvitationStatus response, String userEmail) {
         Invitation invitation = invitationRepository.findById(invitationId)
-                .orElseThrow(() -> new RuntimeException("Invitation not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Invitation not found"));
 
         if (!invitation.getRecipient().getEmail().equals(userEmail)) {
             throw new AccessDeniedException("Only the invited user can respond");
         }
 
         if (invitation.getStatus() != InvitationStatus.INVITED) {
-            throw new RuntimeException("Invitation already responded to");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Invitation already responded to");
         }
 
         invitation.setStatus(response);
@@ -80,7 +82,7 @@ public class InvitationService {
 
     public List<InvitationResponse> getSentInvitations(String recruiterEmail) {
         User recruiter = userRepository.findByEmail(recruiterEmail)
-                .orElseThrow(() -> new RuntimeException("Recruiter not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Recruiter not found"));
 
         return invitationRepository.findBySenderId(recruiter.getId()).stream()
                 .map(this::mapToResponse)
@@ -89,7 +91,7 @@ public class InvitationService {
 
     public List<InvitationResponse> getReceivedInvitations(String userEmail) {
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         return invitationRepository.findByRecipientId(user.getId()).stream()
                 .map(this::mapToResponse)
