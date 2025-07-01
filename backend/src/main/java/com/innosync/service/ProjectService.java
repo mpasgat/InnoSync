@@ -26,6 +26,8 @@ public class ProjectService {
         Project project = Project.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
+                .projectType(request.getProjectType())
+                .teamSize(request.getTeamSize())
                 .recruiter(recruiter)
                 .build();
 
@@ -57,6 +59,8 @@ public class ProjectService {
         dto.setDescription(project.getDescription());
         dto.setCreatedAt(project.getCreatedAt());
         dto.setUpdatedAt(project.getUpdatedAt());
+        dto.setProjectType(project.getProjectType());
+        dto.setTeamSize(project.getTeamSize());
         return dto;
     }
 }
