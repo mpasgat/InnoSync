@@ -3,9 +3,11 @@ package com.innosync.service;
 import com.innosync.dto.project.ProjectRequest;
 import com.innosync.dto.project.ProjectResponse;
 import com.innosync.dto.project.ProjectRoleResponse;
+import com.innosync.dto.project.ProjectRoleWithProjectResponse;
 import com.innosync.model.Project;
 import com.innosync.model.User;
 import com.innosync.repository.ProjectRepository;
+import com.innosync.repository.ProjectRoleRepository;
 import com.innosync.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final ProjectRoleRepository projectRoleRepository;
 
     public ProjectResponse createProject(ProjectRequest request, String email) {
         User recruiter =  userRepository.findByEmail(email)
