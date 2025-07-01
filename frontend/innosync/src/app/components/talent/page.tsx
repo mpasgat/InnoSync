@@ -513,7 +513,7 @@ const FindTalentPage = () => {
         </main>
         <TalentDescription talent={selectedTalent} />
       </div>
-      <ToastContainer />
+      <ToastContainer aria-label="Notification messages" />
     </div>
   );
 };
