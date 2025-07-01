@@ -36,6 +36,14 @@ public class Project {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "project_type", nullable = false)
+    private ProjectType projectType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "team_size", nullable = false)
+    private TeamSize teamSize;
+
 
     @PrePersist
     protected void onCreate() {
