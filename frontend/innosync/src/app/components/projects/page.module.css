@@ -27,6 +27,11 @@
   margin: 0;
   box-sizing: border-box;
   position: relative;
+  scrollbar-width: none;
+  padding-bottom: 150px;
+}
+.sidebar::-webkit-scrollbar {
+  display: none;
 }
 
 .filterSection {
@@ -342,12 +347,21 @@
   padding: 0;
   overflow-y: auto;
   height: calc(100vh - 132px);
+  scrollbar-width: none;
+  padding-bottom: 150px;
+}
+.mainContent::-webkit-scrollbar {
+  display: none;
 }
 
 /* Project List */
 .projectList {
   padding: 17px 11px 0 11px;
   background: #ffffff;
+  scrollbar-width: none;
+}
+.projectList::-webkit-scrollbar {
+  display: none;
 }
 
 .projectCard {
@@ -540,6 +554,10 @@
   width: 581px;
   height: calc(100vh - 132px);
   overflow-y: auto;
+  scrollbar-width: none;
+}
+.projectDescription::-webkit-scrollbar {
+  display: none;
 }
 
 .projectDescHeader {
@@ -820,4 +838,26 @@
 .custom-toast {
   font-size: 0.85rem;
   padding: 8px 16px;
+}
+
+.clearFiltersBtn {
+  margin-top: 18px;
+  width: 100%;
+  background: #e4e5e8;
+  color: #18191c;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 0;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+.clearFiltersBtn:hover {
+  background: #d1d5db;
+  transform: translateY(-2px) scale(1.03);
+}
+.clearFiltersBtn:active {
+  background: #b6bbc4;
+  transform: scale(0.97);
 }

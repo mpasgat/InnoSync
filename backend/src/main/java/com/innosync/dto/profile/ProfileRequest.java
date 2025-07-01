@@ -18,7 +18,6 @@ public class ProfileRequest {
     private String expertise;
     @JsonProperty("expertise_level")
     private ExpertiseLevel expertiseLevel;
-    private String resume;
     @JsonProperty("work_experience")
     private List<WorkExperienceRequest> workExperience;
     @JsonProperty("technologies")

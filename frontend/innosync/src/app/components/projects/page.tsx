@@ -353,7 +353,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, selected }
     <div className={styles.projectActions}>
       <button className={styles.detailsBtn}>→</button>
       <button className={styles.applyBtn + (selected ? ' ' + styles.selected : '')}>
-        Apply Now →
+        Apply Now
       </button>
     </div>
   </div>

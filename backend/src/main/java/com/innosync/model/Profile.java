@@ -42,7 +42,8 @@ public class Profile {
     @Column(name = "expertise_level", nullable = false)
     private ExpertiseLevel expertiseLevel;
 
-    private String resume; // URL or path
+    private String resume; // path
+    private String profilePicture; //path
 
     @ManyToMany
     @JoinTable(

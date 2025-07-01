@@ -3,6 +3,7 @@ package com.innosync.service;
 import com.innosync.dto.project.ProjectResponse;
 import com.innosync.dto.project.ProjectRoleRequest;
 import com.innosync.dto.project.ProjectRoleResponse;
+import com.innosync.dto.project.ProjectRoleWithProjectResponse;
 import com.innosync.model.Project;
 import com.innosync.model.ProjectRole;
 import com.innosync.model.Technology;
@@ -65,6 +66,25 @@ public class ProjectRoleService {
     public List<ProjectRoleResponse> getRolesByProjectId(Long projectId) {
         return roleRepository.findByProjectId(projectId).stream()
                 .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+
+
+    public List<ProjectRoleWithProjectResponse> getAllProjectRolesWithProjectInfo() {
+        return roleRepository.findAllWithProjectInfo()
+                .stream()
+                .map(role -> {
+                    Project project = role.getProject(); // assuming there's a getProject()
+                    return new ProjectRoleWithProjectResponse(
+                            role.getId(),
+                            role.getRoleName(),
+//                            role.getDescription(),
+                            project.getId(),
+                            project.getTitle(),
+                            project.getDescription()
+                    );
+                })
                 .collect(Collectors.toList());
     }
 

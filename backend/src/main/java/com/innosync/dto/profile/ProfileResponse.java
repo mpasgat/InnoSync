@@ -8,6 +8,7 @@ import java.util.List;
 
 @Data
 public class ProfileResponse {
+    private Long id;
     private String email;
     private String fullName;
     private String telegram;
@@ -18,6 +19,7 @@ public class ProfileResponse {
     private String expertise;
     private ExpertiseLevel expertiseLevel;
     private String resume;
+    private String profilePicture;
     private List<WorkExperienceResponse> workExperience;
     private List<String> technologies;
 }
