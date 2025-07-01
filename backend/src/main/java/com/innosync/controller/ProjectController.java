@@ -1,9 +1,6 @@
 package com.innosync.controller;
 
-import com.innosync.dto.project.ProjectRequest;
-import com.innosync.dto.project.ProjectResponse;
-import com.innosync.dto.project.ProjectRoleRequest;
-import com.innosync.dto.project.ProjectRoleResponse;
+import com.innosync.dto.project.*;
 import com.innosync.service.ProjectRoleService;
 import com.innosync.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,5 +52,11 @@ public class ProjectController {
     private List<ProjectRoleResponse> getRoles(@PathVariable Long projectId) {
         String email = getCurrentUserEmail();
         return projectRoleService.getRolesByProjectId(projectId);
+    }
+
+    @GetMapping("/roles")
+    @Operation(summary = "Get all available project roles with project info")
+    public List<ProjectRoleWithProjectResponse> getAllRolesWithProjectInfo() {
+        return projectRoleService.getAllProjectRolesWithProjectInfo();
     }
 }
