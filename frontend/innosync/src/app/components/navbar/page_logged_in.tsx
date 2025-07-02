@@ -120,7 +120,7 @@ const NavbarUser: React.FC<NavbarUserProps> = ({ onLogout }) => {
       const timeout = setTimeout(() => setShowDropdown(false), ANIMATION_DURATION);
       return () => clearTimeout(timeout);
     }
-  }, [menuOpen]);
+  }, [menuOpen, showDropdown]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -145,29 +145,37 @@ const NavbarUser: React.FC<NavbarUserProps> = ({ onLogout }) => {
 
   const handleLogout = async () => {
     const refreshToken = localStorage.getItem("refreshToken");
-    if (!refreshToken) {
+    
+    // Always clear local storage and trigger UI updates, even if API call fails
+    const clearAuthAndUpdateUI = () => {
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
       window.dispatchEvent(new CustomEvent('authStateChanged'));
       if (onLogout) onLogout();
+    };
+
+    if (!refreshToken) {
+      clearAuthAndUpdateUI();
       return;
     }
+
     try {
-      await fetch("http://localhost:8080/api/auth/logout", {
+      const response = await fetch("http://localhost:8080/api/auth/logout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refreshToken }),
+        headers: { 
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ refreshToken })
       });
-      localStorage.removeItem("token");
-      localStorage.removeItem("refreshToken");
-      window.dispatchEvent(new CustomEvent('authStateChanged'));
-      if (onLogout) onLogout();
+
+      if (!response.ok) {
+        console.error("Logout failed:", await response.text());
+      }
     } catch (err) {
-      console.log("Error logging out:", err);
-      localStorage.removeItem("token");
-      localStorage.removeItem("refreshToken");
-      window.dispatchEvent(new CustomEvent('authStateChanged'));
-      if (onLogout) onLogout();
+      console.error("Error during logout:", err);
+    } finally {
+      // Always clear auth state, regardless of API response
+      clearAuthAndUpdateUI();
     }
   };
 
@@ -212,21 +220,17 @@ const NavbarUser: React.FC<NavbarUserProps> = ({ onLogout }) => {
                   {/* User Info (Bell + Username) */}
           <div className={styles.authButtons}>
             <span className={styles.userInfo}>
-              {!loading && getDisplayName(userProfile?.fullName || "") !== "User" && (
-                <>
-                  <Image src="/bell.svg" alt="Notifications" width={28} height={28} className={styles.userIcon} />
-                  <div
-                    className={styles.userMenu}
-                    ref={userMenuRef}
-                    onClick={() => setMenuOpen((open) => !open)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    {getDisplayName(userProfile?.fullName || "")}
-                    <Image src="/user_chevron.svg" alt="User Menu" width={24} height={24} className={styles.userIcon} />
-                  </div>
-                </>
-              )}
-                          {showDropdown && !loading && getDisplayName(userProfile?.fullName || "") !== "User" && (
+              <Image src="/bell.svg" alt="Notifications" width={28} height={28} className={styles.userIcon} />
+              <div
+                className={styles.userMenu}
+                ref={userMenuRef}
+                onClick={() => setMenuOpen((open) => !open)}
+                style={{ cursor: "pointer" }}
+              >
+                {loading ? "Loading..." : getDisplayName(userProfile?.fullName || "")}
+                <Image src="/user_chevron.svg" alt="User Menu" width={24} height={24} className={styles.userIcon} />
+              </div>
+              {showDropdown && (
               <div
                 className={
                   styles.userDropdown +
