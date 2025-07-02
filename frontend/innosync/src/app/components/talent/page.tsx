@@ -381,17 +381,30 @@ const InviteModal = ({
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 1000,
-      display: 'flex', alignItems: 'center', justifyContent: 'center'
+      display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Montserrat, sans-serif'
     }}>
-      <div style={{ background: '#fff', borderRadius: 8, padding: 32, minWidth: 320, maxWidth: 400, boxShadow: '0 2px 16px rgba(0,0,0,0.15)' }}>
-        <h2 style={{ marginBottom: 16 }}>Invite {recipientName || "Talent"}</h2>
+      <div style={{
+        background: '#fff',
+        borderRadius: 16,
+        padding: 32,
+        minWidth: 340,
+        maxWidth: 420,
+        boxShadow: '0 4px 32px rgba(0,0,0,0.12)',
+        fontFamily: 'Montserrat, sans-serif',
+        color: '#171717',
+        border: '1.5px solid #e4e5e8',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 18
+      }}>
+        <h2 style={{ marginBottom: 18, fontWeight: 600, fontSize: 24, color: '#171717', fontFamily: 'Montserrat, sans-serif' }}>Invite {recipientName || "Talent"}</h2>
         <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', marginBottom: 4 }}>Select Project</label>
-          {loadingProjects ? <div>Loading projects...</div> : (
+          <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, fontSize: 15 }}>Select Project</label>
+          {loadingProjects ? <div style={{ color: '#636a80', fontSize: 15 }}>Loading projects...</div> : (
             <select
               value={selectedProject}
               onChange={e => setSelectedProject(e.target.value)}
-              style={{ width: '100%', padding: 8 }}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 6, border: '1.5px solid #e4e5e8', fontFamily: 'Montserrat, sans-serif', fontSize: 15, color: '#171717', background: '#f2f4f8' }}
             >
               <option value="">-- Select Project --</option>
               {Array.isArray(projects) && projects.length > 0 ? (
@@ -405,12 +418,12 @@ const InviteModal = ({
           )}
         </div>
         <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', marginBottom: 4 }}>Select Role</label>
-          {loadingRoles ? <div>Loading roles...</div> : (
+          <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, fontSize: 15 }}>Select Role</label>
+          {loadingRoles ? <div style={{ color: '#636a80', fontSize: 15 }}>Loading roles...</div> : (
             <select
               value={selectedRole}
               onChange={e => setSelectedRole(e.target.value)}
-              style={{ width: '100%', padding: 8 }}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 6, border: '1.5px solid #e4e5e8', fontFamily: 'Montserrat, sans-serif', fontSize: 15, color: '#171717', background: '#f2f4f8' }}
               disabled={!selectedProject}
             >
               <option value="">-- Select Role --</option>
@@ -424,12 +437,12 @@ const InviteModal = ({
             </select>
           )}
         </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <button onClick={onClose} style={{ padding: '8px 16px', background: '#eee', border: 'none', borderRadius: 4 }}>Cancel</button>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+          <button onClick={onClose} style={{ padding: '9px 20px', background: '#e4e5e8', color: '#171717', border: 'none', borderRadius: 6, fontFamily: 'Montserrat, sans-serif', fontWeight: 500, fontSize: 15, cursor: 'pointer' }}>Cancel</button>
           <button
             onClick={handleSend}
-            style={{ padding: '8px 16px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: 4 }}
-            disabled={!selectedProject || !selectedRole || sending || !recipientId || isNaN(Number(selectedRole)) || Number(selectedRole) <= 0 || isNaN(Number(recipientId)) || Number(recipientId) <= 0}
+            style={{ padding: '9px 20px', background: '#298217', color: '#fff', border: 'none', borderRadius: 6, fontFamily: 'Montserrat, sans-serif', fontWeight: 600, fontSize: 15, cursor: !selectedRole || sending ? 'not-allowed' : 'pointer', opacity: !selectedRole || sending ? 0.7 : 1 }}
+            disabled={!selectedRole || sending}
           >
             {sending ? 'Sending...' : 'Send Invitation'}
           </button>

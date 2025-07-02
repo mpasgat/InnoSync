@@ -17,47 +17,57 @@ interface Invitation {
   status: "pending" | "accepted" | "rejected";
 }
 
-// Mock data based on the Figma design
-const mockInvitations: Invitation[] = [
-  {
-    id: "1",
-    author: {
-      name: "Jane Doe",
-      role: "Senior Designer",
-      avatar: "/profile_image.png"
-    },
-    position: "Frontend Dev",
-    date: "01/01/2025",
-    status: "pending"
-  },
-  {
-    id: "2",
-    author: {
-      name: "John Smith",
-      role: "Project Manager",
-      avatar: "/profile_image.png"
-    },
-    position: "GUI Dev",
-    date: "01/01/2025",
-    status: "pending"
-  },
-  {
-    id: "3",
-    author: {
-      name: "Alice Johnson",
-      role: "Tech Lead",
-      avatar: "/profile_image.png"
-    },
-    position: "Researcher",
-    date: "01/01/2025",
-    status: "pending"
-  }
-];
+// Backend invitation type
+interface BackendInvitation {
+  id: number;
+  projectRoleId: number;
+  roleName: string;
+  projectId: number;
+  projectTitle: string;
+  recipientId: number;
+  recipientName: string;
+  senderId: number;
+  senderName: string;
+  senderEmail: string;
+  status: "INVITED" | "ACCEPTED" | "REJECTED";
+  sentAt: string;
+  respondedAt: string | null;
+}
 
 export default function InvitationsPage() {
-  const [invitations, setInvitations] = useState<Invitation[]>(mockInvitations);
+  const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Fetch real invitations on mount
+  useEffect(() => {
+    const fetchInvitations = async () => {
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        const res = await fetch("http://localhost:8080/api/invitations/received", {
+          headers: token ? { "Authorization": `Bearer ${token}` } : {}
+        });
+        if (!res.ok) throw new Error("Failed to fetch invitations");
+        const data = await res.json();
+        // Map backend data to UI Invitation type
+        const mapped: Invitation[] = (data as BackendInvitation[]).map((inv) => ({
+          id: String(inv.id),
+          author: {
+            name: inv.senderName || inv.senderEmail || "Unknown",
+            role: inv.roleName || "",
+            avatar: "/profile_image.png", // No avatar in backend
+          },
+          position: inv.roleName || "",
+          date: inv.sentAt ? new Date(inv.sentAt).toLocaleDateString() : "",
+          status: inv.status === "INVITED" ? "pending" : inv.status === "ACCEPTED" ? "accepted" : inv.status === "REJECTED" ? "rejected" : "pending",
+        }));
+        setInvitations(mapped);
+      } catch (err) {
+        toast.error((err as Error).message || "Failed to fetch invitations");
+      }
+    };
+    fetchInvitations();
+  }, []);
 
   // Handle click outside to close dropdown
   useEffect(() => {
