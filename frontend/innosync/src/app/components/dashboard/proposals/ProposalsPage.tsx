@@ -4,7 +4,22 @@ import Image from "next/image";
 import { toast } from 'react-toastify';
 import styles from "./ProposalsPage.module.css";
 
-// Types for proposal data
+// API Response Types
+interface ApiApplication {
+  id: number;
+  userId: number;
+  userFullName: string;
+  projectRoleId: number;
+  roleName: string;
+  projectId: number;
+  projectTitle: string;
+  projectType: "FREELANCE" | "STARTUP" | "RESEARCH";
+  status: "PENDING" | "ACCEPTED" | "REJECTED";
+  appliedAt: string;
+  updatedAt: string;
+}
+
+// UI Types (for display)
 interface Proposal {
   id: string;
   project: {
@@ -17,47 +32,108 @@ interface Proposal {
   status: "pending" | "accepted" | "rejected";
 }
 
-// Mock data based on the Figma design
-const mockProposals: Proposal[] = [
-  {
-    id: "1",
+// Transform API data to UI format
+const transformApiDataToProposals = (apiData: ApiApplication[]): Proposal[] => {
+  return apiData.map(app => ({
+    id: app.id.toString(),
     project: {
-      name: "InnoSync",
-      type: "StartUp",
-      avatar: "/project-innosync-image.png"
+      name: app.projectTitle,
+      type: app.projectType.charAt(0).toUpperCase() + app.projectType.slice(1).toLowerCase(),
+      avatar: getProjectAvatar(app.projectTitle, app.projectType)
     },
-    position: "Frontend Dev",
-    date: "01/01/2025",
-    status: "pending"
-  },
-  {
-    id: "2",
-    project: {
-      name: "Data Analytics: Translational Data Analytics and Decision Science",
-      type: "Research",
-      avatar: "/project-aihub-image.png"
-    },
-    position: "GUI Dev",
-    date: "01/01/2025",
-    status: "accepted"
-  },
-  {
-    id: "3",
-    project: {
-      name: "InnoUniversity",
-      type: "Freelance",
-      avatar: "/profile_image.png"
-    },
-    position: "Researcher",
-    date: "01/01/2025",
-    status: "rejected"
+    position: app.roleName,
+    date: formatDate(app.appliedAt),
+    status: app.status.toLowerCase() as "pending" | "accepted" | "rejected"
+  }));
+};
+
+// Helper function to get project avatar based on project name/type
+const getProjectAvatar = (projectTitle: string, projectType: string): string => {
+  // You can implement logic to map project names to specific avatars
+  if (projectTitle.toLowerCase().includes('innosync')) {
+    return '/project-innosync-image.png';
+  } else if (projectTitle.toLowerCase().includes('data analytics') || projectTitle.toLowerCase().includes('ai')) {
+    return '/project-aihub-image.png';
+  } else if (projectType === 'RESEARCH') {
+    return '/project-aihub-image.png';
+  } else if (projectType === 'STARTUP') {
+    return '/project-innosync-image.png';
   }
-];
+  return '/profile_image.png'; // Default avatar
+};
+
+// Helper function to format date
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+};
+
+// API function to fetch proposals
+const fetchProposals = async (): Promise<Proposal[]> => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  try {
+    const response = await fetch('http://localhost:8080/api/applications', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch proposals: ${response.status} ${response.statusText}`);
+    }
+
+    const data: ApiApplication[] = await response.json();
+    return transformApiDataToProposals(data);
+  } catch (error) {
+    console.error('Error fetching proposals:', error);
+    throw error;
+  }
+};
 
 export default function ProposalsPage() {
-  const [proposals, setProposals] = useState<Proposal[]>(mockProposals);
+  const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Fetch proposals on component mount
+  useEffect(() => {
+    const loadProposals = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const fetchedProposals = await fetchProposals();
+        setProposals(fetchedProposals);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch proposals';
+        setError(errorMessage);
+        toast.error(`Error loading proposals: ${errorMessage}`, {
+          position: 'bottom-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'colored',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProposals();
+  }, []);
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -140,6 +216,75 @@ export default function ProposalsPage() {
       theme: 'colored',
     });
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.tableContainer}>
+          <div style={{ 
+            padding: '2rem', 
+            textAlign: 'center', 
+            color: '#697077',
+            fontSize: '16px'
+          }}>
+            Loading your proposals...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.tableContainer}>
+          <div style={{ 
+            padding: '2rem', 
+            textAlign: 'center', 
+            color: '#e74c3c',
+            fontSize: '16px'
+          }}>
+            Error: {error}
+            <br />
+            <button 
+              onClick={() => window.location.reload()} 
+              style={{
+                marginTop: '1rem',
+                padding: '0.5rem 1rem',
+                background: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (proposals.length === 0) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.tableContainer}>
+          <div style={{ 
+            padding: '2rem', 
+            textAlign: 'center', 
+            color: '#697077',
+            fontSize: '16px'
+          }}>
+            No proposals found. Start applying to projects to see your proposals here!
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
