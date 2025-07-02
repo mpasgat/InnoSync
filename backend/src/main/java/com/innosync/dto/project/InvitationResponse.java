@@ -16,6 +16,9 @@ public class InvitationResponse {
     private String projectTitle;
     private Long recipientId;
     private String recipientName;
+    private Long senderId;
+    private String senderName;
+    private String senderEmail;
     private InvitationStatus status;
     private LocalDateTime sentAt;
     private LocalDateTime respondedAt;

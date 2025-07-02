@@ -6,6 +6,9 @@ import com.innosync.model.User;
 import com.innosync.repository.UserRepository;
 import com.innosync.security.JwtUtil;
 import com.innosync.service.RefreshTokenService;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.Optional;
 
@@ -41,10 +46,12 @@ class AuthControllerTest {
     private BCryptPasswordEncoder passwordEncoder;
     private User testUser;
     private RefreshToken testRefreshToken;
+    private Validator validator;
 
     @BeforeEach
     void setUp() {
         passwordEncoder = new BCryptPasswordEncoder();
+        authController.setPasswordEncoder(passwordEncoder);
         
         testUser = new User("test@example.com", "Test User", passwordEncoder.encode("password"));
         testUser.setId(1L);
@@ -52,6 +59,9 @@ class AuthControllerTest {
         testRefreshToken = new RefreshToken();
         testRefreshToken.setToken("refresh-token-123");
         testRefreshToken.setUser(testUser);
+
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
     }
 
     @Test
@@ -107,6 +117,22 @@ class AuthControllerTest {
     }
 
     @Test
+    void signUp_WithInvalidEmail_ShouldHaveValidationViolations() {
+        // Given
+        SignUpRequest signUpRequest = new SignUpRequest();
+        signUpRequest.setEmail("invalid-email");  // Invalid email format
+        signUpRequest.setFullName("Test User");
+        signUpRequest.setPassword("password123");
+
+        // When
+        var violations = validator.validate(signUpRequest);
+
+        // Then
+        assertThat(violations).isNotEmpty();
+        assertThat(violations.stream().anyMatch(v -> v.getMessage().contains("Email must be valid"))).isTrue();
+    }
+
+    @Test
     void signIn_WithValidCredentials_ShouldReturnTokens() {
         // Given
         SignInRequest signInRequest = new SignInRequest();
@@ -118,7 +144,7 @@ class AuthControllerTest {
         when(refreshTokenService.createRefreshToken(testUser)).thenReturn(testRefreshToken);
 
         // When
-        ResponseEntity<?> response = authController.singIn(signInRequest);
+        ResponseEntity<?> response = authController.signIn(signInRequest);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -143,7 +169,7 @@ class AuthControllerTest {
         when(userRepository.findByEmail("invalid@example.com")).thenReturn(Optional.empty());
 
         // When
-        ResponseEntity<?> response = authController.singIn(signInRequest);
+        ResponseEntity<?> response = authController.signIn(signInRequest);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
@@ -163,7 +189,7 @@ class AuthControllerTest {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
 
         // When
-        ResponseEntity<?> response = authController.singIn(signInRequest);
+        ResponseEntity<?> response = authController.signIn(signInRequest);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
@@ -171,6 +197,27 @@ class AuthControllerTest {
 
         verify(userRepository).findByEmail("test@example.com");
         verifyNoInteractions(jwtUtil, refreshTokenService);
+    }
+
+    @Test
+    void signIn_WithInvalidRequest_ShouldHaveValidationViolations() {
+        // Given
+        SignInRequest signInRequest = new SignInRequest();
+        signInRequest.setEmail("");  // Empty email
+        signInRequest.setPassword(""); // Empty password
+
+        // When
+        var violations = validator.validate(signInRequest);
+
+        // Then
+        assertThat(violations).isNotEmpty();
+        assertThat(violations)
+                .extracting("message")
+                .containsExactlyInAnyOrder(
+                        "Email is required",
+                        "Password is required",
+                        "Password's length must be between 8 to 20"
+                );
     }
 
     @Test

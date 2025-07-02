@@ -11,6 +11,8 @@ import com.innosync.repository.ProjectRoleRepository;
 import com.innosync.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,7 +52,7 @@ public class ProjectService {
 
     public ProjectResponse getProject(Long id) {
         Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
 
         return mapToDTO(project);
     }

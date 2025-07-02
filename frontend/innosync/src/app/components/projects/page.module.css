@@ -861,3 +861,13 @@
   background: #b6bbc4;
   transform: scale(0.97);
 }
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px;
+  color: #666;
+}

@@ -15,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -196,8 +198,9 @@ class ProjectServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> projectService.getProject(invalidId))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Project not found");
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Project not found")
+                .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND);
         
         verify(projectRepository).findById(invalidId);
     }
@@ -209,8 +212,9 @@ class ProjectServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> projectService.getProject(null))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Project not found");
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Project not found")
+                .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND);
         
         verify(projectRepository).findById(null);
     }

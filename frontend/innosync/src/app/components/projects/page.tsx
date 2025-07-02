@@ -8,6 +8,23 @@ import 'react-toastify/dist/ReactToastify.css';
 interface ProjectPosition {
   name: string;
   skills: string[];
+  roleId?: number;
+  expertiseLevel?: string; // e.g. ENTRY, MID, SENIOR etc.
+}
+
+// API Response interface
+interface ApiProjectRole {
+  roleId: number;
+  roleName: string;
+  projectId: number;
+  projectTitle: string;
+  projectDescription: string;
+}
+
+interface UserApplication {
+  id: number;
+  projectRoleId: number;
+  status: string;
 }
 
 interface Project {
@@ -23,6 +40,10 @@ interface Project {
   badgeType: 'fullTime' | 'internship' | 'partTime' | 'remote' | 'contract' | 'temporary' | 'research';
   featured?: boolean;
   complexity: string;
+  // Add new fields for API integration
+  roleId?: number;
+  originalTitle?: string;
+  roleIdMap?: Record<string, number>;
 }
 
 interface SearchBarProps {
@@ -45,6 +66,11 @@ interface ProjectListProps {
 
 interface ProjectDescriptionProps {
   project: Project | null;
+  /**
+   * Set of roleIds that the current user has already applied to. Used to disable the Apply button
+   * when the chosen position was already applied for.
+   */
+  appliedRoleIds: Set<number>;
 }
 
 interface FilterSidebarProps {
@@ -485,7 +511,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, selected }
         <div className={styles.projectHeader}>
           <h3 className={styles.projectTitle}>{project.company}</h3>
           <span className={`${styles.badge} ${styles[project.badgeType]}`}>{project.badge}</span>
-          <span className={styles.badge} style={{ background: '#e4e5e8', color: '#18191c', fontWeight: 600, marginLeft: 8, marginTop: 6 }}>{project.complexity}</span>
         </div>
         <div className={styles.projectMeta}>
           <div className={styles.metaItem}>
@@ -496,12 +521,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, selected }
           </div>
         </div>
         <div className={styles.tagList} style={{ marginTop: 8 }}>
-          {project.requiredSkills.map(skill => (
+          {project.positions.map(pos => (
             <span
-              key={skill}
+              key={pos.name}
               className={selected ? `${styles.skillTag} ${styles.selected}` : styles.skillTag}
             >
-              {skill}
+              {pos.name}
             </span>
           ))}
         </div>
@@ -531,13 +556,47 @@ const ProjectList: React.FC<ProjectListProps> = ({ projects, onSelect, selectedI
   </div>
 );
 
-const ProjectDescription: React.FC<ProjectDescriptionProps> = ({ project }) => {
-  const [selectedPosition, setSelectedPosition] = useState<string | null>(project?.positions[0]?.name || null);
+const ProjectDescription: React.FC<ProjectDescriptionProps & { 
+  onApply?: (projectRoleId: number, positionName: string) => Promise<void>; 
+}> = ({ project, onApply, appliedRoleIds }) => {
+  // Track the currently chosen role by its unique id (fallback to first role's id if available)
+  const [selectedRoleId, setSelectedRoleId] = useState<number | null>(project?.positions[0]?.roleId ?? null);
+  const [isApplying, setIsApplying] = useState(false);
+
+  // When the project changes, default-select the first available role (if any)
+  React.useEffect(() => {
+    setSelectedRoleId(project?.positions[0]?.roleId ?? null);
+  }, [project]);
 
   if (!project) return null;
 
-  // Find the selected position object
-  const selectedPositionObj = project.positions.find(pos => pos.name === selectedPosition);
+  // Find the selected position object via roleId (fallback by index if ids are missing)
+  const selectedPositionObj = project.positions.find(pos => pos.roleId === selectedRoleId) ?? project.positions[0];
+
+  // Obtain roleName from the object for toast messages etc.
+  const selectedPositionName = selectedPositionObj?.name ?? 'Role';
+
+  // Determine roleId of the currently selected position (should always be defined)
+  const currentRoleId = selectedPositionObj?.roleId ?? project.roleId;
+
+  // Check if user has already applied to this role
+  const alreadyApplied = currentRoleId ? appliedRoleIds.has(currentRoleId) : false;
+
+  const selectedExperienceLevel = selectedPositionObj?.expertiseLevel ?? project.complexity;
+
+  const handleApply = async () => {
+    if (!currentRoleId || !onApply) return;
+    
+    const roleId = currentRoleId;
+    console.log(`🎯 Applying for roleId: ${roleId} (position "${selectedPositionName}")`);
+    
+    setIsApplying(true);
+    try {
+      await onApply(roleId, selectedPositionName);
+    } finally {
+      setIsApplying(false);
+    }
+  };
 
   return (
     <aside className={styles.projectDescription}>
@@ -561,7 +620,7 @@ const ProjectDescription: React.FC<ProjectDescriptionProps> = ({ project }) => {
         </div>
       </div>
       <div className={styles.projectDescBody}>
-        <p className={styles.projectDescText}>{project.description} This project offers a unique opportunity to work with a dynamic team, tackle real-world challenges, and develop your skills in a collaborative environment. You will gain hands-on experience, contribute to impactful solutions, and expand your professional network. Join us to make a difference and accelerate your career growth!</p>
+        <p className={styles.projectDescText}>{project.description} </p>
         <div className={styles.projectDescSection}>
           <h4 className={styles.projectDescSectionTitle}>Required Skills</h4>
           <div className={styles.tagList}>
@@ -575,25 +634,44 @@ const ProjectDescription: React.FC<ProjectDescriptionProps> = ({ project }) => {
           </div>
         </div>
         <div className={styles.projectDescSection}>
+          <h4 className={styles.projectDescSectionTitle}>Experience Level</h4>
+          <div className={styles.tagList}>
+            <span className={styles.tag}>{selectedExperienceLevel}</span>
+          </div>
+        </div>
+        <div className={styles.projectDescSection}>
           <h4 className={styles.projectDescSectionTitle}>Available Positions</h4>
           <div className={styles.tagList}>
             {project.positions.map(role => (
               <span
-                key={role.name}
-                className={selectedPosition === role.name ? styles.tag : styles.positionTag}
-                onClick={() => setSelectedPosition(role.name)}
+                key={role.roleId ?? role.name}
+                className={role.roleId === selectedRoleId ? styles.tag : styles.positionTag}
+                onClick={() => {
+                  console.log(`🎯 Selecting roleId: ${role.roleId} ("${role.name}")`);
+                  setSelectedRoleId(role.roleId ?? null);
+                }}
                 style={{ cursor: 'pointer', transition: 'all 0.2s' }}
               >
                 {role.name}
               </span>
             ))}
           </div>
+          {/* Debug info */}
+          <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
+            {/* <p>Selected roleId: {currentRoleId ?? 'Not found'}</p> */}
+          </div>
         </div>
       </div>
-      <button className={styles.mainApplyBtn} onClick={() => {
-        toast.success(`Application was successfully sent for ${selectedPosition} position`);
-      }}>
-        Apply Now
+      <button 
+        className={styles.mainApplyBtn} 
+        onClick={handleApply}
+        disabled={isApplying || alreadyApplied}
+      >
+        {alreadyApplied
+          ? 'Applied'
+          : isApplying
+            ? 'Applying...'
+            : 'Apply Now'}
       </button>
     </aside>
   );
@@ -625,9 +703,227 @@ function filterProjects(
   });
 }
 
+// Function to transform API data to Project interface
+const transformApiDataToProjects = (apiData: ApiProjectRole[]): Project[] => {
+  // Group roles by project
+  const projectGroups = apiData.reduce((acc, role) => {
+    if (!acc[role.projectId]) {
+      acc[role.projectId] = [];
+    }
+    acc[role.projectId].push(role);
+    return acc;
+  }, {} as Record<number, ApiProjectRole[]>);
+
+  // Transform each project group to Project interface
+  return Object.values(projectGroups).map((roles) => {
+    const firstRole = roles[0];
+    
+    // Create a map of role names to role IDs for easy lookup
+    const roleIdMap = roles.reduce((acc, role) => {
+      acc[role.roleName] = role.roleId;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return {
+      id: firstRole.projectId,
+      company: firstRole.projectTitle,
+      logo: '/company_logo.svg', // Default logo
+      description: firstRole.projectDescription,
+      requiredSkills: ['React', 'TypeScript'], // Default skills - you might want to enhance API to include these
+      teamSize: '4-6', // Default - you might want to enhance API
+      projectType: 'Paid', // Default - you might want to enhance API
+      positions: roles.map(role => ({
+        name: role.roleName,
+        skills: ['React', 'TypeScript'], // Default skills for role
+        roleId: role.roleId, // Store roleId for each position
+      })),
+      badge: 'Full Time',
+      badgeType: 'fullTime' as const,
+      complexity: 'Mid', // Default - you might want to enhance API
+      originalTitle: firstRole.projectTitle,
+      roleId: firstRole.roleId, // Store the first role ID as default
+      roleIdMap, // Store the mapping for easy lookup
+    };
+  });
+};
+
+// Function to fetch projects from API
+const fetchProjects = async (): Promise<Project[]> => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    console.error('❌ FETCH PROJECTS: No authentication token found');
+    toast.error('Please log in to view projects');
+    return [];
+  }
+
+  console.log('🔄 FETCH PROJECTS: Starting to fetch projects from API...');
+  
+  try {
+    const response = await fetch('http://localhost:8080/api/projects/roles', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      console.error(`❌ FETCH PROJECTS: API request failed with status ${response.status}: ${response.statusText}`);
+      throw new Error(`Failed to fetch projects: ${response.status} ${response.statusText}`);
+    }
+
+    const apiData: ApiProjectRole[] = await response.json();
+    console.log('✅ FETCH PROJECTS: Successfully fetched projects data:', apiData);
+    
+    const transformedProjects = transformApiDataToProjects(apiData);
+    console.log('✅ FETCH PROJECTS: Successfully transformed projects:', transformedProjects);
+    
+    toast.success(`Successfully loaded ${transformedProjects.length} projects`);
+    return transformedProjects;
+  } catch (error) {
+    console.error('❌ FETCH PROJECTS: Error occurred:', error);
+    toast.error('Failed to load projects');
+    console.log('🔄 FETCH PROJECTS: Falling back to mock data');
+    return mockProjects; // Fallback to mock data
+  }
+};
+
+// Function to apply for a project role
+const applyForProjectRole = async (projectRoleId: number): Promise<boolean> => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    console.error('❌ APPLY PROJECT: No authentication token found');
+    toast.error('Please log in to apply for projects');
+    return false;
+  }
+
+  console.log(`🔄 APPLY PROJECT: Starting application for project role ID: ${projectRoleId}`);
+
+  try {
+    const response = await fetch(`http://localhost:8080/api/applications/project-roles/${projectRoleId}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ APPLY PROJECT: API request failed with status ${response.status}: ${response.statusText}`);
+      console.error(`❌ APPLY PROJECT: Error response body:`, errorText);
+      throw new Error(`Failed to submit application: ${response.status} ${response.statusText}`);
+    }
+
+    const responseData = await response.json().catch(() => null); // In case response is not JSON
+    console.log('✅ APPLY PROJECT: Successfully submitted application for role ID:', projectRoleId);
+    console.log('✅ APPLY PROJECT: Response data:', responseData);
+    
+    return true;
+  } catch (error) {
+    console.error(`❌ APPLY PROJECT: Error occurred while applying for role ID ${projectRoleId}:`, error);
+    toast.error('Failed to submit application');
+    return false;
+  }
+};
+
+// ---------------- API TYPES ----------------
+interface ApiProjectDetails {
+  id: number;
+  title: string;
+  description: string;
+  requiredSkills: string[];
+  teamSize: 'OneThree' | 'FourSix' | 'SevenPlus';
+  projectType: string;
+  logoUrl?: string;
+  complexity?: string;
+}
+
+// Map backend enum to human-readable string
+const mapTeamSize = (value: ApiProjectDetails['teamSize']): string => {
+  switch (value) {
+    case 'OneThree':
+      return '1-3';
+    case 'FourSix':
+      return '4-6';
+    case 'SevenPlus':
+      return '7+';
+    default:
+      return value;
+  }
+};
+
+// Fetch detailed project info
+const fetchProjectDetails = async (projectId: number): Promise<ApiProjectDetails | null> => {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+
+  try {
+    const res = await fetch(`http://localhost:8080/api/projects/${projectId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!res.ok) {
+      console.error(`Failed to fetch project details: ${res.status} ${res.statusText}`);
+      return null;
+    }
+
+    const data: ApiProjectDetails = await res.json();
+    return data;
+  } catch (err) {
+    console.error('Error fetching project details', err);
+    return null;
+  }
+};
+
+// ---- API Role list ----
+interface ApiProjectRoleDetails {
+  id: number;
+  roleName: string;
+  expertiseLevel: string; // ENTRY, JUNIOR, etc.
+  technologies: string[];
+}
+
+// Fetch roles for a specific project
+const fetchProjectRoles = async (projectId: number): Promise<ProjectPosition[]> => {
+  const token = localStorage.getItem('token');
+  if (!token) return [];
+
+  try {
+    const res = await fetch(`http://localhost:8080/api/projects/${projectId}/roles`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!res.ok) {
+      console.error(`Failed to fetch project roles: ${res.status} ${res.statusText}`);
+      return [];
+    }
+
+    const data: ApiProjectRoleDetails[] = await res.json();
+
+    return data.map(r => ({
+      name: r.roleName,
+      skills: r.technologies,
+      roleId: r.id,
+      expertiseLevel: r.expertiseLevel,
+    }));
+  } catch (err) {
+    console.error('Error fetching project roles', err);
+    return [];
+  }
+};
+
 const FindProjectPage = () => {
   const [selectedTags, setSelectedTags] = useState(['Frontend Dev', 'Sys Admin', 'Backend Dev', 'DB Admin']);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(mockProjects[5]);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
   const [requiredSkills, setRequiredSkills] = useState([
     'Angular', 'React', 'Vue', 'PostgreSQL', 'Docker', 'Figma', 'Git', 'Svelte', 'Python',
   ]);
@@ -635,6 +931,49 @@ const FindProjectPage = () => {
   const [selectedProjectType, setSelectedProjectType] = useState<string[]>([...projectTypeOptions]);
   const [selectedTeamSize, setSelectedTeamSize] = useState<string[]>([...teamSizeOptions]);
   const [selectedEmploymentType, setSelectedEmploymentType] = useState<string[]>([]);
+  const [appliedRoleIds, setAppliedRoleIds] = useState<Set<number>>(new Set());
+
+  // Fetch projects on component mount
+  React.useEffect(() => {
+    const loadProjects = async () => {
+      setLoading(true);
+      const fetchedProjects = await fetchProjects();
+      setProjects(fetchedProjects);
+      if (fetchedProjects.length > 0) {
+        setSelectedProject(fetchedProjects[0]);
+      }
+      setLoading(false);
+    };
+
+    loadProjects();
+
+    // Fetch applications that the user has already submitted so we can disable duplicates
+    const loadUserApplications = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      try {
+        const res = await fetch('http://localhost:8080/api/applications', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!res.ok) {
+          console.error(`Failed to fetch user applications: ${res.status} ${res.statusText}`);
+          return;
+        }
+
+        const data: UserApplication[] = await res.json();
+        const ids = new Set<number>(data.map(app => app.projectRoleId));
+        setAppliedRoleIds(ids);
+      } catch (err) {
+        console.error('Error while fetching user applications', err);
+      }
+    };
+
+    loadUserApplications();
+  }, []);
 
   const handleRemoveTag = (tag: string) => {
     setSelectedTags(tags => tags.filter(t => t !== tag));
@@ -676,14 +1015,68 @@ const FindProjectPage = () => {
     setSelectedEmploymentType([]);
   };
 
+  const handleApplyForProject = async (projectRoleId: number, positionName: string) => {
+    const success = await applyForProjectRole(projectRoleId);
+    if (success) {
+      toast.success(`Application was successfully sent for ${positionName} position`);
+      setAppliedRoleIds(prev => new Set(prev).add(projectRoleId));
+    }
+  };
+
+  const handleSelectProject = async (project: Project) => {
+    // Immediately show base info so UI feels responsive
+    setSelectedProject(project);
+
+    // Fetch detailed info and merge
+    const details = await fetchProjectDetails(project.id);
+    if (details) {
+      setSelectedProject(prev => prev ? {
+        ...prev,
+        description: details.description || prev.description,
+        requiredSkills: details.requiredSkills?.length ? details.requiredSkills : prev.requiredSkills,
+        teamSize: mapTeamSize(details.teamSize),
+        projectType: details.projectType || prev.projectType,
+        company: details.title || prev.company,
+        logo: details.logoUrl || prev.logo,
+        complexity: details.complexity || prev.complexity,
+      } : prev);
+    }
+
+    // Fetch roles for this project (technologies & expertise level)
+    const roles = await fetchProjectRoles(project.id);
+    if (roles.length) {
+      const roleIdMap = roles.reduce((acc, r) => {
+        acc[r.name] = r.roleId as number;
+        return acc;
+      }, {} as Record<string, number>);
+
+      setSelectedProject(prev => prev ? {
+        ...prev,
+        positions: roles,
+        roleId: roles[0]?.roleId ?? prev.roleId,
+        roleIdMap,
+      } : prev);
+    }
+  };
+
   const filteredProjects = filterProjects(
-    mockProjects,
+    projects,
     selectedExperience,
     selectedProjectType,
     selectedTeamSize,
     requiredSkills,
     selectedEmploymentType
   );
+
+  if (loading) {
+    return (
+      <div className={styles.pageContainer}>
+        <div className={styles.loadingContainer}>
+          <p>Loading projects...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.pageContainer}>
@@ -706,11 +1099,15 @@ const FindProjectPage = () => {
         <main className={styles.mainContent}>
           <ProjectList
             projects={filteredProjects}
-            onSelect={setSelectedProject}
+            onSelect={handleSelectProject}
             selectedId={selectedProject?.id || null}
           />
         </main>
-        <ProjectDescription project={selectedProject} />
+        <ProjectDescription 
+          project={selectedProject} 
+          onApply={handleApplyForProject}
+          appliedRoleIds={appliedRoleIds}
+        />
       </div>
       <ToastContainer aria-label="Notification messages" />
     </div>
