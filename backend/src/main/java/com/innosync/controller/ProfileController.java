@@ -21,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
 import java.net.MalformedURLException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/profile")
@@ -51,6 +52,11 @@ public class ProfileController {
         return profileService.getMyProfile(email);
     }
 
+    @GetMapping("/all")
+    @Operation(summary = "Get all profiles")
+    public List<ProfileResponse> getAllProfiles() {
+        return profileService.getAllProfiles();
+    }
 
     @PostMapping("/upload-resume")
     @Operation(summary = "Upload user resume (CV)")

@@ -151,4 +151,11 @@ public class ProfileService {
         return profileRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Profile not found"));
     }
+
+    public List<ProfileResponse> getAllProfiles() {
+        List<Profile> profiles = profileRepository.findAll();
+        return profiles.stream()
+                .map(profile -> mapToResponse(profile, profile.getUser()))
+                .collect(Collectors.toList());
+    }
 }
