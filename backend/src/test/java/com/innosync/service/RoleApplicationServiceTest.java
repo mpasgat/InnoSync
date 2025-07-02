@@ -53,6 +53,7 @@ class RoleApplicationServiceTest {
         project = Project.builder()
                 .id(1L)
                 .title("Test Project")
+                .projectType(ProjectType.FREELANCE)
                 .recruiter(projectOwner)
                 .build();
 
@@ -88,6 +89,7 @@ class RoleApplicationServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getStatus()).isEqualTo(ApplicationStatus.PENDING);
+        assertThat(result.getProjectType()).isEqualTo(ProjectType.FREELANCE);
 
         verify(userRepository).findByEmail(userEmail);
         verify(projectRoleRepository).findById(projectRoleId);
