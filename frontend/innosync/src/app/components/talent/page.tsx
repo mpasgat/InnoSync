@@ -15,6 +15,7 @@ interface Talent {
   skills: string[];
   experience: string;
   bio: string;
+  resume?: string | null;
 }
 
 interface SearchBarProps {
@@ -27,16 +28,19 @@ interface TalentCardProps {
   talent: Talent;
   onSelect: (talent: Talent) => void;
   selected: boolean;
+  onContact: (talent: Talent) => void;
 }
 
 interface TalentListProps {
   talents: Talent[];
   onSelect: (talent: Talent) => void;
   selectedId: number | null;
+  onContact: (talent: Talent) => void;
 }
 
 interface TalentDescriptionProps {
   talent: Talent | null;
+  onContact: (talent: Talent) => void;
 }
 
 interface FilterSidebarProps {
@@ -68,6 +72,9 @@ type BackendProfile = {
     description: string;
   }[];
 };
+
+type Project = { id: number; title: string };
+type Role = { id: number; roleName: string };
 
 const experienceOptions = ["< 1", "1-2", "3-5", "5+"];
 const educationOptions = ["No Degree", "Bachelor", "Master", "PhD"];
@@ -253,15 +260,200 @@ const SearchBar: React.FC<SearchBarProps> = ({ tags, onRemoveTag, onAddTag }) =>
   );
 };
 
+const InviteModal = ({
+  open,
+  onClose,
+  recipientId,
+  recipientName,
+  onSuccess
+}: {
+  open: boolean;
+  onClose: () => void;
+  recipientId: number | null;
+  recipientName: string | null;
+  onSuccess: () => void;
+}) => {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [selectedProject, setSelectedProject] = useState<string>("");
+  const [selectedRole, setSelectedRole] = useState<string>("");
+  const [loadingProjects, setLoadingProjects] = useState(false);
+  const [loadingRoles, setLoadingRoles] = useState(false);
+  const [sending, setSending] = useState(false);
 
-const TalentCard: React.FC<TalentCardProps> = ({ talent, onSelect, selected }) => (
+  // Helper to get token
+  const getToken = () => (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+
+  useEffect(() => {
+    if (open) {
+      setLoadingProjects(true);
+      const token = getToken();
+      fetch("http://localhost:8080/api/projects/me", {
+        headers: token ? { "Authorization": `Bearer ${token}` } : {}
+      })
+        .then(res => res.ok ? res.json() : Promise.resolve([]))
+        .then(data => {
+          if (Array.isArray(data)) {
+            setProjects(data);
+          } else {
+            setProjects([]);
+          }
+          setLoadingProjects(false);
+        })
+        .catch(() => {
+          toast.error("Failed to fetch projects");
+          setProjects([]);
+          setLoadingProjects(false);
+        });
+      setSelectedProject("");
+      setSelectedRole("");
+      setRoles([]);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (selectedProject) {
+      setLoadingRoles(true);
+      const token = getToken();
+      fetch(`http://localhost:8080/api/projects/${selectedProject}/roles`, {
+        headers: token ? { "Authorization": `Bearer ${token}` } : {}
+      })
+        .then(res => res.ok ? res.json() : Promise.resolve([]))
+        .then(data => {
+          if (Array.isArray(data)) {
+            setRoles(data);
+          } else {
+            setRoles([]);
+          }
+          setLoadingRoles(false);
+        })
+        .catch(() => {
+          toast.error("Failed to fetch roles");
+          setRoles([]);
+          setLoadingRoles(false);
+        });
+    } else {
+      setRoles([]);
+      setSelectedRole("");
+    }
+  }, [selectedProject]);
+
+  const handleSend = async () => {
+    // Validate selectedRole and recipientId
+    if (!selectedRole || isNaN(Number(selectedRole)) || Number(selectedRole) <= 0) {
+      toast.error("Please select a valid role.");
+      return;
+    }
+    if (!recipientId || isNaN(Number(recipientId)) || Number(recipientId) <= 0) {
+      toast.error("Invalid recipient.");
+      return;
+    }
+    setSending(true);
+    const payload = { projectRoleId: Number(selectedRole), recipientId };
+    console.log("Sending invitation:", payload);
+    try {
+      const token = getToken();
+      const response = await fetch("http://localhost:8080/api/invitations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(payload),
+      });
+      if (response.status === 409) {
+        toast.error("An invitation for this user and role already exists.");
+        setSending(false);
+        return;
+      }
+      if (!response.ok) throw new Error("Failed to send invitation");
+      toast.success("Invitation sent!");
+      onSuccess();
+      onClose();
+    } catch (err) {
+      toast.error((err as Error).message || "Failed to send invitation");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if (!open) return null;
+  return (
+    <div style={{
+      position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 1000,
+      display: 'flex', alignItems: 'center', justifyContent: 'center'
+    }}>
+      <div style={{ background: '#fff', borderRadius: 8, padding: 32, minWidth: 320, maxWidth: 400, boxShadow: '0 2px 16px rgba(0,0,0,0.15)' }}>
+        <h2 style={{ marginBottom: 16 }}>Invite {recipientName || "Talent"}</h2>
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ display: 'block', marginBottom: 4 }}>Select Project</label>
+          {loadingProjects ? <div>Loading projects...</div> : (
+            <select
+              value={selectedProject}
+              onChange={e => setSelectedProject(e.target.value)}
+              style={{ width: '100%', padding: 8 }}
+            >
+              <option value="">-- Select Project --</option>
+              {Array.isArray(projects) && projects.length > 0 ? (
+                projects.map((p) => (
+                  <option key={p.id} value={p.id}>{p.title}</option>
+                ))
+              ) : (
+                <option disabled>No projects available</option>
+              )}
+            </select>
+          )}
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ display: 'block', marginBottom: 4 }}>Select Role</label>
+          {loadingRoles ? <div>Loading roles...</div> : (
+            <select
+              value={selectedRole}
+              onChange={e => setSelectedRole(e.target.value)}
+              style={{ width: '100%', padding: 8 }}
+              disabled={!selectedProject}
+            >
+              <option value="">-- Select Role --</option>
+              {Array.isArray(roles) && roles.length > 0 ? (
+                roles.map((r) => (
+                  <option key={r.id} value={r.id}>{r.roleName}</option>
+                ))
+              ) : (
+                <option disabled>No roles available</option>
+              )}
+            </select>
+          )}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <button onClick={onClose} style={{ padding: '8px 16px', background: '#eee', border: 'none', borderRadius: 4 }}>Cancel</button>
+          <button
+            onClick={handleSend}
+            style={{ padding: '8px 16px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: 4 }}
+            disabled={!selectedProject || !selectedRole || sending || !recipientId || isNaN(Number(selectedRole)) || Number(selectedRole) <= 0 || isNaN(Number(recipientId)) || Number(recipientId) <= 0}
+          >
+            {sending ? 'Sending...' : 'Send Invitation'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const TalentCard: React.FC<TalentCardProps & { onContact: (talent: Talent) => void }> = ({ talent, onSelect, selected, onContact }) => (
   <div className={`${styles.projectCard} ${selected ? styles.selected : ""}`}
     onClick={() => onSelect(talent)}
     style={{ borderColor: selected ? "#16a34a" : undefined }}
   >
     <div className={styles.projectInfo}>
       <div className={styles.companyLogoWrapper}>
-        <Image src={talent.avatar} alt={talent.name} width={60} height={60} style={{ borderRadius: 50 }} />
+        <Image
+          src={talent.avatar || "/profile_image.png"}
+          alt={talent.name}
+          width={60}
+          height={60}
+          style={{ borderRadius: 50 }}
+          onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/profile_image.png"; }}
+        />
       </div>
       <div className={styles.projectDetails}>
         <div className={styles.projectHeader}>
@@ -300,14 +492,20 @@ const TalentCard: React.FC<TalentCardProps> = ({ talent, onSelect, selected }) =
     </div>
     <div className={styles.projectActions}>
       <button className={styles.detailsBtn}>→</button>
-      <button className={styles.applyBtn + (selected ? ' ' + styles.selected : '')}>
+      <button
+        className={styles.applyBtn + (selected ? ' ' + styles.selected : '')}
+        onClick={e => {
+          e.stopPropagation();
+          onContact(talent);
+        }}
+      >
         Contact
       </button>
     </div>
   </div>
 );
 
-const TalentList: React.FC<TalentListProps> = ({ talents, onSelect, selectedId }) => (
+const TalentList: React.FC<TalentListProps> = ({ talents, onSelect, selectedId, onContact }) => (
   <div className={styles.projectList}>
     {talents.map((talent, index) => (
       <React.Fragment key={talent.id}>
@@ -315,6 +513,7 @@ const TalentList: React.FC<TalentListProps> = ({ talents, onSelect, selectedId }
           talent={talent}
           onSelect={onSelect}
           selected={selectedId === talent.id}
+          onContact={onContact}
         />
         {index < talents.length - 1 && <div className={styles.projectDivider} />}
       </React.Fragment>
@@ -322,13 +521,21 @@ const TalentList: React.FC<TalentListProps> = ({ talents, onSelect, selectedId }
   </div>
 );
 
-const TalentDescription: React.FC<TalentDescriptionProps> = ({ talent }) => {
+const TalentDescription: React.FC<TalentDescriptionProps & { onContact: (talent: Talent) => void }> = ({ talent, onContact }) => {
   if (!talent) return <aside className={styles.projectDescription} style={{ padding: 32, color: '#64748b' }}>Select a talent to see details</aside>;
   return (
     <aside className={styles.projectDescription}>
       <div className={styles.projectDescHeader}>
         <div className={styles.projectDescLogoWrapper} style={{ minWidth: 120, minHeight: 120, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Image src={talent.avatar} alt={talent.name} width={120} height={120} className={styles.projectDescLogo} style={{ borderRadius: 50 }} />
+          <Image
+            src={talent.avatar || "/profile_image.png"}
+            alt={talent.name}
+            width={120}
+            height={120}
+            className={styles.projectDescLogo}
+            style={{ borderRadius: 50 }}
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/profile_image.png"; }}
+          />
         </div>
         <div className={styles.projectDescTitleBlock}>
           <h2 className={styles.projectDescCompany}>{talent.name}</h2>
@@ -365,8 +572,17 @@ const TalentDescription: React.FC<TalentDescriptionProps> = ({ talent }) => {
           <h4 className={styles.projectDescSectionTitle}>Bio</h4>
           <p className={styles.projectDescText}>{talent.bio}</p>
         </div>
+        {talent.resume && (
+          <div className={styles.projectDescSection}>
+            <h4 className={styles.projectDescSectionTitle}>Resume</h4>
+            <a href={talent.resume} target="_blank" rel="noopener noreferrer">Download Resume</a>
+          </div>
+        )}
       </div>
-      <button className={styles.mainApplyBtn} onClick={() => toast.success(`Contact request sent to ${talent.name}`)}>
+      <button
+        className={styles.mainApplyBtn}
+        onClick={() => onContact(talent)}
+      >
         Contact
       </button>
     </aside>
@@ -414,6 +630,9 @@ const FindTalentPage = () => {
   const [talents, setTalents] = useState<Talent[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [inviteRecipientId, setInviteRecipientId] = useState<number | null>(null);
+  const [inviteRecipientName, setInviteRecipientName] = useState<string | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -437,6 +656,7 @@ const FindTalentPage = () => {
             profile.experience_years === "THREE_TO_FIVE" ? "3-5 y." :
             profile.experience_years === "FIVE_PLUS" ? "5> y." : "",
           bio: profile.bio || "",
+          resume: profile.resume,
         }));
         setTalents(mapped);
         setSelectedTalent(mapped[0] || null);
@@ -495,6 +715,14 @@ const FindTalentPage = () => {
     requiredSkills
   );
 
+  const handleOpenInviteModal = (talent: Talent) => {
+    setInviteRecipientId(talent.id);
+    setInviteRecipientName(talent.name);
+    setInviteModalOpen(true);
+  };
+
+  const handleCloseInviteModal = () => setInviteModalOpen(false);
+
   if (loading) return <div className={styles.pageContainer}><div>Loading...</div></div>;
   if (error) return <div className={styles.pageContainer}><div>Error: {error}</div></div>;
 
@@ -515,10 +743,17 @@ const FindTalentPage = () => {
           onClearFilters={handleClearFilters}
         />
         <main className={styles.mainContent}>
-          <TalentList talents={filteredTalents} onSelect={setSelectedTalent} selectedId={selectedTalent?.id || null} />
+          <TalentList talents={filteredTalents} onSelect={setSelectedTalent} selectedId={selectedTalent?.id || null} onContact={handleOpenInviteModal} />
         </main>
-        <TalentDescription talent={selectedTalent} />
+        <TalentDescription talent={selectedTalent} onContact={handleOpenInviteModal} />
       </div>
+      <InviteModal
+        open={inviteModalOpen}
+        onClose={handleCloseInviteModal}
+        recipientId={inviteRecipientId}
+        recipientName={inviteRecipientName}
+        onSuccess={() => {}}
+      />
       <ToastContainer aria-label="Notification messages" />
     </div>
   );

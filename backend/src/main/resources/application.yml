@@ -12,7 +12,9 @@ spring:
     show-sql: true
 
 
-
+logging:
+  level:
+    root: DEBUG
 #springdoc:
 #  swagger-ui:
 #    enabled: false
