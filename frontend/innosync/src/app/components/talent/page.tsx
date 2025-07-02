@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "../projects/page.module.css";
 import Image from "next/image";
 import { toast, ToastContainer } from "react-toastify";
@@ -44,6 +44,30 @@ interface FilterSidebarProps {
   onAddSkill: (skill: string) => void;
   onRemoveSkill: (skill: string) => void;
 }
+
+type BackendProfile = {
+  id: number;
+  email: string;
+  fullName: string;
+  telegram: string;
+  github: string;
+  bio: string;
+  position: string;
+  education: string;
+  expertise: string;
+  resume: string | null;
+  profilePicture: string | null;
+  technologies: string[];
+  expertise_level: string;
+  experience_years: string;
+  work_experience: {
+    startDate: string;
+    endDate: string;
+    position: string;
+    company: string;
+    description: string;
+  }[];
+};
 
 const experienceOptions = ["< 1", "1-2", "3-5", "5+"];
 const educationOptions = ["No Degree", "Bachelor", "Master", "PhD"];
@@ -229,63 +253,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ tags, onRemoveTag, onAddTag }) =>
   );
 };
 
-const mockTalents: Talent[] = [
-  {
-    id: 1,
-    name: "Ahmed Baha Eddine Alimi",
-    avatar: "/profile_image.png",
-    positions: ["Frontend Dev", "UI/UX Designer", "Full Stack Dev"],
-    expertiseLevel: "Senior",
-    education: "Bachelor",
-    skills: ["React", "Next.js", "TypeScript", "Figma"],
-    experience: "2 years",
-    bio: "Computer Science student at Innopolis University. Passionate about web and mobile development, hackathons, and learning new technologies.",
-  },
-  {
-    id: 2,
-    name: "Jane Doe",
-    avatar: "/profile_image.png",
-    positions: ["Backend Dev"],
-    expertiseLevel: "Mid",
-    education: "Master",
-    skills: ["Node.js", "Express", "MongoDB", "Docker"],
-    experience: "3 years",
-    bio: "Backend developer with a strong background in scalable server-side applications and cloud infrastructure.",
-  },
-  {
-    id: 3,
-    name: "John Smith",
-    avatar: "/profile_image.png",
-    positions: ["Designer"],
-    expertiseLevel: "Senior",
-    education: "PhD",
-    skills: ["Figma", "Sketch", "Adobe XD", "UI/UX"],
-    experience: "4 years",
-    bio: "UI/UX designer with a keen eye for detail and a passion for creating intuitive user experiences.",
-  },
-  {
-    id: 4,
-    name: "Maria Ivanova",
-    avatar: "/profile_image.png",
-    positions: ["Sys Admin"],
-    expertiseLevel: "Expert",
-    education: "No Degree",
-    skills: ["Linux", "AWS", "Docker", "Networking"],
-    experience: "5 years",
-    bio: "Experienced system administrator specializing in cloud infrastructure and network security.",
-  },
-  {
-    id: 5,
-    name: "Alex Lee",
-    avatar: "/profile_image.png",
-    positions: ["DB Admin", "Backend Dev"],
-    expertiseLevel: "Junior",
-    education: "Bachelor",
-    skills: ["PostgreSQL", "MySQL", "Database Design", "Python"],
-    experience: "3 years",
-    bio: "Database administrator with expertise in relational databases and data modeling.",
-  },
-];
 
 const TalentCard: React.FC<TalentCardProps> = ({ talent, onSelect, selected }) => (
   <div className={`${styles.projectCard} ${selected ? styles.selected : ""}`}
@@ -439,11 +406,47 @@ function filterTalents(
 
 const FindTalentPage = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>(["React", "Figma"]);
-  const [selectedTalent, setSelectedTalent] = useState<Talent | null>(mockTalents[0]);
+  const [selectedTalent, setSelectedTalent] = useState<Talent | null>(null);
   const [requiredSkills, setRequiredSkills] = useState<string[]>(["React", "Next.js", "Node.js", "Figma", "Docker"]);
   const [selectedExperience, setSelectedExperience] = useState<string[]>([...experienceOptions]);
   const [selectedEducation, setSelectedEducation] = useState<string[]>([...educationOptions]);
   const [selectedExpertise, setSelectedExpertise] = useState<string[]>([...expertiseOptions]);
+  const [talents, setTalents] = useState<Talent[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch("http://localhost:8080/api/profile/all")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch profiles");
+        return res.json();
+      })
+      .then((data: BackendProfile[]) => {
+        // Map backend profile to Talent interface
+        const mapped: Talent[] = data.map((profile) => ({
+          id: profile.id,
+          name: profile.fullName || profile.email || "No Name",
+          avatar: profile.profilePicture || "/profile_image.png",
+          positions: profile.position ? [profile.position] : [],
+          expertiseLevel: profile.expertise_level || profile.expertise || "",
+          education: profile.education || "",
+          skills: profile.technologies || [],
+          experience: profile.experience_years === "ZERO_TO_ONE" ? "<1 y." :
+            profile.experience_years === "ONE_TO_TWO" ? "1-2 y." :
+            profile.experience_years === "THREE_TO_FIVE" ? "3-5 y." :
+            profile.experience_years === "FIVE_PLUS" ? "5> y." : "",
+          bio: profile.bio || "",
+        }));
+        setTalents(mapped);
+        setSelectedTalent(mapped[0] || null);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
 
   const handleRemoveTag = (tag: string) => {
     setSelectedTags((tags) => tags.filter((t) => t !== tag));
@@ -485,12 +488,15 @@ const FindTalentPage = () => {
   };
 
   const filteredTalents = filterTalents(
-    mockTalents,
+    talents,
     selectedExperience,
     selectedEducation,
     selectedExpertise,
     requiredSkills
   );
+
+  if (loading) return <div className={styles.pageContainer}><div>Loading...</div></div>;
+  if (error) return <div className={styles.pageContainer}><div>Error: {error}</div></div>;
 
   return (
     <div className={styles.pageContainer}>
