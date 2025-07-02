@@ -9,11 +9,108 @@ interface NavbarUserProps {
   onLogout?: () => void;
 }
 
+interface UserProfile {
+  id: number;
+  email: string;
+  fullName: string;
+  telegram: string;
+  github: string;
+  bio: string;
+  position: string;
+  education: string;
+  expertise: string;
+  expertiseLevel: string;
+  resume: string;
+  profilePicture: string;
+  workExperience: Array<{
+    startDate: string;
+    endDate: string;
+    position: string;
+    company: string;
+    description: string;
+  }>;
+  technologies: string[];
+}
+
 const NavbarUser: React.FC<NavbarUserProps> = ({ onLogout }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
   const menuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:8080/api/profile/me", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserProfile(data);
+        } else {
+          console.error("Failed to fetch user profile");
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
+  // Listen for profile updates and refetch data
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      fetch("http://localhost:8080/api/profile/me", {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+        .then(response => response.ok ? response.json() : null)
+        .then(data => {
+          if (data) {
+            setUserProfile(data);
+            setLoading(false);
+          }
+        })
+        .catch(error => console.error("Error refetching user profile:", error));
+    };
+
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    window.addEventListener('authStateChanged', handleProfileUpdate);
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+      window.removeEventListener('authStateChanged', handleProfileUpdate);
+    };
+  }, []);
+
+  // Generate display name (first letter + surname)
+  const getDisplayName = (fullName: string) => {
+    if (!fullName) return "User";
+    const nameParts = fullName.trim().split(" ");
+    if (nameParts.length === 1) return nameParts[0];
+    const firstName = nameParts[0];
+    const lastName = nameParts[nameParts.length - 1];
+    return `${firstName.charAt(0)}.${lastName}`;
+  };
 
   useEffect(() => {
     if (menuOpen) {
@@ -51,6 +148,7 @@ const NavbarUser: React.FC<NavbarUserProps> = ({ onLogout }) => {
     if (!refreshToken) {
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
+      window.dispatchEvent(new CustomEvent('authStateChanged'));
       if (onLogout) onLogout();
       return;
     }
@@ -62,11 +160,13 @@ const NavbarUser: React.FC<NavbarUserProps> = ({ onLogout }) => {
       });
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
+      window.dispatchEvent(new CustomEvent('authStateChanged'));
       if (onLogout) onLogout();
     } catch (err) {
       console.log("Error logging out:", err);
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
+      window.dispatchEvent(new CustomEvent('authStateChanged'));
       if (onLogout) onLogout();
     }
   };
@@ -109,20 +209,24 @@ const NavbarUser: React.FC<NavbarUserProps> = ({ onLogout }) => {
           </div>
         </div>
 
-        {/* User Info (Bell + Username) */}
-        <div className={styles.authButtons}>
-          <span className={styles.userInfo}>
-            <Image src="/bell.svg" alt="Notifications" width={28} height={28} className={styles.userIcon} />
-            <div
-              className={styles.userMenu}
-              ref={userMenuRef}
-              onClick={() => setMenuOpen((open) => !open)}
-              style={{ cursor: "pointer" }}
-            >
-              A.Alimi
-              <Image src="/user_chevron.svg" alt="User Menu" width={24} height={24} className={styles.userIcon} />
-            </div>
-            {showDropdown && (
+                  {/* User Info (Bell + Username) */}
+          <div className={styles.authButtons}>
+            <span className={styles.userInfo}>
+              {!loading && getDisplayName(userProfile?.fullName || "") !== "User" && (
+                <>
+                  <Image src="/bell.svg" alt="Notifications" width={28} height={28} className={styles.userIcon} />
+                  <div
+                    className={styles.userMenu}
+                    ref={userMenuRef}
+                    onClick={() => setMenuOpen((open) => !open)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    {getDisplayName(userProfile?.fullName || "")}
+                    <Image src="/user_chevron.svg" alt="User Menu" width={24} height={24} className={styles.userIcon} />
+                  </div>
+                </>
+              )}
+                          {showDropdown && !loading && getDisplayName(userProfile?.fullName || "") !== "User" && (
               <div
                 className={
                   styles.userDropdown +
@@ -133,8 +237,12 @@ const NavbarUser: React.FC<NavbarUserProps> = ({ onLogout }) => {
                 style={{ transitionDuration: ANIMATION_DURATION + 'ms' }}
               >
                 <div className={styles.userDropdownHeader}>
-                  <div className={styles.userDropdownName}>Ahmed Baha Eddine Alimi</div>
-                  <div className={styles.userDropdownEmail}>3llimi69@gmail.com</div>
+                  <div className={styles.userDropdownName}>
+                    {loading ? "Loading..." : userProfile?.fullName || "User"}
+                  </div>
+                  <div className={styles.userDropdownEmail}>
+                    {loading ? "Loading..." : userProfile?.email || ""}
+                  </div>
                 </div>
                 <hr className={styles.userDropdownDivider} />
                 <div className={styles.userDropdownItem}>

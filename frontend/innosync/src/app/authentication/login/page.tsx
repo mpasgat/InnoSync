@@ -62,6 +62,11 @@ export default function LoginPage() {
       if (data.refreshToken) {
         localStorage.setItem('refreshToken', data.refreshToken);
       }
+      
+      // Trigger navbar refresh and auth state change
+      window.dispatchEvent(new CustomEvent('profileUpdated'));
+      window.dispatchEvent(new CustomEvent('authStateChanged'));
+      
       router.push('/components/home');
     } catch (err) {
       setGeneralError("Network error. Please try again later.");

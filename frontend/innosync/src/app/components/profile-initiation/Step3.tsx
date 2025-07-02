@@ -204,6 +204,9 @@ export default function Step3({ formData, setFormData, onBack }: Step3Props) {
     }
 
     // 4. Navigate to dashboard/overview if all succeeded
+    // Trigger navbar refresh by dispatching a custom event
+    window.dispatchEvent(new CustomEvent('profileUpdated'));
+    
     setTimeout(() => {
       router.push("/dashboard/overview");
     }, 1000);
