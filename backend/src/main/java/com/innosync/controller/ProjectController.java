@@ -59,4 +59,10 @@ public class ProjectController {
     public List<ProjectRoleWithProjectResponse> getAllRolesWithProjectInfo() {
         return projectRoleService.getAllProjectRolesWithProjectInfo();
     }
+
+    @GetMapping("/{projectId}")
+    @Operation(summary = "Get information about a specific project")
+    public ProjectResponse getProject(@PathVariable Long projectId) {
+        return projectService.getProject(projectId);
+    }
 }
