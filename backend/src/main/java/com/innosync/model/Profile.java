@@ -42,6 +42,10 @@ public class Profile {
     @Column(name = "expertise_level", nullable = false)
     private ExpertiseLevel expertiseLevel;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "experience_years")
+    private ExperienceYears experienceYears;
+
     private String resume; // path
     private String profilePicture; //path
 

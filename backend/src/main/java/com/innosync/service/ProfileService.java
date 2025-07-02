@@ -50,6 +50,7 @@ public class ProfileService {
         profile.setEducation(request.getEducation());
         profile.setExpertise(request.getExpertise());
         profile.setExpertiseLevel(request.getExpertiseLevel());
+        profile.setExperienceYears(request.getExperienceYears());
 
         // Обработка технологий
         if (request.getTechnologies() != null && !request.getTechnologies().isEmpty()) {
@@ -105,6 +106,7 @@ public class ProfileService {
         response.setEducation(profile.getEducation());
         response.setExpertise(profile.getExpertise());
         response.setExpertiseLevel(profile.getExpertiseLevel());
+        response.setExperienceYears(profile.getExperienceYears());
         response.setId(profile.getId());
 
         // Опыт работы
