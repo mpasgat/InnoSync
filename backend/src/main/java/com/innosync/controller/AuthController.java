@@ -35,6 +35,11 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    // Add setter for testing
+    void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
     @PostMapping("/signup")
     @Operation(summary = "Sign up user")
     public ResponseEntity<?> signUp(@Valid @RequestBody SignUpRequest signUpRequest) {
@@ -59,7 +64,7 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "Log in User")
-    public ResponseEntity<?> singIn(@Valid @RequestBody SignInRequest signInRequest) {
+    public ResponseEntity<?> signIn(@Valid @RequestBody SignInRequest signInRequest) {
         return userRepository.findByEmail(signInRequest.getEmail())
                 .map(user -> {
                     if (passwordEncoder.matches(signInRequest.getPassword(), user.getPasswordHash())) {

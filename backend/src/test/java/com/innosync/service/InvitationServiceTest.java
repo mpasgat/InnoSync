@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -110,8 +111,8 @@ class InvitationServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> invitationService.createInvitation(invitationRequest, recruiterEmail))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Project role not found");
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessage("404 NOT_FOUND \"Project role not found\"");
 
         verify(projectRoleRepository).findById(1L);
         verifyNoInteractions(invitationRepository);
@@ -130,8 +131,8 @@ class InvitationServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> invitationService.createInvitation(invitationRequest, recruiterEmail))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Recipient user not found");
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessage("404 NOT_FOUND \"Recipient user not found\"");
 
         verify(projectRoleRepository).findById(1L);
         verify(invitationRepository).existsByRecipientIdAndProjectRoleIdAndStatus(2L, 1L, InvitationStatus.INVITED);
@@ -202,8 +203,8 @@ class InvitationServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> invitationService.respondToInvitation(invitationId, response, userEmail))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Invitation already responded to");
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessage("409 CONFLICT \"Invitation already responded to\"");
 
         verify(invitationRepository).findById(invitationId);
         verify(invitationRepository, never()).save(any());

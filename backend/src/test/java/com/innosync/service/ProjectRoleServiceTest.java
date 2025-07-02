@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -111,8 +112,8 @@ class ProjectRoleServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> projectRoleService.addRoleToProject(projectId, roleRequest, creatorEmail))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Project not found");
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessage("404 NOT_FOUND \"Project not found\"");
 
         verify(projectRepository).findById(projectId);
         verifyNoInteractions(roleRepository);
