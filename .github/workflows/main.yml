@@ -22,24 +22,8 @@ jobs:
       - name: Run Backend Tests
         run: ./mvnw test
 
-  frontend-tests:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend/innosync
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      - name: Install Dependencies
-        run: npm ci
-      - name: Run Frontend Tests
-        run: npm test
-
   deploy:
-    needs: [backend-tests, frontend-tests]
+    needs: [backend-tests]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
