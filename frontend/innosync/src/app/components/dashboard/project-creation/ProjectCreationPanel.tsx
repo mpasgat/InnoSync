@@ -26,6 +26,8 @@ export default function ProjectCreationPanel({ open, onClose }: ProjectCreationP
   const [teamSize, setTeamSize] = useState("");
   const [positions, setPositions] = useState<string[]>([]);
   const [positionInput, setPositionInput] = useState("");
+  const [experienceLevel, setExperienceLevel] = useState("");
+  const [commitment, setCommitment] = useState("");
 
   // Step 2 fields
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
@@ -159,7 +161,9 @@ export default function ProjectCreationPanel({ open, onClose }: ProjectCreationP
         title,
         description,
         projectType: projectType.toUpperCase(), // FREELANCE, RESEARCH, ACADEMIC, HACKATHON
-        teamSize: getTeamSizeEnum(teamSize) // OneThree, FourSix, SevenPlus
+        teamSize: getTeamSizeEnum(teamSize), // OneThree, FourSix, SevenPlus
+        experienceLevel,
+        commitment
       };
 
       const projectResponse = await fetch('http://localhost:8080/api/projects', {
@@ -221,6 +225,8 @@ export default function ProjectCreationPanel({ open, onClose }: ProjectCreationP
       setPositions([]);
       setTeamMembers([]);
       setQuickSync(false);
+      setExperienceLevel("");
+      setCommitment("");
       onClose();
 
     } catch (error) {
@@ -301,6 +307,44 @@ export default function ProjectCreationPanel({ open, onClose }: ProjectCreationP
                   <option value="1-3">1-3</option>
                   <option value="4-6">4-6</option>
                   <option value="7+">7+</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Experience Level and Commitment Row */}
+            <div className={styles.rowGroup}>
+              <div className={styles.fieldGroup}>
+                <label htmlFor="experience-level">Experience Level:</label>
+                <select
+                  id="experience-level"
+                  value={experienceLevel}
+                  onChange={e => setExperienceLevel(e.target.value)}
+                  className={experienceLevel ? styles.hasValue : ''}
+                  required
+                >
+                  <option value="" disabled>Experience Level</option>
+                  <option value="ENTRY">Entry</option>
+                  <option value="JUNIOR">Junior</option>
+                  <option value="MID">Mid</option>
+                  <option value="SENIOR">Senior</option>
+                  <option value="RESEARCHER">Researcher</option>
+                </select>
+              </div>
+              <div className={styles.fieldGroup}>
+                <label htmlFor="commitment">Commitment:</label>
+                <select
+                  id="commitment"
+                  value={commitment}
+                  onChange={e => setCommitment(e.target.value)}
+                  className={commitment ? styles.hasValue : ''}
+                  required
+                >
+                  <option value="" disabled>Commitment</option>
+                  <option value="Full Time">Full Time</option>
+                  <option value="Part Time">Part Time</option>
+                  <option value="Internship">Internship</option>
+                  <option value="Contract">Contract</option>
+                  <option value="Research">Research</option>
                 </select>
               </div>
             </div>
