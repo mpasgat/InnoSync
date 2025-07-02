@@ -23,6 +23,7 @@ jobs:
         run: ./mvnw test
 
   deploy:
+    if: github.ref == 'refs/heads/main'
     needs: [backend-tests]
     runs-on: ubuntu-latest
     steps:
