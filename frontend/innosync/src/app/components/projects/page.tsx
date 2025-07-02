@@ -712,7 +712,7 @@ const FindProjectPage = () => {
         </main>
         <ProjectDescription project={selectedProject} />
       </div>
-      <ToastContainer />
+      <ToastContainer aria-label="Notification messages" />
     </div>
   );
 };

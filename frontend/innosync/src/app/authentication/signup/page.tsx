@@ -94,6 +94,11 @@ export default function SignUp() {
       if (data.refreshToken) {
         localStorage.setItem('refreshToken', data.refreshToken);
       }
+      
+      // Trigger navbar refresh and auth state change
+      window.dispatchEvent(new CustomEvent('profileUpdated'));
+      window.dispatchEvent(new CustomEvent('authStateChanged'));
+      
       router.push('/components/profile-initiation');
 
       // You can redirect to login page here
