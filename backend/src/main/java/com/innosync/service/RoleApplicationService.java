@@ -108,6 +108,7 @@ public class RoleApplicationService {
         // Project info
         response.setProjectId(role.getProject().getId());
         response.setProjectTitle(role.getProject().getTitle());
+        response.setProjectType(role.getProject().getProjectType());
 
         return response;
     }
