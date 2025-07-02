@@ -24,38 +24,76 @@ candidates_df = pd.read_csv('team_candidates.csv')
 jobs_df = pd.read_csv('team_jobs.csv')
 recommender = TeamRecommender(candidates_df, jobs_df)
 
-class TeamRequest(BaseModel):
-    job_id: Optional[str] = None
-    max_candidates: Optional[int] = 5
+class ProjectRequest(BaseModel):
+    id: int
 
-class MemberResponse(BaseModel):
-    candidate_id: int
-    name: str
-    role: str
-    skills: list[str]
-    experience: int
-    current_company: str
-    match_score: float
+class Project(BaseModel):
+    id: int
+    title: str
+    description: str
+    createdAt: str
+    updatedAt: str
+    projectType: str
+    teamSize: int
+
+class Role(BaseModel):
+    id: int
+    roleName: str
+    expertiseLevel: str
+    technologies: list[str]
+
+class Work(BaseModel):
+    startDate: str
+    endDate: str
+    position: str
+    company: str
+    description: str
+
+class Member(BaseModel):
+    id: int
+    email: str
+    fullName: str
+    telegram: str
+    github: str
+    bio: str
+    position: str
+    education: str
+    expertise: str
+    resume: str
+    profilePicture: str
+    technologies: list[str]
+    expertise_level: str
+    experience_years: str
+    work_experience: list[Work]
+
+    # position: str
+    # skills: list[str]
+    # experience: int
+    # current_company: str
+    # match_score: float
 
 class SynergyResponse(BaseModel):
     avg_synergy: float
     shared_skills: float
     experience_variance: float
 
-class TeamResponse(BaseModel):
-    job_id: str
-    team_score: float
-    synergy_score: float
-    combined_score: float
-    members: list[MemberResponse]
-    synergy_metrics: SynergyResponse
-    project_name: str
-    required_skills: list[str]
-    notes: list[str]
+# class TeamResponse(BaseModel):
+#     project_id: str
+#     team_score: float
+#     synergy_score: float
+#     combined_score: float
+#     members: list[Member]
+#     synergy_metrics: SynergyResponse
 
-@app.post("/recommend-team", response_model=TeamResponse)
-async def get_team_with_synergy(request: TeamRequest):
+@app.post("/recommend-team", response_model=list[Member])
+async def get_team_with_synergy(request: ProjectRequest):
+    project_id = request.id
+    
     try:
+        # response = request.get(f"https://localhost:8080/api/projects/{project_id}")
+
+        # change according to Pydantic model
+    
         recommendation = recommender.recommend_team_with_synergy(
             job_id=request.job_id or jobs_df.sample(1)['job_id'].values[0],
             n_candidates=request.max_candidates or 5
