@@ -3,12 +3,16 @@ package com.innosync.dto.profile;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.innosync.model.Education;
 import com.innosync.model.ExpertiseLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProfileRequest {
     private String telegram;
     private String github;
@@ -22,5 +26,4 @@ public class ProfileRequest {
     private List<WorkExperienceRequest> workExperience;
     @JsonProperty("technologies")
     private List<String> technologies;
-
 }

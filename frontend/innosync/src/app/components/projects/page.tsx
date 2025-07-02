@@ -5,17 +5,24 @@ import Image from 'next/image';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+interface ProjectPosition {
+  name: string;
+  skills: string[];
+}
+
 interface Project {
   id: number;
   company: string;
   logo: string;
-  title: string;
+  description: string;
+  requiredSkills: string[]; // for all positions
+  teamSize: string;
+  projectType: string;
+  positions: ProjectPosition[];
   badge: string;
-  badgeType: 'fullTime' | 'internship' | 'partTime' | 'remote' | 'contract' | 'temporary';
-  location: string;
-  salary: string;
-  timeLeft: string;
+  badgeType: 'fullTime' | 'internship' | 'partTime' | 'remote' | 'contract' | 'temporary' | 'research';
   featured?: boolean;
+  complexity: string;
 }
 
 interface SearchBarProps {
@@ -46,19 +53,36 @@ interface FilterSidebarProps {
   onRemoveSkill: (skill: string) => void;
 }
 
-const FilterCheckbox: React.FC<{ label: string; defaultChecked?: boolean }> = ({ label, defaultChecked }) => (
-  <label className={styles.checkboxLabel}>
-    <input type="checkbox" className={styles.checkbox} defaultChecked={defaultChecked} />
-    <span className={styles.customCheckbox}>
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 8.5L7 11.5L12 5.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </span>
-    {label}
-  </label>
-);
+// Add filter options
+const experienceOptions = ['Entry Level', 'Junior', 'Mid', 'Senior'];
+const projectTypeOptions = ['Paid', 'Academic', 'Volunteer'];
+const teamSizeOptions = ['1-3', '4-6', '7+'];
+const employmentTypeOptions = [
+  { label: 'Contract', value: 'contract' },
+  { label: 'Full Time', value: 'fullTime' },
+  { label: 'Part Time', value: 'partTime' },
+  { label: 'Internship', value: 'internship' },
+  { label: 'Research', value: 'research' },
+];
 
-const FilterSidebar: React.FC<FilterSidebarProps> = ({ skills, onAddSkill, onRemoveSkill }) => {
+const FilterSidebar: React.FC<FilterSidebarProps & {
+  selectedExperience: string[];
+  setSelectedExperience: (exp: string[]) => void;
+  selectedProjectType: string[];
+  setSelectedProjectType: (type: string[]) => void;
+  selectedTeamSize: string[];
+  setSelectedTeamSize: (size: string[]) => void;
+  selectedEmploymentType: string[];
+  setSelectedEmploymentType: (type: string[]) => void;
+  onClearFilters: () => void;
+}> = ({
+  skills, onAddSkill, onRemoveSkill,
+  selectedExperience, setSelectedExperience,
+  selectedProjectType, setSelectedProjectType,
+  selectedTeamSize, setSelectedTeamSize,
+  selectedEmploymentType, setSelectedEmploymentType,
+  onClearFilters
+}) => {
   const [input, setInput] = useState('');
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -71,36 +95,100 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ skills, onAddSkill, onRem
     }
   };
 
+  const handleCheckbox = (value: string, selected: string[], setSelected: (v: string[]) => void) => {
+    if (selected.includes(value)) {
+      setSelected(selected.filter(v => v !== value));
+    } else {
+      setSelected([...selected, value]);
+    }
+  };
+
   return (
     <aside className={styles.sidebar}>
       <div className={styles.filterSection}>
         <h3>Experience Level</h3>
         <div className={styles.checkboxGroup}>
-          {['Entry Level', 'Junior', 'Mid', 'Senior'].map(level => (
-            <FilterCheckbox key={level} label={level} defaultChecked />
+          {experienceOptions.map(level => (
+            <label className={styles.checkboxLabel} key={level}>
+              <input
+                type="checkbox"
+                className={styles.checkbox}
+                checked={selectedExperience.includes(level)}
+                onChange={() => handleCheckbox(level, selectedExperience, setSelectedExperience)}
+              />
+              <span className={styles.customCheckbox}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 8.5L7 11.5L12 5.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              {level}
+            </label>
           ))}
         </div>
       </div>
-
       <div className={styles.filterSection}>
         <h3>Project Type</h3>
         <div className={styles.checkboxGroup}>
-          {['Paid', 'Academic', 'Volunteer'].map(type => (
-            <FilterCheckbox key={type} label={type} defaultChecked />
+          {projectTypeOptions.map(type => (
+            <label className={styles.checkboxLabel} key={type}>
+              <input
+                type="checkbox"
+                className={styles.checkbox}
+                checked={selectedProjectType.includes(type)}
+                onChange={() => handleCheckbox(type, selectedProjectType, setSelectedProjectType)}
+              />
+              <span className={styles.customCheckbox}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 8.5L7 11.5L12 5.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              {type}
+            </label>
           ))}
         </div>
       </div>
-
       <div className={styles.filterSection}>
         <h3>Team Size</h3>
-        <select className={styles.dropdown}>
-          <option>Team Size</option>
-          <option>1-3</option>
-          <option>4-6</option>
-          <option>7+</option>
-        </select>
+        <div className={styles.checkboxGroup}>
+          {teamSizeOptions.map(size => (
+            <label className={styles.checkboxLabel} key={size}>
+              <input
+                type="checkbox"
+                className={styles.checkbox}
+                checked={selectedTeamSize.includes(size)}
+                onChange={() => handleCheckbox(size, selectedTeamSize, setSelectedTeamSize)}
+              />
+              <span className={styles.customCheckbox}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 8.5L7 11.5L12 5.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              {size}
+            </label>
+          ))}
+        </div>
       </div>
-
+      <div className={styles.filterSection}>
+        <h3>Employment Type</h3>
+        <div className={styles.checkboxGroup}>
+          {employmentTypeOptions.map(opt => (
+            <label className={styles.checkboxLabel} key={opt.value}>
+              <input
+                type="checkbox"
+                className={styles.checkbox}
+                checked={selectedEmploymentType.includes(opt.value)}
+                onChange={() => handleCheckbox(opt.value, selectedEmploymentType, setSelectedEmploymentType)}
+              />
+              <span className={styles.customCheckbox}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 8.5L7 11.5L12 5.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              {opt.label}
+            </label>
+          ))}
+        </div>
+      </div>
       <div className={styles.filterSection}>
         <h3>Required Skills</h3>
         <div className={styles.searchInputWrapper}>
@@ -127,6 +215,12 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ skills, onAddSkill, onRem
           <div style={{ width: '100%', height: 30 }} />
         </div>
       </div>
+      <button
+        onClick={onClearFilters}
+        className={styles.clearFiltersBtn}
+      >
+        Clear Filters
+      </button>
     </aside>
   );
 };
@@ -180,145 +274,203 @@ const mockProjects: Project[] = [
     id: 1,
     company: 'Google',
     logo: '/company_logo.svg',
-    title: 'Technical Support Specialist',
+    description: 'Support Google products and help users solve technical issues.',
+    requiredSkills: ['Customer Service', 'Troubleshooting', 'Communication'],
+    teamSize: '4-6',
+    projectType: 'Paid',
+    positions: [
+      { name: 'Support Engineer', skills: ['Customer Service', 'Troubleshooting'] },
+      { name: 'QA Tester', skills: ['Communication'] },
+    ],
     badge: 'Full Time',
     badgeType: 'fullTime',
-    location: 'Idaho, USA',
-    salary: '$15K-$20K',
-    timeLeft: '4 Days Remaining',
+    complexity: 'Entry Level',
   },
   {
     id: 2,
     company: 'Youtube',
     logo: '/company_logo.svg',
-    title: 'UI/UX Designer',
+    description: 'Design user interfaces and experiences for Youtube apps.',
+    requiredSkills: ['Figma', 'UX Research', 'Prototyping'],
+    teamSize: '7+',
+    projectType: 'Academic',
+    positions: [
+      { name: 'UI Designer', skills: ['Figma', 'Prototyping'] },
+      { name: 'UX Researcher', skills: ['UX Research'] },
+    ],
     badge: 'Full Time',
     badgeType: 'fullTime',
-    location: 'Minnesota, USA',
-    salary: '$10K-$15K',
-    timeLeft: '4 Days Remaining',
+    complexity: 'Junior',
   },
   {
     id: 3,
     company: 'Reddit',
     logo: '/company_logo.svg',
-    title: 'Front End Developer',
+    description: 'Develop and maintain Reddit front-end features.',
+    requiredSkills: ['React', 'TypeScript', 'CSS'],
+    teamSize: '1-3',
+    projectType: 'Volunteer',
+    positions: [
+      { name: 'Frontend Dev', skills: ['React', 'TypeScript', 'CSS'] },
+    ],
     badge: 'Internship',
     badgeType: 'internship',
-    location: 'Mymensingh, Bangladesh',
-    salary: '$10K-$15K',
-    timeLeft: '4 Days Remaining',
+    complexity: 'Entry Level',
   },
   {
     id: 4,
     company: 'Freepik',
     logo: '/company_logo.svg',
-    title: 'Marketing Officer',
+    description: 'Lead marketing campaigns for Freepik.',
+    requiredSkills: ['SEO', 'Content Creation', 'Analytics'],
+    teamSize: '4-6',
+    projectType: 'Paid',
+    positions: [
+      { name: 'Marketing Lead', skills: ['SEO', 'Analytics'] },
+      { name: 'Content Writer', skills: ['Content Creation'] },
+    ],
     badge: 'Full Time',
     badgeType: 'fullTime',
-    location: 'Montana, USA',
-    salary: '$50K-$60K',
-    timeLeft: '4 Days Remaining',
+    complexity: 'Mid',
   },
   {
     id: 5,
     company: 'Instagram',
     logo: '/company_logo.svg',
-    title: 'Networking Engineer',
+    description: 'Maintain and optimize Instagram network infrastructure.',
+    requiredSkills: ['Networking', 'Python', 'Linux'],
+    teamSize: '7+',
+    projectType: 'Paid',
+    positions: [
+      { name: 'Network Engineer', skills: ['Networking', 'Python', 'Linux'] },
+    ],
     badge: 'Full Time',
     badgeType: 'fullTime',
-    location: 'Michigan, USA',
-    salary: '$5K-$10K',
-    timeLeft: '4 Days Remaining',
+    complexity: 'Senior',
   },
   {
     id: 6,
     company: 'Slack',
     logo: '/company_logo.svg',
-    title: 'Senior UX Designer',
+    description: 'Design advanced user experiences for Slack.',
+    requiredSkills: ['UX', 'Wireframing', 'User Testing'],
+    teamSize: '4-6',
+    projectType: 'Academic',
+    positions: [
+      { name: 'UX Designer', skills: ['UX', 'User Testing'] },
+      { name: 'Product Owner', skills: ['Wireframing'] },
+    ],
     badge: 'Full Time',
     badgeType: 'fullTime',
-    location: 'Entry Level',
-    salary: '2-3 Team Members',
-    timeLeft: 'Academic',
     featured: true,
+    complexity: 'Mid',
   },
   {
     id: 7,
     company: 'Facebook',
     logo: '/company_logo.svg',
-    title: 'Junior Graphic Designer',
+    description: 'Create graphics for Facebook marketing.',
+    requiredSkills: ['Photoshop', 'Illustrator', 'Creativity'],
+    teamSize: '1-3',
+    projectType: 'Volunteer',
+    positions: [
+      { name: 'Graphic Designer', skills: ['Photoshop', 'Illustrator', 'Creativity'] },
+    ],
     badge: 'Full Time',
     badgeType: 'fullTime',
-    location: 'Mymensingh, Bangladesh',
-    salary: '$40K-$50K',
-    timeLeft: '4 Days Remaining',
+    complexity: 'Entry Level',
   },
   {
     id: 8,
     company: 'Twitter',
     logo: '/company_logo.svg',
-    title: 'Product Designer',
+    description: 'Design new product features for Twitter.',
+    requiredSkills: ['Product Design', 'Sketch', 'Collaboration'],
+    teamSize: '7+',
+    projectType: 'Paid',
+    positions: [
+      { name: 'Product Designer', skills: ['Product Design', 'Collaboration'] },
+      { name: 'UI Designer', skills: ['Sketch'] },
+    ],
     badge: 'Full Time',
     badgeType: 'fullTime',
-    location: 'Sivas, Turkey',
-    salary: '$50K-$70K',
-    timeLeft: '4 Days Remaining',
+    complexity: 'Senior',
   },
   {
     id: 9,
     company: 'Udemy',
     logo: '/company_logo.svg',
-    title: 'Project Manager',
+    description: 'Manage Udemy course development projects.',
+    requiredSkills: ['Project Management', 'Agile', 'Scrum'],
+    teamSize: '4-6',
+    projectType: 'Paid',
+    positions: [
+      { name: 'Project Manager', skills: ['Project Management', 'Agile', 'Scrum'] },
+    ],
     badge: 'Full Time',
     badgeType: 'fullTime',
-    location: 'Ohio, USA',
-    salary: '$50K-$80K',
-    timeLeft: '4 Days Remaining',
+    complexity: 'Mid',
   },
   {
     id: 10,
     company: 'Microsoft',
     logo: '/company_logo.svg',
-    title: 'Marketing Manager',
+    description: 'Lead marketing for Microsoft products.',
+    requiredSkills: ['Marketing', 'Strategy', 'Leadership'],
+    teamSize: '7+',
+    projectType: 'Paid',
+    positions: [
+      { name: 'Marketing Manager', skills: ['Marketing', 'Strategy', 'Leadership'] },
+    ],
     badge: 'Temporary',
     badgeType: 'temporary',
-    location: 'Konya, Turkey',
-    salary: '$20K-$25K',
-    timeLeft: '4 Days Remaining',
+    complexity: 'Senior',
   },
   {
     id: 11,
     company: 'Apple',
     logo: '/company_logo.svg',
-    title: 'Visual Designer',
+    description: 'Design visuals for Apple campaigns.',
+    requiredSkills: ['Design', 'Branding', 'Creativity'],
+    teamSize: '1-3',
+    projectType: 'Academic',
+    positions: [
+      { name: 'Visual Designer', skills: ['Design', 'Branding', 'Creativity'] },
+    ],
     badge: 'Part Time',
     badgeType: 'partTime',
-    location: 'Washington, USA',
-    salary: '$10K-$15K',
-    timeLeft: '4 Days Remaining',
+    complexity: 'Junior',
   },
   {
     id: 12,
     company: 'Figma',
     logo: '/company_logo.svg',
-    title: 'Interaction Designer',
+    description: 'Create interactive prototypes for Figma.',
+    requiredSkills: ['Prototyping', 'Figma', 'UX'],
+    teamSize: '4-6',
+    projectType: 'Volunteer',
+    positions: [
+      { name: 'Interaction Designer', skills: ['Prototyping', 'Figma', 'UX'] },
+    ],
     badge: 'Remote',
     badgeType: 'remote',
-    location: 'Penn, USA',
-    salary: '$35K-$40K',
-    timeLeft: '4 Days Remaining',
+    complexity: 'Entry Level',
   },
   {
     id: 13,
     company: 'Upwork',
     logo: '/company_logo.svg',
-    title: 'Senior UX Designer',
+    description: 'Lead UX for Upwork platform.',
+    requiredSkills: ['UX', 'Leadership', 'Research'],
+    teamSize: '7+',
+    projectType: 'Paid',
+    positions: [
+      { name: 'UX Designer', skills: ['UX', 'Research'] },
+      { name: 'Team Lead', skills: ['Leadership'] },
+    ],
     badge: 'Contract Base',
     badgeType: 'contract',
-    location: 'Sylhet, Bangladesh',
-    salary: '$30K-$35K',
-    timeLeft: '4 Days Remaining',
+    complexity: 'Senior',
   },
 ];
 
@@ -331,22 +483,27 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, selected }
       </div>
       <div className={styles.projectDetails}>
         <div className={styles.projectHeader}>
-          <h3 className={styles.projectTitle}>{project.title}</h3>
+          <h3 className={styles.projectTitle}>{project.company}</h3>
           <span className={`${styles.badge} ${styles[project.badgeType]}`}>{project.badge}</span>
+          <span className={styles.badge} style={{ background: '#e4e5e8', color: '#18191c', fontWeight: 600, marginLeft: 8, marginTop: 6 }}>{project.complexity}</span>
         </div>
         <div className={styles.projectMeta}>
           <div className={styles.metaItem}>
-            <Image src="/location.svg" alt="Location" width={16} height={16} />
-            <span>{project.location}</span>
+            <span>Type: {project.projectType}</span>
           </div>
           <div className={styles.metaItem}>
-            <Image src="/salary.svg" alt="Salary" width={16} height={16} />
-            <span>{project.salary}</span>
+            <span>Team Size: {project.teamSize}</span>
           </div>
-          <div className={styles.metaItem}>
-            <Image src="/calendar.svg" alt="Time Left" width={16} height={16} />
-            <span>{project.timeLeft}</span>
-          </div>
+        </div>
+        <div className={styles.tagList} style={{ marginTop: 8 }}>
+          {project.requiredSkills.map(skill => (
+            <span
+              key={skill}
+              className={selected ? `${styles.skillTag} ${styles.selected}` : styles.skillTag}
+            >
+              {skill}
+            </span>
+          ))}
         </div>
       </div>
     </div>
@@ -375,63 +532,59 @@ const ProjectList: React.FC<ProjectListProps> = ({ projects, onSelect, selectedI
 );
 
 const ProjectDescription: React.FC<ProjectDescriptionProps> = ({ project }) => {
-  const availablePositions = ['Frontend Dev', 'Sys Admin', 'Backend Dev', 'DB Admin'];
-  const [selectedPosition, setSelectedPosition] = useState<string | null>(availablePositions[0]);
+  const [selectedPosition, setSelectedPosition] = useState<string | null>(project?.positions[0]?.name || null);
+
+  if (!project) return null;
+
+  // Find the selected position object
+  const selectedPositionObj = project.positions.find(pos => pos.name === selectedPosition);
 
   return (
     <aside className={styles.projectDescription}>
       <div className={styles.projectDescHeader}>
         <div className={styles.projectDescLogoWrapper}>
-          {project?.logo && (
+          {project.logo && (
             <Image src={project.logo} alt={project.company + ' logo'} width={80} height={80} className={styles.projectDescLogo} />
           )}
         </div>
         <div className={styles.projectDescTitleBlock}>
-          <h2 className={styles.projectDescCompany}>{project?.company || 'InnoSync'}</h2>
-          <h3 className={styles.projectDescTitle}>{project?.title || ''}</h3>
+          <h2 className={styles.projectDescCompany}>{project.company}</h2>
+          <span className={styles.badge} style={{ background: '#e4e5e8', color: '#18191c', fontWeight: 600, marginLeft: 8, marginTop: 6 }}>{project.complexity}</span>
         </div>
         <div className={styles.projectDescMetaRow}>
           <div className={styles.projectDescMetaItem}>
-            <Image src="/location.svg" alt="Location" width={18} height={18} />
-            <span>{project?.location}</span>
+            <span>Type: {project.projectType}</span>
           </div>
           <div className={styles.projectDescMetaItem}>
-            <Image src="/salary.svg" alt="Salary" width={18} height={18} />
-            <span>{project?.salary}</span>
-          </div>
-          <div className={styles.projectDescMetaItem}>
-            <Image src="/calendar.svg" alt="Time Left" width={18} height={18} />
-            <span>{project?.timeLeft}</span>
+            <span>Team Size: {project.teamSize}</span>
           </div>
         </div>
       </div>
       <div className={styles.projectDescBody}>
-        <p className={styles.projectDescText}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-        </p>
+        <p className={styles.projectDescText}>{project.description} This project offers a unique opportunity to work with a dynamic team, tackle real-world challenges, and develop your skills in a collaborative environment. You will gain hands-on experience, contribute to impactful solutions, and expand your professional network. Join us to make a difference and accelerate your career growth!</p>
         <div className={styles.projectDescSection}>
-          <h4 className={styles.projectDescSectionTitle}>Tech Stack</h4>
+          <h4 className={styles.projectDescSectionTitle}>Required Skills</h4>
           <div className={styles.tagList}>
-            {['PostgreSQL', 'Docker', 'React'].map(tech => (
-              <span key={tech} className={styles.tag}>{tech}</span>
-            ))}
+            {selectedPositionObj
+              ? selectedPositionObj.skills.map(tech => (
+                  <span key={tech} className={styles.tag}>{tech}</span>
+                ))
+              : project.requiredSkills.map(tech => (
+                  <span key={tech} className={styles.tag}>{tech}</span>
+                ))}
           </div>
         </div>
         <div className={styles.projectDescSection}>
           <h4 className={styles.projectDescSectionTitle}>Available Positions</h4>
           <div className={styles.tagList}>
-            {availablePositions.map(role => (
+            {project.positions.map(role => (
               <span
-                key={role}
-                className={
-                  selectedPosition === role
-                    ? styles.tag
-                    : styles.positionTag
-                }
-                onClick={() => setSelectedPosition(role)}
+                key={role.name}
+                className={selectedPosition === role.name ? styles.tag : styles.positionTag}
+                onClick={() => setSelectedPosition(role.name)}
                 style={{ cursor: 'pointer', transition: 'all 0.2s' }}
               >
-                {role}
+                {role.name}
               </span>
             ))}
           </div>
@@ -446,12 +599,42 @@ const ProjectDescription: React.FC<ProjectDescriptionProps> = ({ project }) => {
   );
 };
 
+// Filtering function for projects
+function filterProjects(
+  projects: Project[],
+  selectedExperience: string[],
+  selectedProjectType: string[],
+  selectedTeamSize: string[],
+  requiredSkills: string[],
+  selectedEmploymentType: string[]
+) {
+  return projects.filter(project => {
+    // Experience Level
+    const expMatch = selectedExperience.length === 0 || selectedExperience.includes(project.complexity);
+    // Project Type
+    const typeMatch = selectedProjectType.length === 0 || selectedProjectType.includes(project.projectType);
+    // Team Size
+    const teamMatch = selectedTeamSize.length === 0 || selectedTeamSize.includes(project.teamSize);
+    // Required Skills (all must be present, case-insensitive)
+    const skillsMatch = requiredSkills.length === 0 || requiredSkills.every(skill =>
+      project.requiredSkills.some(pskill => pskill.toLowerCase() === skill.toLowerCase())
+    );
+    // Employment Type
+    const employmentMatch = selectedEmploymentType.length === 0 || selectedEmploymentType.includes(project.badgeType);
+    return expMatch && typeMatch && teamMatch && skillsMatch && employmentMatch;
+  });
+}
+
 const FindProjectPage = () => {
   const [selectedTags, setSelectedTags] = useState(['Frontend Dev', 'Sys Admin', 'Backend Dev', 'DB Admin']);
   const [selectedProject, setSelectedProject] = useState<Project | null>(mockProjects[5]);
   const [requiredSkills, setRequiredSkills] = useState([
     'Angular', 'React', 'Vue', 'PostgreSQL', 'Docker', 'Figma', 'Git', 'Svelte', 'Python',
   ]);
+  const [selectedExperience, setSelectedExperience] = useState<string[]>([...experienceOptions]);
+  const [selectedProjectType, setSelectedProjectType] = useState<string[]>([...projectTypeOptions]);
+  const [selectedTeamSize, setSelectedTeamSize] = useState<string[]>([...teamSizeOptions]);
+  const [selectedEmploymentType, setSelectedEmploymentType] = useState<string[]>([]);
 
   const handleRemoveTag = (tag: string) => {
     setSelectedTags(tags => tags.filter(t => t !== tag));
@@ -485,21 +668,51 @@ const FindProjectPage = () => {
     setRequiredSkills(skills => [...skills, skill]);
   };
 
+  const handleClearFilters = () => {
+    setSelectedExperience([]);
+    setSelectedProjectType([]);
+    setSelectedTeamSize([]);
+    setRequiredSkills([]);
+    setSelectedEmploymentType([]);
+  };
+
+  const filteredProjects = filterProjects(
+    mockProjects,
+    selectedExperience,
+    selectedProjectType,
+    selectedTeamSize,
+    requiredSkills,
+    selectedEmploymentType
+  );
+
   return (
     <div className={styles.pageContainer}>
       <SearchBar tags={selectedTags} onRemoveTag={handleRemoveTag} onAddTag={handleAddTag} />
       <div className={styles.mainContainer}>
-        <FilterSidebar skills={requiredSkills} onAddSkill={handleAddSkill} onRemoveSkill={handleRemoveSkill} />
+        <FilterSidebar
+          skills={requiredSkills}
+          onAddSkill={handleAddSkill}
+          onRemoveSkill={handleRemoveSkill}
+          selectedExperience={selectedExperience}
+          setSelectedExperience={setSelectedExperience}
+          selectedProjectType={selectedProjectType}
+          setSelectedProjectType={setSelectedProjectType}
+          selectedTeamSize={selectedTeamSize}
+          setSelectedTeamSize={setSelectedTeamSize}
+          selectedEmploymentType={selectedEmploymentType}
+          setSelectedEmploymentType={setSelectedEmploymentType}
+          onClearFilters={handleClearFilters}
+        />
         <main className={styles.mainContent}>
           <ProjectList
-            projects={mockProjects}
+            projects={filteredProjects}
             onSelect={setSelectedProject}
             selectedId={selectedProject?.id || null}
           />
         </main>
         <ProjectDescription project={selectedProject} />
       </div>
-      <ToastContainer />
+      <ToastContainer aria-label="Notification messages" />
     </div>
   );
 };
