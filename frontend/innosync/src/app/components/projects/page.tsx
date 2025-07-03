@@ -759,7 +759,7 @@ const fetchProjects = async (): Promise<Project[]> => {
   console.log('🔄 FETCH PROJECTS: Starting to fetch projects from API...');
   
   try {
-    const response = await fetch('http://localhost:8080/api/projects/roles', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/roles`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -800,7 +800,7 @@ const applyForProjectRole = async (projectRoleId: number): Promise<boolean> => {
   console.log(`🔄 APPLY PROJECT: Starting application for project role ID: ${projectRoleId}`);
 
   try {
-    const response = await fetch(`http://localhost:8080/api/applications/project-roles/${projectRoleId}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/applications/project-roles/${projectRoleId}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -859,7 +859,7 @@ const fetchProjectDetails = async (projectId: number): Promise<ApiProjectDetails
   if (!token) return null;
 
   try {
-    const res = await fetch(`http://localhost:8080/api/projects/${projectId}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${projectId}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -893,7 +893,7 @@ const fetchProjectRoles = async (projectId: number): Promise<ProjectPosition[]> 
   if (!token) return [];
 
   try {
-    const res = await fetch(`http://localhost:8080/api/projects/${projectId}/roles`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${projectId}/roles`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -952,7 +952,7 @@ const FindProjectPage = () => {
       const token = localStorage.getItem('token');
       if (!token) return;
       try {
-        const res = await fetch('http://localhost:8080/api/applications', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/applications`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',

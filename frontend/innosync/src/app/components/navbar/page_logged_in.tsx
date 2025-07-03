@@ -49,7 +49,7 @@ const NavbarUser: React.FC<NavbarUserProps> = ({ onLogout }) => {
       }
 
       try {
-        const response = await fetch("http://localhost:8080/api/profile/me", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/me`, {
           headers: {
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -78,7 +78,7 @@ const NavbarUser: React.FC<NavbarUserProps> = ({ onLogout }) => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      fetch("http://localhost:8080/api/profile/me", {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/me`, {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -160,7 +160,7 @@ const NavbarUser: React.FC<NavbarUserProps> = ({ onLogout }) => {
     }
 
     try {
-      const response = await fetch("http://localhost:8080/api/auth/logout", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json"

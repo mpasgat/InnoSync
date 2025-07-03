@@ -288,7 +288,7 @@ const InviteModal = ({
     if (open) {
       setLoadingProjects(true);
       const token = getToken();
-      fetch("http://localhost:8080/api/projects/me", {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/me`, {
         headers: token ? { "Authorization": `Bearer ${token}` } : {}
       })
         .then(res => res.ok ? res.json() : Promise.resolve([]))
@@ -315,7 +315,7 @@ const InviteModal = ({
     if (selectedProject) {
       setLoadingRoles(true);
       const token = getToken();
-      fetch(`http://localhost:8080/api/projects/${selectedProject}/roles`, {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${selectedProject}/roles`, {
         headers: token ? { "Authorization": `Bearer ${token}` } : {}
       })
         .then(res => res.ok ? res.json() : Promise.resolve([]))
@@ -353,7 +353,7 @@ const InviteModal = ({
     console.log("Sending invitation:", payload);
     try {
       const token = getToken();
-      const response = await fetch("http://localhost:8080/api/invitations", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/invitations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -649,7 +649,7 @@ const FindTalentPage = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch("http://localhost:8080/api/profile/all")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/all`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch profiles");
         return res.json();

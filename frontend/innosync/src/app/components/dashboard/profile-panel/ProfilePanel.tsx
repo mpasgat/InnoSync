@@ -40,7 +40,7 @@ export default function ProfilePanel() {
     async function loadProfile() {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:8080/api/profile/me", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/me`, {
           headers: {
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -54,7 +54,7 @@ export default function ProfilePanel() {
 
           // Fetch profile picture
           if (data.id) {
-            const picRes = await fetch(`http://localhost:8080/api/profile/${data.id}/picture`, {
+            const picRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/${data.id}/picture`, {
               headers: { "Authorization": `Bearer ${token}` }
             });
             if (picRes.ok) {
@@ -64,7 +64,7 @@ export default function ProfilePanel() {
             }
 
             // Fetch resume
-            const resumeRes = await fetch(`http://localhost:8080/api/profile/${data.id}/resume`, {
+            const resumeRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/${data.id}/resume`, {
               headers: { "Authorization": `Bearer ${token}` }
             });
             if (resumeRes.ok) {
