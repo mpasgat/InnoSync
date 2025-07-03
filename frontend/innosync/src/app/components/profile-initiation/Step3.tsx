@@ -29,7 +29,8 @@ interface FormData {
   workExperiences?: WorkExperience[];
   telegram?: string;
   github?: string;
-  expertiseLevel?: string
+  expertiseLevel?: string;
+  experience?: string;
 }
 
 type Step3Props = {
@@ -55,6 +56,15 @@ const initialWorkExp: WorkExperience = {
   description: ""
 };
 
+function mapExperienceToEnum(experience?: string): string {
+  switch (experience) {
+    case "< 1 year": return "ZERO_TO_ONE";
+    case "1-2 years": return "ONE_TO_THREE";
+    case "3-5 years": return "THREE_TO_FIVE";
+    case "5+ years": return "MORE_THAN_TEN";
+    default: return "ZERO_TO_ONE";
+  }
+}
 
 export default function Step3({ formData, setFormData, onBack }: Step3Props) {
   const token = localStorage.getItem("token");
@@ -128,6 +138,7 @@ export default function Step3({ formData, setFormData, onBack }: Step3Props) {
       education: formData.education || "NO_DEGREE",
       expertise: formData.expertise || "",
       expertise_level: formData.expertiseLevel || "ENTRY",
+      experience_years: mapExperienceToEnum(formData.experience),
       work_experience: transformedWorkExperience,
       technologies: formData.technologies || [],
     };
