@@ -44,7 +44,7 @@ export default function InvitationsPage() {
     const fetchInvitations = async () => {
       try {
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-        const res = await fetch("http://localhost:8080/api/invitations/received", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/invitations/received`, {
           headers: token ? { "Authorization": `Bearer ${token}` } : {}
         });
         if (!res.ok) throw new Error("Failed to fetch invitations");

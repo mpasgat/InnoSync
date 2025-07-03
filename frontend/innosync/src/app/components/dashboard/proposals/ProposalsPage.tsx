@@ -80,7 +80,7 @@ const fetchProposals = async (): Promise<Proposal[]> => {
   }
 
   try {
-    const response = await fetch('http://localhost:8080/api/applications', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/applications`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',

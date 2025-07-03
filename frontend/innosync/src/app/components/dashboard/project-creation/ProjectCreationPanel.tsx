@@ -166,7 +166,7 @@ export default function ProjectCreationPanel({ open, onClose }: ProjectCreationP
         commitment
       };
 
-      const projectResponse = await fetch('http://localhost:8080/api/projects', {
+      const projectResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -192,7 +192,7 @@ export default function ProjectCreationPanel({ open, onClose }: ProjectCreationP
           technologies: member.requiredSkills
         };
 
-        const roleResponse = await fetch(`http://localhost:8080/api/projects/${projectId}/roles`, {
+        const roleResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${projectId}/roles`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

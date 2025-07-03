@@ -146,7 +146,7 @@ export default function Step3({ formData, setFormData, onBack }: Step3Props) {
     // 1. Submit the profile JSON
     //let profileId = null;
     try {
-      const response = await fetch("http://localhost:8080/api/profile", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -178,7 +178,7 @@ export default function Step3({ formData, setFormData, onBack }: Step3Props) {
     if (formData.avatar && formData.avatar instanceof File) {
       const formDataObj = new FormData();
       formDataObj.append("file", formData.avatar);
-      const res = await fetch("http://localhost:8080/api/profile/upload-profile-picture", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/upload-profile-picture`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -198,7 +198,7 @@ export default function Step3({ formData, setFormData, onBack }: Step3Props) {
     if (formData.resume && formData.resume instanceof File) {
       const formDataObj = new FormData();
       formDataObj.append("file", formData.resume);
-      const res = await fetch("http://localhost:8080/api/profile/upload-resume", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/upload-resume`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
