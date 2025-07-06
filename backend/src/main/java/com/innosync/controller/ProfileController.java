@@ -6,6 +6,8 @@ import com.innosync.model.Profile;
 import com.innosync.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -28,6 +30,8 @@ import java.util.List;
 @Tag(name = "Profile API", description = "API for user profile") // Swagger annotation
 public class ProfileController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ProfileController.class);
+
     @Autowired
     private ProfileService profileService;
 
@@ -35,26 +39,44 @@ public class ProfileController {
     @Operation(summary = "Create user profile")
     public ProfileResponse createOrUpdateProfile(@RequestBody ProfileRequest request, Authentication auth) {
         String email = auth.getName();
-        return profileService.createOrUpdateProfile(email, request);
+        logger.info("Received profile create/update request for email: {}", email);
+        try {
+            ProfileResponse response = profileService.createOrUpdateProfile(email, request);
+            logger.info("Profile created/updated successfully for email: {}", email);
+            return response;
+        } catch (Exception e) {
+            logger.error("Failed to create/update profile for email: {}", email, e);
+            throw e;
+        }
     }
 
     @PutMapping
     @Operation(summary = "Update user profile")
     public ProfileResponse updateProfile(@RequestBody ProfileRequest request, Authentication auth) {
         String email = auth.getName();
-        return profileService.createOrUpdateProfile(email, request);
+        logger.info("Received profile update request for email: {}", email);
+        try {
+            ProfileResponse response = profileService.createOrUpdateProfile(email, request);
+            logger.info("Profile updated successfully for email: {}", email);
+            return response;
+        } catch (Exception e) {
+            logger.error("Failed to update profile for email: {}", email, e);
+            throw e;
+        }
     }
 
     @GetMapping("/me")
     @Operation(summary = "Show personal profile")
     public ProfileResponse getMyProfile(Authentication auth) {
         String email = auth.getName();
+        logger.info("Fetching personal profile for email: {}", email);
         return profileService.getMyProfile(email);
     }
 
     @GetMapping("/all")
     @Operation(summary = "Get all profiles")
     public List<ProfileResponse> getAllProfiles() {
+        logger.info("Fetching all profiles");
         return profileService.getAllProfiles();
     }
 
@@ -88,7 +110,7 @@ public class ProfileController {
 
             return ResponseEntity.ok("Resume uploaded successfully");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Failed to upload resume", e);
             return ResponseEntity
                     .status(500)
                     .body("Failed to upload resume: " + e.getMessage());
@@ -162,7 +184,7 @@ public class ProfileController {
 
             return ResponseEntity.ok("Profile picture uploaded successfully");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Failed to upload picture", e);
             return ResponseEntity.status(500)
                     .body("Failed to upload picture: " + e.getMessage());
         }
