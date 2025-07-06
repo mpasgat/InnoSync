@@ -34,6 +34,10 @@ public class RefreshTokenService {
     }
 
     public RefreshToken createRefreshToken(User user) {
+        if (user == null) {
+            logger.warn("Attempted to create refresh token for null user");
+            throw new IllegalArgumentException("User cannot be null");
+        }
         logger.info("Creating refresh token for user: {}", user.getEmail());
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUser(user);
