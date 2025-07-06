@@ -6,6 +6,8 @@ import com.innosync.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,8 @@ import java.util.List;
 @Tag(name = "Project API", description = "API for project") // Swagger annotation
 public class ProjectController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ProjectController.class);
+
     private final ProjectService projectService;
     private final ProjectRoleService projectRoleService;
 
@@ -25,6 +29,7 @@ public class ProjectController {
     @Operation(summary = "Show all my projects")
     public List<ProjectResponse> getMyProjects() {
         String email = getCurrentUserEmail();
+        logger.info("Fetching projects for user: {}", email);
         return projectService.getMyProjects(email);
     }
 
@@ -32,7 +37,15 @@ public class ProjectController {
     @Operation(summary = "Create a project")
     public ProjectResponse createProject(@RequestBody ProjectRequest request) {
         String email = getCurrentUserEmail();
-        return projectService.createProject(request, email);
+        logger.info("Received project creation request from user: {}", email);
+        try {
+            ProjectResponse response = projectService.createProject(request, email);
+            logger.info("Project created successfully for user: {}", email);
+            return response;
+        } catch (Exception e) {
+            logger.error("Failed to create project for user: {}", email, e);
+            throw e;
+        }
     }
 
     private String getCurrentUserEmail() {

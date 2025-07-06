@@ -6,6 +6,8 @@ import com.innosync.model.*;
 import com.innosync.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -19,12 +21,14 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class InvitationService {
+    private static final Logger logger = LoggerFactory.getLogger(InvitationService.class);
     private final InvitationRepository invitationRepository;
     private final ProjectRoleRepository projectRoleRepository;
     private final UserRepository userRepository;
 
     @Transactional
     public InvitationResponse createInvitation(InvitationRequest request, String recruiterEmail) {
+        logger.info("Creating invitation from recruiter: {}", recruiterEmail);
         Long projectRoleId = request.getProjectRoleId();
         Long recipientId = request.getRecipientId();
 
@@ -63,6 +67,7 @@ public class InvitationService {
 
     @Transactional
     public InvitationResponse respondToInvitation(Long invitationId, InvitationStatus response, String userEmail) {
+        logger.info("User {} responding to invitation {} with status {}", userEmail, invitationId, response);
         Invitation invitation = invitationRepository.findById(invitationId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Invitation not found"));
 
@@ -81,6 +86,7 @@ public class InvitationService {
     }
 
     public List<InvitationResponse> getSentInvitations(String recruiterEmail) {
+        logger.debug("Getting sent invitations for recruiter: {}", recruiterEmail);
         User recruiter = userRepository.findByEmail(recruiterEmail)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Recruiter not found"));
 
@@ -90,6 +96,7 @@ public class InvitationService {
     }
 
     public List<InvitationResponse> getReceivedInvitations(String userEmail) {
+        logger.debug("Getting received invitations for user: {}", userEmail);
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 

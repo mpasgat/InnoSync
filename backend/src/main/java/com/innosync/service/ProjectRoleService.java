@@ -12,6 +12,8 @@ import com.innosync.repository.ProjectRoleRepository;
 import com.innosync.repository.TechnologyRepository;
 import com.innosync.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProjectRoleService {
+    private static final Logger logger = LoggerFactory.getLogger(ProjectRoleService.class);
     private ProjectRoleRepository roleRepository;
     private ProjectRepository projectRepository;
     private UserRepository userRepository;

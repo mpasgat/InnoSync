@@ -10,6 +10,8 @@ import com.innosync.repository.ProjectRoleRepository;
 import com.innosync.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class RoleApplicationService {
+    private static final Logger logger = LoggerFactory.getLogger(RoleApplicationService.class);
     private final RoleApplicationRepository applicationRepository;
     private final ProjectRoleRepository projectRoleRepository;
     private final UserRepository userRepository;

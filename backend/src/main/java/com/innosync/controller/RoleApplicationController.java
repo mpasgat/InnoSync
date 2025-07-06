@@ -6,6 +6,8 @@ import com.innosync.service.RoleApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Role applicatoin API", description = "API for role application") // Swagger annotation
 public class RoleApplicationController {
+    private static final Logger logger = LoggerFactory.getLogger(RoleApplicationController.class);
     private final RoleApplicationService roleApplicationService;
 
     @PostMapping("/project-roles/{projectRoleId}")
