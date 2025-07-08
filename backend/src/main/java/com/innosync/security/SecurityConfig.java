@@ -26,8 +26,8 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthFilter jwtAuthFilter;
 
-    private final String allowedOrigins = System.getProperty("ALLOWED_ORIGINS", "http://localhost:3000");
-
+    //private final String allowedOrigins = System.getProperty("ALLOWED_ORIGINS", "http://localhost:3000");
+    private final String allowedOrigins = System.getenv().getOrDefault("ALLOWED_ORIGINS", "http://localhost:3000");
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
