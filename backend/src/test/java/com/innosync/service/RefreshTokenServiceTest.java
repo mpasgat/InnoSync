@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -198,16 +199,9 @@ class RefreshTokenServiceTest {
 
     @Test
     void createRefreshToken_WithNullUser_ShouldHandleGracefully() {
-        // Given
-        RefreshToken tokenWithNullUser = new RefreshToken();
-        tokenWithNullUser.setToken("test-token");
-        when(refreshTokenRepository.save(any(RefreshToken.class))).thenReturn(tokenWithNullUser);
-
-        // When
-        RefreshToken result = refreshTokenService.createRefreshToken(null);
-
-        // Then
-        assertThat(result).isNotNull();
-        verify(refreshTokenRepository).save(any(RefreshToken.class));
+        // When & Then
+        assertThatThrownBy(() -> refreshTokenService.createRefreshToken(null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("User cannot be null");
     }
 } 

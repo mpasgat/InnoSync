@@ -26,7 +26,8 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthFilter jwtAuthFilter;
 
-    private final String allowedOrigins = System.getProperty("ALLOWED_ORIGINS", "http://localhost:3000");
+    private final String allowedOrigins = System.getenv().getOrDefault("ALLOWED_ORIGINS", "http://localhost:3000");
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -65,7 +66,8 @@ public class SecurityConfig {
         
         // Get allowed origins from .env file (via system properties)
         config.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
-        
+        System.out.println("ALLOWED_ORIGINS = " + allowedOrigins);
+
         config.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

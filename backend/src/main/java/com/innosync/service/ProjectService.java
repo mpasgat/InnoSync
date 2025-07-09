@@ -10,6 +10,8 @@ import com.innosync.repository.ProjectRepository;
 import com.innosync.repository.ProjectRoleRepository;
 import com.innosync.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,33 +23,48 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProjectService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
+
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final ProjectRoleRepository projectRoleRepository;
 
     public ProjectResponse createProject(ProjectRequest request, String email) {
-        User recruiter =  userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        Project project = Project.builder()
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .projectType(request.getProjectType())
-                .teamSize(request.getTeamSize())
-                .recruiter(recruiter)
-                .build();
-
-        Project saved = projectRepository.save(project);
-
-        return mapToDTO(saved);
+        logger.info("Creating project for recruiter: {}", email);
+        try {
+            User recruiter =  userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            logger.debug("Recruiter found: {}", recruiter.getEmail());
+            Project project = Project.builder()
+                    .title(request.getTitle())
+                    .description(request.getDescription())
+                    .projectType(request.getProjectType())
+                    .teamSize(request.getTeamSize())
+                    .recruiter(recruiter)
+                    .build();
+            Project saved = projectRepository.save(project);
+            logger.info("Project saved with id: {} for recruiter: {}", saved.getId(), recruiter.getEmail());
+            return mapToDTO(saved);
+        } catch (Exception e) {
+            logger.error("Failed to create project for recruiter: {}", email, e);
+            throw e;
+        }
     }
 
     public List<ProjectResponse> getMyProjects(String email) {
-        User recruiter =  userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return projectRepository.findByRecruiter(recruiter)
-                .stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+        logger.debug("Getting projects for recruiter: {}", email);
+        try {
+            User recruiter =  userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            List<Project> projects = projectRepository.findByRecruiter(recruiter);
+            logger.info("Found {} projects for recruiter: {}", projects.size(), email);
+            return projects.stream()
+                    .map(this::mapToDTO)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.error("Failed to get projects for recruiter: {}", email, e);
+            throw e;
+        }
     }
 
     public ProjectResponse getProject(Long id) {
