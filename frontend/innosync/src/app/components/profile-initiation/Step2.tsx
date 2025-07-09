@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import styles from "./page.module.css";
 import Image from "next/image";
 
@@ -29,17 +29,80 @@ export default function Step2({ formData, setFormData, onNext, onBack }: Step2Pr
   const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
   const [showExperienceDropdown, setShowExperienceDropdown] = useState(false);
   const [showEducationDropdown, setShowEducationDropdown] = useState(false);
+  const [currentTech, setCurrentTech] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleRemoveTech = (techToRemove: string) => {
+    const handleRemoveTech = (techToRemove: string) => {
     setFormData({
       ...formData,
       technologies: (formData.technologies || []).filter((tech) => tech !== techToRemove),
     });
+  };
+
+  const showToastMessage = (message: string) => {
+    setToastMessage(message);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
+  const handleAddTech = () => {
+    if (currentTech.trim() && !formData.technologies?.includes(currentTech.trim())) {
+      const currentTechs = formData.technologies || [];
+
+      if (currentTechs.length >= 8) {
+        showToastMessage("You can only add up to 8 technologies");
+        return;
+      }
+
+      setFormData({
+        ...formData,
+        technologies: [...currentTechs, currentTech.trim()]
+      });
+      setCurrentTech("");
+    }
+  };
+
+  const handleTechKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTech();
+    }
+  };
+
+  const validateForm = () => {
+    if (!formData.position?.trim()) {
+      showToastMessage("Please enter your position");
+      return false;
+    }
+    if (!formData.technologies || formData.technologies.length === 0) {
+      showToastMessage("Please add at least one technology");
+      return false;
+    }
+    if (!formData.expertise) {
+      showToastMessage("Please select your expertise level");
+      return false;
+    }
+    if (!formData.experience) {
+      showToastMessage("Please select your experience level");
+      return false;
+    }
+    if (!formData.education) {
+      showToastMessage("Please select your education level");
+      return false;
+    }
+    return true;
+  };
+
+  const handleNext = () => {
+    if (validateForm()) {
+      onNext();
+    }
   };
 
   const handleDropdownSelect = (field: string, value: string) => {
@@ -65,18 +128,27 @@ export default function Step2({ formData, setFormData, onNext, onBack }: Step2Pr
     }
   };
 
-  // Initialize with default technologies if none exist
-  useEffect(() => {
-    if (!formData.technologies || formData.technologies.length === 0) {
-      setFormData({
-        ...formData,
-        technologies: ["React", "Next.js", "Vue", "Figma", "CSS"]
-      });
-    }
-  }, []);
-
   return (
     <div className={styles.outerCard}>
+      {showToast && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            backgroundColor: '#ff4444',
+            color: 'white',
+            padding: '12px 20px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            zIndex: 1000,
+            fontSize: '14px',
+            fontWeight: '500'
+          }}
+        >
+          {toastMessage}
+        </div>
+      )}
       <div className={styles.leftPanel}>
         <div className={styles.avatarContainer}>
           <div className={styles.avatarBox}>
@@ -103,7 +175,7 @@ export default function Step2({ formData, setFormData, onNext, onBack }: Step2Pr
                 name="position"
                 value={formData.position || ""}
                 onChange={handleChange}
-                placeholder="Junior GUI Developer"
+                placeholder="e.g., Junior GUI Developer"
               />
             </div>
           </div>
@@ -130,6 +202,22 @@ export default function Step2({ formData, setFormData, onNext, onBack }: Step2Pr
                       </button>
                     </div>
                   ))}
+                  <input
+                    style={{
+                      border: 'none',
+                      outline: 'none',
+                      background: 'transparent',
+                      fontSize: 'inherit',
+                      fontFamily: 'inherit',
+                      color: 'inherit',
+                      minWidth: '120px',
+                      flex: 1
+                    }}
+                    value={currentTech}
+                    onChange={(e) => setCurrentTech(e.target.value)}
+                    onKeyPress={handleTechKeyPress}
+                    placeholder={(!formData.technologies || formData.technologies.length === 0) ? "Type technology and press Enter" : ""}
+                  />
                 </div>
               </div>
             </div>
@@ -275,7 +363,7 @@ export default function Step2({ formData, setFormData, onNext, onBack }: Step2Pr
             />
             Back
           </button>
-          <button className={styles.nextButton} onClick={onNext} type="button">
+          <button className={styles.nextButton} onClick={handleNext} type="button">
             Next
             <Image
               src="/next_arrow.svg"

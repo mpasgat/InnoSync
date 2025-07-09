@@ -28,9 +28,53 @@ type Step1Props = {
 
 export default function Step1({ formData, setFormData, onNext }: Step1Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showToast, setShowToast] = React.useState(false);
+  const [toastMessage, setToastMessage] = React.useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const showToastMessage = (message: string) => {
+    setToastMessage(message);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
+  const validateForm = () => {
+    if (!formData.fullName?.trim()) {
+      showToastMessage("Please enter your full name");
+      return false;
+    }
+    if (!formData.email?.trim()) {
+      showToastMessage("Please enter your email address");
+      return false;
+    }
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      showToastMessage("Please enter a valid email address");
+      return false;
+    }
+    if (!formData.telegram?.trim()) {
+      showToastMessage("Please enter your Telegram alias");
+      return false;
+    }
+    if (!formData.github?.trim()) {
+      showToastMessage("Please enter your Github alias");
+      return false;
+    }
+    if (!formData.bio?.trim()) {
+      showToastMessage("Please enter your bio");
+      return false;
+    }
+    return true;
+  };
+
+  const handleNext = () => {
+    if (validateForm()) {
+      onNext();
+    }
   };
 
   const handleAvatarClick = () => {
@@ -46,6 +90,25 @@ export default function Step1({ formData, setFormData, onNext }: Step1Props) {
 
   return (
     <div className={styles.outerCard}>
+      {showToast && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            backgroundColor: '#ff4444',
+            color: 'white',
+            padding: '12px 20px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            zIndex: 1000,
+            fontSize: '14px',
+            fontWeight: '500'
+          }}
+        >
+          {toastMessage}
+        </div>
+      )}
       <div className={styles.leftPanel}>
         <div className={styles.avatarContainer}>
           <div className={styles.avatarBox} onClick={handleAvatarClick}>
@@ -76,8 +139,8 @@ export default function Step1({ formData, setFormData, onNext }: Step1Props) {
             />
           </div>
           <div className={styles.userInfo}>
-            <div className={styles.leftName}>{formData.fullName || "A.Baha Alimi"}</div>
-            <div className={styles.leftEmail}>{formData.email || "3llimi69@gmail.com"}</div>
+            <div className={styles.leftName}>{formData.fullName || "Your Name"}</div>
+            <div className={styles.leftEmail}>{formData.email || "your.email@example.com"}</div>
           </div>
         </div>
       </div>
@@ -91,7 +154,7 @@ export default function Step1({ formData, setFormData, onNext }: Step1Props) {
                 name="fullName"
                 value={formData.fullName || ""}
                 onChange={handleChange}
-                placeholder="Ahmed Baha Eddine Alimi"
+                placeholder="Enter your full name"
                 autoComplete="name"
               />
             </div>
@@ -105,7 +168,7 @@ export default function Step1({ formData, setFormData, onNext }: Step1Props) {
                 name="email"
                 value={formData.email || ""}
                 onChange={handleChange}
-                placeholder="3llimi69@gmail.com"
+                placeholder="Enter your email address"
                 autoComplete="email"
                 type="email"
               />
@@ -149,7 +212,7 @@ export default function Step1({ formData, setFormData, onNext }: Step1Props) {
                 name="bio"
                 value={formData.bio || ""}
                 onChange={handleChange}
-                placeholder="Bio"
+                placeholder="Tell us about yourself..."
                 maxLength={300}
               />
             </div>
@@ -157,7 +220,7 @@ export default function Step1({ formData, setFormData, onNext }: Step1Props) {
         </div>
 
         <div className={styles.buttonContainer}>
-          <button className={styles.nextButton} onClick={onNext} type="button">
+          <button className={styles.nextButton} onClick={handleNext} type="button">
             Next
             <Image
               src="/next_arrow.svg"

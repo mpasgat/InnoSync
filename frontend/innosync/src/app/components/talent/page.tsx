@@ -634,12 +634,12 @@ function filterTalents(
 }
 
 const FindTalentPage = () => {
-  const [selectedTags, setSelectedTags] = useState<string[]>(["React", "Figma"]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedTalent, setSelectedTalent] = useState<Talent | null>(null);
-  const [requiredSkills, setRequiredSkills] = useState<string[]>(["React", "Next.js", "Node.js", "Figma", "Docker"]);
-  const [selectedExperience, setSelectedExperience] = useState<string[]>([...experienceOptions]);
-  const [selectedEducation, setSelectedEducation] = useState<string[]>([...educationOptions]);
-  const [selectedExpertise, setSelectedExpertise] = useState<string[]>([...expertiseOptions]);
+  const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
+  const [selectedExperience, setSelectedExperience] = useState<string[]>([]);
+  const [selectedEducation, setSelectedEducation] = useState<string[]>([]);
+  const [selectedExpertise, setSelectedExpertise] = useState<string[]>([]);
   const [talents, setTalents] = useState<Talent[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -647,38 +647,66 @@ const FindTalentPage = () => {
   const [inviteRecipientId, setInviteRecipientId] = useState<number | null>(null);
   const [inviteRecipientName, setInviteRecipientName] = useState<string | null>(null);
 
+  // Helper to get token
+  const getToken = () => (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+
   useEffect(() => {
-    setLoading(true);
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/all`)
-      .then((res) => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const token = getToken();
+
+        // Fetch current user profile first
+        let currentUserIdToExclude: number | null = null;
+        if (token) {
+          try {
+            const currentUserResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/me`, {
+              headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (currentUserResponse.ok) {
+              const currentUserData = await currentUserResponse.json();
+              currentUserIdToExclude = currentUserData.id;
+            }
+          } catch (err) {
+            console.warn("Failed to fetch current user profile:", err);
+          }
+        }
+
+        // Fetch all profiles
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/all`);
         if (!res.ok) throw new Error("Failed to fetch profiles");
-        return res.json();
-      })
-      .then((data: BackendProfile[]) => {
-        // Map backend profile to Talent interface
-        const mapped: Talent[] = data.map((profile) => ({
-          id: profile.id,
-          name: profile.fullName || profile.email || "No Name",
-          avatar: profile.profilePicture || "/profile_image.png",
-          positions: profile.position ? [profile.position] : [],
-          expertiseLevel: profile.expertise_level || profile.expertise || "",
-          education: profile.education || "",
-          skills: profile.technologies || [],
-          experience: profile.experience_years === "ZERO_TO_ONE" ? "<1 y." :
-            profile.experience_years === "ONE_TO_TWO" ? "1-2 y." :
-            profile.experience_years === "THREE_TO_FIVE" ? "3-5 y." :
-            profile.experience_years === "FIVE_PLUS" ? "5> y." : "",
-          bio: profile.bio || "",
-          resume: profile.resume,
-        }));
+
+        const data: BackendProfile[] = await res.json();
+
+        // Map backend profile to Talent interface and filter out current user
+        const mapped: Talent[] = data
+          .filter(profile => profile.id !== currentUserIdToExclude) // Exclude current user
+          .map((profile) => ({
+            id: profile.id,
+            name: profile.fullName || profile.email || "No Name",
+            avatar: profile.profilePicture || "/profile_image.png",
+            positions: profile.position ? [profile.position] : [],
+            expertiseLevel: profile.expertise_level || profile.expertise || "",
+            education: profile.education || "",
+            skills: profile.technologies || [],
+            experience: profile.experience_years === "ZERO_TO_ONE" ? "<1 y." :
+              profile.experience_years === "ONE_TO_TWO" ? "1-2 y." :
+              profile.experience_years === "THREE_TO_FIVE" ? "3-5 y." :
+              profile.experience_years === "FIVE_PLUS" ? "5> y." : "",
+            bio: profile.bio || "",
+            resume: profile.resume,
+          }));
+
         setTalents(mapped);
         setSelectedTalent(mapped[0] || null);
         setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
+      } catch (err) {
+        setError((err as Error).message);
         setLoading(false);
-      });
+      }
+    };
+
+    fetchData();
   }, []);
 
   const handleRemoveTag = (tag: string) => {

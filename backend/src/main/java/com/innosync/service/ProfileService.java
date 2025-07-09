@@ -98,7 +98,7 @@ public class ProfileService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         final Profile profile = profileRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
+                .orElse(new Profile()); // Create empty profile if not found
 
         return mapToResponse(profile, user);
     }
@@ -115,7 +115,9 @@ public class ProfileService {
         response.setExpertise(profile.getExpertise());
         response.setExpertiseLevel(profile.getExpertiseLevel());
         response.setExperienceYears(profile.getExperienceYears());
-        response.setId(profile.getId());
+        response.setResume(profile.getResume());
+        response.setProfilePicture(profile.getProfilePicture());
+        response.setId(user.getId()); // Use user ID instead of profile ID for consistency
 
         // Опыт работы
         List<WorkExperienceResponse> experienceResponses = workExperienceRepository.findByProfile(profile).stream()

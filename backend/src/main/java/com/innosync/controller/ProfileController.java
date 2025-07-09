@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -67,10 +68,17 @@ public class ProfileController {
 
     @GetMapping("/me")
     @Operation(summary = "Show personal profile")
-    public ProfileResponse getMyProfile(Authentication auth) {
+    public ResponseEntity<ProfileResponse> getMyProfile(Authentication auth) {
         String email = auth.getName();
         logger.info("Fetching personal profile for email: {}", email);
-        return profileService.getMyProfile(email);
+        try {
+            ProfileResponse response = profileService.getMyProfile(email);
+            logger.info("Successfully fetched profile for email: {}", email);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Failed to fetch profile for email: {}", email, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/all")
