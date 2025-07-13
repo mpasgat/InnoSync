@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import { toast } from 'react-toastify';
+import Link from "next/link";
+
 import 'react-toastify/dist/ReactToastify.css';
 import styles from "./ProjectsPage.module.css";
 import ProjectCreationPanel from "../project-creation/ProjectCreationPanel";
@@ -73,21 +74,8 @@ interface ProjectCardProps {
 }
 
 function ProjectCard({ project }: ProjectCardProps) {
-  const handleProjectClick = () => {
-    toast.success('Project opened successfully!', {
-      position: 'bottom-left',
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: 'colored',
-    });
-  };
-
   return (
-    <div className={styles.projectCard} onClick={handleProjectClick}>
+    <Link href={`/dashboard/projects/${project.id}`} className={styles.projectCard} style={{ textDecoration: 'none', color: 'inherit' }}>
       <div className={styles.projectImage}>
         <img
           src={project.image}
@@ -145,6 +133,6 @@ function ProjectCard({ project }: ProjectCardProps) {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
