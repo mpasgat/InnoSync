@@ -259,7 +259,20 @@ export default function Step3({ formData, setFormData, onBack }: Step3Props) {
         <div className={styles.avatarContainer}>
           <div className={styles.avatarBox}>
             {formData.avatar ? (
-              <img src={formData.avatar} alt="avatar" className={styles.avatarImg} />
+              <Image
+                src={
+                  typeof formData.avatar === "string"
+                    ? formData.avatar
+                    : formData.avatar
+                    ? URL.createObjectURL(formData.avatar)
+                    : ""
+                }
+                alt="avatar"
+                className={styles.avatarImg}
+                width={80}
+                height={80}
+                style={{ objectFit: 'cover', borderRadius: '50%' }}
+              />
             ) : (
               <span className={styles.avatarPlus}>+</span>
             )}

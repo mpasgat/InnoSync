@@ -30,7 +30,24 @@ export default function Step1({ formData, setFormData, onNext }: Step1Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    let value = e.target.value;
+    
+    // Special handling for bio field - break words longer than 45 characters
+    if (e.target.name === 'bio') {
+      value = breakLongWords(value);
+    }
+    
+    setFormData({ ...formData, [e.target.name]: value });
+  };
+
+  const breakLongWords = (text: string): string => {
+    return text.split(' ').map(word => {
+      if (word.length > 45) {
+        // Break word every 45 characters with newline
+        return word.match(/.{1,45}/g)?.join('\n') || word;
+      }
+      return word;
+    }).join(' ');
   };
 
   const handleAvatarClick = () => {

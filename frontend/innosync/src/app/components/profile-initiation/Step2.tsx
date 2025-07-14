@@ -29,6 +29,7 @@ export default function Step2({ formData, setFormData, onNext, onBack }: Step2Pr
   const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
   const [showExperienceDropdown, setShowExperienceDropdown] = useState(false);
   const [showEducationDropdown, setShowEducationDropdown] = useState(false);
+  const [newTechnology, setNewTechnology] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,6 +41,24 @@ export default function Step2({ formData, setFormData, onNext, onBack }: Step2Pr
       ...formData,
       technologies: (formData.technologies || []).filter((tech) => tech !== techToRemove),
     });
+  };
+
+  const handleAddTechnology = () => {
+    const trimmedTech = newTechnology.trim();
+    if (trimmedTech && !(formData.technologies || []).includes(trimmedTech)) {
+      setFormData({
+        ...formData,
+        technologies: [...(formData.technologies || []), trimmedTech],
+      });
+      setNewTechnology("");
+    }
+  };
+
+  const handleTechInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTechnology();
+    }
   };
 
   const handleDropdownSelect = (field: string, value: string) => {
@@ -81,7 +100,20 @@ export default function Step2({ formData, setFormData, onNext, onBack }: Step2Pr
         <div className={styles.avatarContainer}>
           <div className={styles.avatarBox}>
             {formData.avatar ? (
-              <img src={formData.avatar} alt="avatar" className={styles.avatarImg} />
+              <Image
+                src={
+                  typeof formData.avatar === "string"
+                    ? formData.avatar
+                    : formData.avatar
+                    ? URL.createObjectURL(formData.avatar)
+                    : ""
+                }
+                alt="avatar"
+                className={styles.avatarImg}
+                width={80}
+                height={80}
+                style={{ objectFit: 'cover', borderRadius: '50%' }}
+              />
             ) : (
               <span className={styles.avatarPlus}>+</span>
             )}
@@ -130,6 +162,23 @@ export default function Step2({ formData, setFormData, onNext, onBack }: Step2Pr
                       </button>
                     </div>
                   ))}
+                </div>
+                <div className={styles.techInputContainer}>
+                  <input
+                    className={styles.techInput}
+                    value={newTechnology}
+                    onChange={(e) => setNewTechnology(e.target.value)}
+                    onKeyPress={handleTechInputKeyPress}
+                    placeholder="Add technology..."
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddTechnology}
+                    className={styles.addTechBtn}
+                    disabled={!newTechnology.trim()}
+                  >
+                    +
+                  </button>
                 </div>
               </div>
             </div>
