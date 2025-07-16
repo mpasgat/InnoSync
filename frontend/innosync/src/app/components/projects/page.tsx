@@ -62,6 +62,7 @@ interface ProjectListProps {
   projects: Project[];
   onSelect: (project: Project) => void;
   selectedId: number | null;
+  allProjects: Project[];
 }
 
 interface ProjectDescriptionProps {
@@ -541,23 +542,81 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, selected }
   </div>
 );
 
-const ProjectList: React.FC<ProjectListProps> = ({ projects, onSelect, selectedId }) => (
-  <div className={styles.projectList}>
-    {projects.map((project, index) => (
-      <React.Fragment key={project.id}>
-        <ProjectCard
-          project={project}
-          onSelect={onSelect}
-          selected={selectedId === project.id}
-        />
-        {index < projects.length - 1 && <div className={styles.projectDivider} />}
-      </React.Fragment>
-    ))}
-  </div>
-);
+const ProjectList: React.FC<ProjectListProps> = ({ projects, onSelect, selectedId, allProjects }) => {
+  if (projects.length === 0) {
+    // Check if this is a "no projects at all" situation or "no projects match filters"
+    const isNoProjectsPosted = allProjects.length === 0;
 
-const ProjectDescription: React.FC<ProjectDescriptionProps & { 
-  onApply?: (projectRoleId: number, positionName: string) => Promise<void>; 
+    return (
+      <div className={styles.projectList}>
+        <div className={styles.emptyState}>
+          <div className={styles.emptyStateIcon}>
+            {isNoProjectsPosted ? (
+              // Icon for no projects posted
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#9CA3AF"/>
+              </svg>
+            ) : (
+              // Icon for filtered results
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 16V8C21 6.89543 20.1046 6 19 6H5C3.89543 6 3 6.89543 3 8V16C3 17.1046 3.89543 18 5 18H19C20.1046 18 21 17.1046 21 16Z" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M7 12H17" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M7 9H12" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </div>
+          <h3 className={styles.emptyStateTitle}>
+            {isNoProjectsPosted ? 'No Projects Available' : 'No Projects Found'}
+          </h3>
+          <p className={styles.emptyStateDescription}>
+            {isNoProjectsPosted
+              ? 'There are currently no projects posted on the platform. Check back later as new opportunities are added regularly.'
+              : 'We couldn&apos;t find any projects matching your current filters. Try adjusting your search criteria or clearing filters to see more opportunities.'
+            }
+          </p>
+          <div className={styles.emptyStateSuggestions}>
+            <p className={styles.suggestionText}>
+              {isNoProjectsPosted ? 'What you can do:' : 'Try:'}
+            </p>
+            <ul className={styles.suggestionList}>
+              {isNoProjectsPosted ? (
+                <>
+                  <li>Check back later for new project postings</li>
+                  <li>Set up notifications for new opportunities</li>
+                  <li>Complete your profile to be ready when projects are available</li>
+                </>
+              ) : (
+                <>
+                  <li>Removing some skill requirements</li>
+                  <li>Expanding experience level criteria</li>
+                  <li>Clearing all filters</li>
+                </>
+              )}
+            </ul>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.projectList}>
+      {projects.map((project, index) => (
+        <React.Fragment key={project.id}>
+          <ProjectCard
+            project={project}
+            onSelect={onSelect}
+            selected={selectedId === project.id}
+          />
+          {index < projects.length - 1 && <div className={styles.projectDivider} />}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+};
+
+const ProjectDescription: React.FC<ProjectDescriptionProps & {
+  onApply?: (projectRoleId: number, positionName: string) => Promise<void>;
 }> = ({ project, onApply, appliedRoleIds }) => {
   // Track the currently chosen role by its unique id (fallback to first role's id if available)
   const [selectedRoleId, setSelectedRoleId] = useState<number | null>(project?.positions[0]?.roleId ?? null);
@@ -586,10 +645,10 @@ const ProjectDescription: React.FC<ProjectDescriptionProps & {
 
   const handleApply = async () => {
     if (!currentRoleId || !onApply) return;
-    
+
     const roleId = currentRoleId;
     console.log(`🎯 Applying for roleId: ${roleId} (position "${selectedPositionName}")`);
-    
+
     setIsApplying(true);
     try {
       await onApply(roleId, selectedPositionName);
@@ -662,8 +721,8 @@ const ProjectDescription: React.FC<ProjectDescriptionProps & {
           </div>
         </div>
       </div>
-      <button 
-        className={styles.mainApplyBtn} 
+      <button
+        className={styles.mainApplyBtn}
         onClick={handleApply}
         disabled={isApplying || alreadyApplied}
       >
@@ -717,7 +776,7 @@ const transformApiDataToProjects = (apiData: ApiProjectRole[]): Project[] => {
   // Transform each project group to Project interface
   return Object.values(projectGroups).map((roles) => {
     const firstRole = roles[0];
-    
+
     // Create a map of role names to role IDs for easy lookup
     const roleIdMap = roles.reduce((acc, role) => {
       acc[role.roleName] = role.roleId;
@@ -757,7 +816,7 @@ const fetchProjects = async (): Promise<Project[]> => {
   }
 
   console.log('🔄 FETCH PROJECTS: Starting to fetch projects from API...');
-  
+
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/roles`, {
       method: 'GET',
@@ -774,10 +833,10 @@ const fetchProjects = async (): Promise<Project[]> => {
 
     const apiData: ApiProjectRole[] = await response.json();
     console.log('✅ FETCH PROJECTS: Successfully fetched projects data:', apiData);
-    
+
     const transformedProjects = transformApiDataToProjects(apiData);
     console.log('✅ FETCH PROJECTS: Successfully transformed projects:', transformedProjects);
-    
+
     toast.success(`Successfully loaded ${transformedProjects.length} projects`);
     return transformedProjects;
   } catch (error) {
@@ -818,7 +877,7 @@ const applyForProjectRole = async (projectRoleId: number): Promise<boolean> => {
     const responseData = await response.json().catch(() => null); // In case response is not JSON
     console.log('✅ APPLY PROJECT: Successfully submitted application for role ID:', projectRoleId);
     console.log('✅ APPLY PROJECT: Response data:', responseData);
-    
+
     return true;
   } catch (error) {
     console.error(`❌ APPLY PROJECT: Error occurred while applying for role ID ${projectRoleId}:`, error);
@@ -920,16 +979,14 @@ const fetchProjectRoles = async (projectId: number): Promise<ProjectPosition[]> 
 };
 
 const FindProjectPage = () => {
-  const [selectedTags, setSelectedTags] = useState(['Frontend Dev', 'Sys Admin', 'Backend Dev', 'DB Admin']);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [requiredSkills, setRequiredSkills] = useState([
-    'Angular', 'React', 'Vue', 'PostgreSQL', 'Docker', 'Figma', 'Git', 'Svelte', 'Python',
-  ]);
-  const [selectedExperience, setSelectedExperience] = useState<string[]>([...experienceOptions]);
-  const [selectedProjectType, setSelectedProjectType] = useState<string[]>([...projectTypeOptions]);
-  const [selectedTeamSize, setSelectedTeamSize] = useState<string[]>([...teamSizeOptions]);
+  const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
+  const [selectedExperience, setSelectedExperience] = useState<string[]>([]);
+  const [selectedProjectType, setSelectedProjectType] = useState<string[]>([]);
+  const [selectedTeamSize, setSelectedTeamSize] = useState<string[]>([]);
   const [selectedEmploymentType, setSelectedEmploymentType] = useState<string[]>([]);
   const [appliedRoleIds, setAppliedRoleIds] = useState<Set<number>>(new Set());
 
@@ -1081,7 +1138,7 @@ const FindProjectPage = () => {
   return (
     <div className={styles.pageContainer}>
       <SearchBar tags={selectedTags} onRemoveTag={handleRemoveTag} onAddTag={handleAddTag} />
-      <div className={styles.mainContainer}>
+      <div className={filteredProjects.length === 0 ? styles.mainContainerNoProjects : styles.mainContainer}>
         <FilterSidebar
           skills={requiredSkills}
           onAddSkill={handleAddSkill}
@@ -1101,13 +1158,16 @@ const FindProjectPage = () => {
             projects={filteredProjects}
             onSelect={handleSelectProject}
             selectedId={selectedProject?.id || null}
+            allProjects={projects}
           />
         </main>
-        <ProjectDescription 
-          project={selectedProject} 
-          onApply={handleApplyForProject}
-          appliedRoleIds={appliedRoleIds}
-        />
+        {filteredProjects.length > 0 && (
+          <ProjectDescription
+            project={selectedProject}
+            onApply={handleApplyForProject}
+            appliedRoleIds={appliedRoleIds}
+          />
+        )}
       </div>
       <ToastContainer aria-label="Notification messages" />
     </div>
