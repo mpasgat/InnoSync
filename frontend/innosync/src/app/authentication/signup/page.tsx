@@ -64,8 +64,8 @@ export default function SignUp() {
   setErrors(newErrors);
 
   if (!Object.values(newErrors).some(Boolean)) {
-    // ✅ Combine name + surname + middlename into fullName
-    const fullName = `${formData.name} ${formData.surname} ${formData.middleName}`.trim();
+    // Combine name + middlename + surname into fullName
+    const fullName = `${formData.name} ${formData.middleName} ${formData.surname}`.trim();
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup`, {
@@ -112,6 +112,10 @@ export default function SignUp() {
       if (data.refreshToken) {
         localStorage.setItem('refreshToken', data.refreshToken);
       }
+
+      // Store user information for profile initiation
+      localStorage.setItem('userEmail', formData.email);
+      localStorage.setItem('userFullName', fullName);
 
       // Trigger navbar refresh and auth state change
       window.dispatchEvent(new CustomEvent('profileUpdated'));
