@@ -2,7 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import styles from "./page.module.css";
 import React, { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 const ANIMATION_DURATION = 180; // ms
 
@@ -34,7 +33,6 @@ interface UserProfile {
 }
 
 const NavbarUser: React.FC<NavbarUserProps> = ({ onLogout }) => {
-  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -62,25 +60,7 @@ const NavbarUser: React.FC<NavbarUserProps> = ({ onLogout }) => {
           const data = await response.json();
           setUserProfile(data);
         } else {
-          console.error("Failed to fetch user profile:", response.status, response.statusText);
-          // For newly signed up users, we'll create a minimal profile from token
-          // This handles cases where user exists but profile doesn't
-          setUserProfile({
-            id: 0,
-            email: localStorage.getItem('userEmail') || '',
-            fullName: localStorage.getItem('userFullName') || 'User',
-            telegram: '',
-            github: '',
-            bio: '',
-            position: '',
-            education: '',
-            expertise: '',
-            expertiseLevel: '',
-            resume: '',
-            profilePicture: '',
-            workExperience: [],
-            technologies: []
-          });
+          console.error("Failed to fetch user profile");
         }
       } catch (error) {
         console.error("Error fetching user profile:", error);
@@ -104,30 +84,7 @@ const NavbarUser: React.FC<NavbarUserProps> = ({ onLogout }) => {
           "Content-Type": "application/json",
         },
       })
-        .then(response => {
-          if (response.ok) {
-            return response.json();
-          } else {
-            console.error("Failed to refetch user profile:", response.status, response.statusText);
-            // Return fallback profile for new users
-            return {
-              id: 0,
-              email: localStorage.getItem('userEmail') || '',
-              fullName: localStorage.getItem('userFullName') || 'User',
-              telegram: '',
-              github: '',
-              bio: '',
-              position: '',
-              education: '',
-              expertise: '',
-              expertiseLevel: '',
-              resume: '',
-              profilePicture: '',
-              workExperience: [],
-              technologies: []
-            };
-          }
-        })
+        .then(response => response.ok ? response.json() : null)
         .then(data => {
           if (data) {
             setUserProfile(data);
@@ -186,19 +143,15 @@ const NavbarUser: React.FC<NavbarUserProps> = ({ onLogout }) => {
     };
   }, [menuOpen]);
 
-    const handleLogout = async () => {
+  const handleLogout = async () => {
     const refreshToken = localStorage.getItem("refreshToken");
-
+    
     // Always clear local storage and trigger UI updates, even if API call fails
     const clearAuthAndUpdateUI = () => {
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
-      localStorage.removeItem("userEmail");
-      localStorage.removeItem("userFullName");
       window.dispatchEvent(new CustomEvent('authStateChanged'));
       if (onLogout) onLogout();
-      // Redirect to home page after logout
-      router.push("/");
     };
 
     if (!refreshToken) {
@@ -209,7 +162,7 @@ const NavbarUser: React.FC<NavbarUserProps> = ({ onLogout }) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {
         method: "POST",
-        headers: {
+        headers: { 
           "Content-Type": "application/json"
         },
         body: JSON.stringify({ refreshToken })

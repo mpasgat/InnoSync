@@ -5,8 +5,6 @@ import styles from "../page.module.css";
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 
 
@@ -80,37 +78,33 @@ export default function SignUp() {
         })
       });
 
-            if (!res.ok) {
+      if (!res.ok) {
         const errorData = await res.json();
         console.error('Signup failed:', errorData);
-        toast.error(`Signup failed: ${errorData.error || 'Unknown error'}`);
+        alert(`Signup failed: ${errorData.error || 'Unknown error'}`);
         return;
       }
 
-            const data = await res.json();
+      const data = await res.json();
       console.log('Signup successful:', data);
-      toast.success('Signup successful!');
+      alert('Signup successful!');
       if (data.accessToken) {
         localStorage.setItem('token', data.accessToken);
       }
       if (data.refreshToken) {
         localStorage.setItem('refreshToken', data.refreshToken);
       }
-
-      // Store user info for navbar fallback
-      localStorage.setItem('userEmail', formData.email);
-      localStorage.setItem('userFullName', fullName);
-
+      
       // Trigger navbar refresh and auth state change
       window.dispatchEvent(new CustomEvent('profileUpdated'));
       window.dispatchEvent(new CustomEvent('authStateChanged'));
-
+      
       router.push('/components/profile-initiation');
 
       // You can redirect to login page here
     } catch (err) {
       console.error('Network error during signup:', err);
-      toast.error('Signup failed due to network error');
+      alert('Signup failed due to network error');
     }
   }
 
@@ -211,7 +205,6 @@ export default function SignUp() {
           <button type="submit" className={styles.submit__btn}>Continue</button>
         </form>
       </div>
-      <ToastContainer aria-label="Notification messages" />
     </div>
   );
 }

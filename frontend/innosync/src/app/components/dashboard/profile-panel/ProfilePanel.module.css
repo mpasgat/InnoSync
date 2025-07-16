@@ -259,35 +259,7 @@
 }
 
 .addTag:hover {
-  background-color: #f0f0f0;
-}
-
-.tagInput {
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 400;
-  font-size: 13px;
-  line-height: 1.219;
-  color: #000;
-  background: #f8f9fa;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 4px 8px;
-  height: 25px;
-  box-sizing: border-box;
-  outline: none;
-  transition: all 0.2s ease;
-  min-width: 100px;
-}
-
-.tagInput:focus {
-  border-color: #298217;
-  background: #fff;
-  box-shadow: 0 0 0 2px rgba(41, 130, 23, 0.1);
-}
-
-.tagInput::placeholder {
-  color: #999;
-  font-size: 12px;
+  opacity: 0.8;
 }
 
 .settingsSection {

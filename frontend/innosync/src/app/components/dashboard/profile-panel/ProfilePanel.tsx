@@ -36,12 +36,6 @@ export default function ProfilePanel() {
   const [technologies, setTechnologies] = useState<string[]>([]);
   const [quickSyncEnabled, setQuickSyncEnabled] = useState(false);
 
-  // New state for input management
-  const [showPositionInput, setShowPositionInput] = useState(false);
-  const [showTechnologyInput, setShowTechnologyInput] = useState(false);
-  const [newPosition, setNewPosition] = useState("");
-  const [newTechnology, setNewTechnology] = useState("");
-
   useEffect(() => {
     async function loadProfile() {
       try {
@@ -90,88 +84,11 @@ export default function ProfilePanel() {
   }, []);
 
   const removePosition = (index: number) => {
-    if (positions.length <= 1) {
-      toast.error('You must have at least one position in your profile.', {
-        position: 'bottom-left',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: 'colored',
-      });
-      return;
-    }
     setPositions(positions.filter((_, i) => i !== index));
   };
 
   const removeTechnology = (index: number) => {
-    if (technologies.length <= 1) {
-      toast.error('You must have at least one technology in your profile.', {
-        position: 'bottom-left',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: 'colored',
-      });
-      return;
-    }
     setTechnologies(technologies.filter((_, i) => i !== index));
-  };
-
-  // New functions for adding positions and technologies
-  const handleAddPosition = () => {
-    setShowPositionInput(true);
-  };
-
-  const handleAddTechnology = () => {
-    setShowTechnologyInput(true);
-  };
-
-  const handlePositionSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && newPosition.trim()) {
-      if (!positions.includes(newPosition.trim())) {
-        setPositions([...positions, newPosition.trim()]);
-      }
-      setNewPosition("");
-      setShowPositionInput(false);
-    } else if (e.key === 'Escape') {
-      setNewPosition("");
-      setShowPositionInput(false);
-    }
-  };
-
-  const handleTechnologySubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && newTechnology.trim()) {
-      if (!technologies.includes(newTechnology.trim())) {
-        setTechnologies([...technologies, newTechnology.trim()]);
-      }
-      setNewTechnology("");
-      setShowTechnologyInput(false);
-    } else if (e.key === 'Escape') {
-      setNewTechnology("");
-      setShowTechnologyInput(false);
-    }
-  };
-
-  const handlePositionBlur = () => {
-    if (newPosition.trim() && !positions.includes(newPosition.trim())) {
-      setPositions([...positions, newPosition.trim()]);
-    }
-    setNewPosition("");
-    setShowPositionInput(false);
-  };
-
-  const handleTechnologyBlur = () => {
-    if (newTechnology.trim() && !technologies.includes(newTechnology.trim())) {
-      setTechnologies([...technologies, newTechnology.trim()]);
-    }
-    setNewTechnology("");
-    setShowTechnologyInput(false);
   };
 
   const handleQuickSyncToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -301,27 +218,14 @@ export default function ProfilePanel() {
                     </div>
                   </span>
                 ))}
-                {showPositionInput ? (
-                  <input
-                    type="text"
-                    value={newPosition}
-                    onChange={(e) => setNewPosition(e.target.value)}
-                    onKeyDown={handlePositionSubmit}
-                    onBlur={handlePositionBlur}
-                    placeholder="Enter position"
-                    autoFocus
-                    className={styles.tagInput}
+                <button className={styles.addTag}>
+                  <Image
+                    src="/add_circle.svg"
+                    alt="Add"
+                    width={20}
+                    height={20}
                   />
-                ) : (
-                  <button className={styles.addTag} onClick={handleAddPosition}>
-                    <Image
-                      src="/add_circle.svg"
-                      alt="Add"
-                      width={20}
-                      height={20}
-                    />
-                  </button>
-                )}
+                </button>
               </div>
             </div>
           </div>
@@ -349,27 +253,14 @@ export default function ProfilePanel() {
                     </div>
                   </span>
                 ))}
-                {showTechnologyInput ? (
-                  <input
-                    type="text"
-                    value={newTechnology}
-                    onChange={(e) => setNewTechnology(e.target.value)}
-                    onKeyDown={handleTechnologySubmit}
-                    onBlur={handleTechnologyBlur}
-                    placeholder="Enter technology"
-                    autoFocus
-                    className={styles.tagInput}
+                <button className={styles.addTag}>
+                  <Image
+                    src="/add_circle.svg"
+                    alt="Add"
+                    width={20}
+                    height={20}
                   />
-                ) : (
-                  <button className={styles.addTag} onClick={handleAddTechnology}>
-                    <Image
-                      src="/add_circle.svg"
-                      alt="Add"
-                      width={20}
-                      height={20}
-                    />
-                  </button>
-                )}
+                </button>
               </div>
             </div>
           </div>
