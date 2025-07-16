@@ -75,10 +75,22 @@ export default function Step3({ formData, setFormData, onBack }: Step3Props) {
   const [showEndMonthDropdown, setShowEndMonthDropdown] = useState(false);
   const [showEndYearDropdown, setShowEndYearDropdown] = useState(false);
   const [error, setError] = useState("");
+  const avatarInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setCurrentExp({ ...currentExp, [e.target.name]: e.target.value });
     if (error) setError("");
+  };
+
+  const handleAvatarClick = () => {
+    avatarInputRef.current?.click();
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormData({ ...formData, avatar: file });
+    }
   };
 
   // const fileToBase64 = (file: File): Promise<string> => {
@@ -257,12 +269,32 @@ export default function Step3({ formData, setFormData, onBack }: Step3Props) {
     <div className={styles.outerCard}>
       <div className={styles.leftPanel}>
         <div className={styles.avatarContainer}>
-          <div className={styles.avatarBox}>
+          <div className={styles.avatarBox} onClick={handleAvatarClick}>
             {formData.avatar ? (
-              <img src={formData.avatar} alt="avatar" className={styles.avatarImg} />
+              <Image
+                src={
+                  typeof formData.avatar === "string"
+                    ? formData.avatar
+                    : formData.avatar
+                    ? URL.createObjectURL(formData.avatar)
+                    : ""
+                }
+                alt="avatar"
+                className={styles.avatarImg}
+                width={80}
+                height={80}
+                style={{ objectFit: 'cover', borderRadius: '50%' }}
+              />
             ) : (
               <span className={styles.avatarPlus}>+</span>
             )}
+            <input
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              ref={avatarInputRef}
+              onChange={handleAvatarChange}
+            />
           </div>
           <div className={styles.userInfo}>
             <div className={styles.leftName}>{formData.fullName || "A.Baha Alimi"}</div>

@@ -765,6 +765,9 @@
   line-height: 1.6;
   margin: 0 0 8px 0;
   text-align: left;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 .projectDescSection {

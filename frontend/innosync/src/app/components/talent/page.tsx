@@ -518,24 +518,82 @@ const TalentCard: React.FC<TalentCardProps & { onContact: (talent: Talent) => vo
   </div>
 );
 
-const TalentList: React.FC<TalentListProps> = ({ talents, onSelect, selectedId, onContact }) => (
-  <div className={styles.projectList}>
-    {talents.map((talent, index) => (
-      <React.Fragment key={talent.id}>
-        <TalentCard
-          talent={talent}
-          onSelect={onSelect}
-          selected={selectedId === talent.id}
-          onContact={onContact}
-        />
-        {index < talents.length - 1 && <div className={styles.projectDivider} />}
-      </React.Fragment>
-    ))}
-  </div>
-);
+const TalentList: React.FC<TalentListProps & { allTalents: Talent[] }> = ({ talents, onSelect, selectedId, onContact, allTalents }) => {
+  if (talents.length === 0) {
+    // Check if this is a "no talents at all" situation or "no talents match filters"
+    const isNoTalentsPosted = allTalents.length === 0;
+
+    return (
+      <div className={styles.projectList}>
+        <div className={styles.emptyState}>
+          <div className={styles.emptyStateIcon}>
+            {isNoTalentsPosted ? (
+              // Icon for no talents posted
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#9CA3AF"/>
+              </svg>
+            ) : (
+              // Icon for filtered results
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 16V8C21 6.89543 20.1046 6 19 6H5C3.89543 6 3 6.89543 3 8V16C3 17.1046 3.89543 18 5 18H19C20.1046 18 21 17.1046 21 16Z" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M7 12H17" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M7 9H12" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </div>
+          <h3 className={styles.emptyStateTitle}>
+            {isNoTalentsPosted ? 'No Talents Available' : 'No Talents Found'}
+          </h3>
+          <p className={styles.emptyStateDescription}>
+            {isNoTalentsPosted
+              ? 'There are currently no talents available on the platform. Check back later as new talent profiles are added regularly.'
+              : 'We couldn\'t find any talents matching your current filters. Try adjusting your search criteria or clearing filters to see more talent profiles.'
+            }
+          </p>
+          <div className={styles.emptyStateSuggestions}>
+            <p className={styles.suggestionText}>
+              {isNoTalentsPosted ? 'What you can do:' : 'Try:'}
+            </p>
+            <ul className={styles.suggestionList}>
+              {isNoTalentsPosted ? (
+                <>
+                  <li>Check back later for new talent profiles</li>
+                  <li>Set up notifications for new talent availability</li>
+                  <li>Post your project to attract talent</li>
+                </>
+              ) : (
+                <>
+                  <li>Removing some skill requirements</li>
+                  <li>Expanding experience level criteria</li>
+                  <li>Clearing all filters</li>
+                </>
+              )}
+            </ul>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.projectList}>
+      {talents.map((talent, index) => (
+        <React.Fragment key={talent.id}>
+          <TalentCard
+            talent={talent}
+            onSelect={onSelect}
+            selected={selectedId === talent.id}
+            onContact={onContact}
+          />
+          {index < talents.length - 1 && <div className={styles.projectDivider} />}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+};
 
 const TalentDescription: React.FC<TalentDescriptionProps & { onContact: (talent: Talent) => void }> = ({ talent, onContact }) => {
-  if (!talent) return <aside className={styles.projectDescription} style={{ padding: 32, color: '#64748b' }}>Select a talent to see details</aside>;
+  if (!talent) return null;
   return (
     <aside className={styles.projectDescription}>
       <div className={styles.projectDescHeader}>
@@ -583,7 +641,7 @@ const TalentDescription: React.FC<TalentDescriptionProps & { onContact: (talent:
         </div>
         <div className={styles.projectDescSection}>
           <h4 className={styles.projectDescSectionTitle}>Bio</h4>
-          <p className={styles.projectDescText}>{talent.bio}</p>
+          <p className={styles.projectDescText} style={{ wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'pre-wrap' }}>{talent.bio}</p>
         </div>
         {talent.resume && (
           <div className={styles.projectDescSection}>
@@ -634,12 +692,12 @@ function filterTalents(
 }
 
 const FindTalentPage = () => {
-  const [selectedTags, setSelectedTags] = useState<string[]>(["React", "Figma"]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedTalent, setSelectedTalent] = useState<Talent | null>(null);
-  const [requiredSkills, setRequiredSkills] = useState<string[]>(["React", "Next.js", "Node.js", "Figma", "Docker"]);
-  const [selectedExperience, setSelectedExperience] = useState<string[]>([...experienceOptions]);
-  const [selectedEducation, setSelectedEducation] = useState<string[]>([...educationOptions]);
-  const [selectedExpertise, setSelectedExpertise] = useState<string[]>([...expertiseOptions]);
+  const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
+  const [selectedExperience, setSelectedExperience] = useState<string[]>([]);
+  const [selectedEducation, setSelectedEducation] = useState<string[]>([]);
+  const [selectedExpertise, setSelectedExpertise] = useState<string[]>([]);
   const [talents, setTalents] = useState<Talent[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -742,7 +800,7 @@ const FindTalentPage = () => {
   return (
     <div className={styles.pageContainer}>
       <SearchBar tags={selectedTags} onRemoveTag={handleRemoveTag} onAddTag={handleAddTag} />
-      <div className={styles.mainContainer}>
+      <div className={filteredTalents.length === 0 ? styles.mainContainerNoProjects : styles.mainContainer}>
         <FilterSidebar
           skills={requiredSkills}
           onAddSkill={handleAddSkill}
@@ -756,9 +814,11 @@ const FindTalentPage = () => {
           onClearFilters={handleClearFilters}
         />
         <main className={styles.mainContent}>
-          <TalentList talents={filteredTalents} onSelect={setSelectedTalent} selectedId={selectedTalent?.id || null} onContact={handleOpenInviteModal} />
+          <TalentList talents={filteredTalents} onSelect={setSelectedTalent} selectedId={selectedTalent?.id || null} onContact={handleOpenInviteModal} allTalents={talents} />
         </main>
-        <TalentDescription talent={selectedTalent} onContact={handleOpenInviteModal} />
+        {filteredTalents.length > 0 && (
+          <TalentDescription talent={selectedTalent} onContact={handleOpenInviteModal} />
+        )}
       </div>
       <InviteModal
         open={inviteModalOpen}

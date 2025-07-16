@@ -33,9 +33,21 @@ export default function Step2({ formData, setFormData, onNext, onBack }: Step2Pr
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleAvatarClick = () => {
+    avatarInputRef.current?.click();
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormData({ ...formData, avatar: file });
+    }
   };
 
     const handleRemoveTech = (techToRemove: string) => {
@@ -151,12 +163,32 @@ export default function Step2({ formData, setFormData, onNext, onBack }: Step2Pr
       )}
       <div className={styles.leftPanel}>
         <div className={styles.avatarContainer}>
-          <div className={styles.avatarBox}>
+          <div className={styles.avatarBox} onClick={handleAvatarClick}>
             {formData.avatar ? (
-              <img src={formData.avatar} alt="avatar" className={styles.avatarImg} />
+              <Image
+                src={
+                  typeof formData.avatar === "string"
+                    ? formData.avatar
+                    : formData.avatar
+                    ? URL.createObjectURL(formData.avatar)
+                    : ""
+                }
+                alt="avatar"
+                className={styles.avatarImg}
+                width={80}
+                height={80}
+                style={{ objectFit: 'cover', borderRadius: '50%' }}
+              />
             ) : (
               <span className={styles.avatarPlus}>+</span>
             )}
+            <input
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              ref={avatarInputRef}
+              onChange={handleAvatarChange}
+            />
           </div>
           <div className={styles.userInfo}>
             <div className={styles.leftName}>{formData.fullName || "A.Baha Alimi"}</div>
