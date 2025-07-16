@@ -35,6 +35,11 @@ export default function ProfilePanel() {
   const [positions, setPositions] = useState<string[]>([]);
   const [technologies, setTechnologies] = useState<string[]>([]);
   const [quickSyncEnabled, setQuickSyncEnabled] = useState(false);
+  const [addingPosition, setAddingPosition] = useState(false);
+  const [addingTechnology, setAddingTechnology] = useState(false);
+  const [newPosition, setNewPosition] = useState("");
+  const [newTechnology, setNewTechnology] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     async function loadProfile() {
@@ -89,6 +94,123 @@ export default function ProfilePanel() {
 
   const removeTechnology = (index: number) => {
     setTechnologies(technologies.filter((_, i) => i !== index));
+  };
+
+  const handleAddPosition = () => {
+    setAddingPosition(true);
+    setNewPosition("");
+  };
+
+  const handleAddTechnology = () => {
+    setAddingTechnology(true);
+    setNewTechnology("");
+  };
+
+  const saveNewPosition = () => {
+    if (newPosition.trim() && !positions.includes(newPosition.trim())) {
+      setPositions([...positions, newPosition.trim()]);
+      setNewPosition("");
+      setAddingPosition(false);
+    }
+  };
+
+  const saveNewTechnology = () => {
+    if (newTechnology.trim() && !technologies.includes(newTechnology.trim())) {
+      setTechnologies([...technologies, newTechnology.trim()]);
+      setNewTechnology("");
+      setAddingTechnology(false);
+    }
+  };
+
+  const cancelAddPosition = () => {
+    setAddingPosition(false);
+    setNewPosition("");
+  };
+
+  const cancelAddTechnology = () => {
+    setAddingTechnology(false);
+    setNewTechnology("");
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent, type: 'position' | 'technology') => {
+    if (e.key === 'Enter') {
+      if (type === 'position') {
+        saveNewPosition();
+      } else {
+        saveNewTechnology();
+      }
+    } else if (e.key === 'Escape') {
+      if (type === 'position') {
+        cancelAddPosition();
+      } else {
+        cancelAddTechnology();
+      }
+    }
+  };
+
+  const saveProfile = async () => {
+    if (!profile) return;
+
+    setIsSaving(true);
+    try {
+      const token = localStorage.getItem("token");
+      const requestBody = {
+        telegram: profile.telegram,
+        github: profile.github,
+        bio: profile.bio,
+        position: positions[0] || "", // Taking first position as primary
+        education: profile.education || "NO_DEGREE",
+        expertise: profile.expertise || "",
+        expertise_level: profile.expertiseLevel || "ENTRY",
+        experience_years: "ZERO_TO_ONE", // Default value
+        work_experience: profile.workExperience || [],
+        technologies: technologies
+      };
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (response.ok) {
+        toast.success('Profile updated successfully!', {
+          position: 'bottom-left',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: 'colored',
+        });
+      } else {
+        toast.error('Failed to update profile. Please try again.', {
+          position: 'bottom-left',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: 'colored',
+        });
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      toast.error('Error saving profile. Please try again.', {
+        position: 'bottom-left',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: 'colored',
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleQuickSyncToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -218,14 +340,34 @@ export default function ProfilePanel() {
                     </div>
                   </span>
                 ))}
-                <button className={styles.addTag}>
-                  <Image
-                    src="/add_circle.svg"
-                    alt="Add"
-                    width={20}
-                    height={20}
-                  />
-                </button>
+                {addingPosition ? (
+                  <div className={styles.addInput}>
+                    <input
+                      type="text"
+                      value={newPosition}
+                      onChange={(e) => setNewPosition(e.target.value)}
+                      onKeyDown={(e) => handleKeyPress(e, 'position')}
+                      placeholder="Enter position"
+                      className={styles.tagInput}
+                      autoFocus
+                    />
+                    <button onClick={saveNewPosition} className={styles.saveBtn}>
+                      ✓
+                    </button>
+                    <button onClick={cancelAddPosition} className={styles.cancelBtn}>
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <button className={styles.addTag} onClick={handleAddPosition}>
+                    <Image
+                      src="/add_circle.svg"
+                      alt="Add"
+                      width={20}
+                      height={20}
+                    />
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -253,14 +395,34 @@ export default function ProfilePanel() {
                     </div>
                   </span>
                 ))}
-                <button className={styles.addTag}>
-                  <Image
-                    src="/add_circle.svg"
-                    alt="Add"
-                    width={20}
-                    height={20}
-                  />
-                </button>
+                {addingTechnology ? (
+                  <div className={styles.addInput}>
+                    <input
+                      type="text"
+                      value={newTechnology}
+                      onChange={(e) => setNewTechnology(e.target.value)}
+                      onKeyDown={(e) => handleKeyPress(e, 'technology')}
+                      placeholder="Enter technology"
+                      className={styles.tagInput}
+                      autoFocus
+                    />
+                    <button onClick={saveNewTechnology} className={styles.saveBtn}>
+                      ✓
+                    </button>
+                    <button onClick={cancelAddTechnology} className={styles.cancelBtn}>
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <button className={styles.addTag} onClick={handleAddTechnology}>
+                    <Image
+                      src="/add_circle.svg"
+                      alt="Add"
+                      width={20}
+                      height={20}
+                    />
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -280,6 +442,17 @@ export default function ProfilePanel() {
               <label htmlFor="quicksync" className={styles.toggleLabel}></label>
             </div>
           </div>
+        </div>
+
+        {/* Save Button */}
+        <div className={styles.saveSection}>
+          <button 
+            className={styles.saveButton}
+            onClick={saveProfile}
+            disabled={isSaving}
+          >
+            {isSaving ? 'Saving...' : 'Save Profile'}
+          </button>
         </div>
       </div>
 

@@ -8,6 +8,7 @@ interface TeamMember {
   id: string;
   position: string;
   requiredSkills: string[];
+  expertiseLevel: string;
 }
 
 interface ProjectCreationPanelProps {
@@ -73,6 +74,16 @@ export default function ProjectCreationPanel({ open, onClose }: ProjectCreationP
     );
   };
 
+  const handleExpertiseLevelChange = (memberId: string, expertiseLevel: string) => {
+    setTeamMembers(members =>
+      members.map(member =>
+        member.id === memberId
+          ? { ...member, expertiseLevel }
+          : member
+      )
+    );
+  };
+
   const handleSkillInputChange = (memberId: string, value: string) => {
     setNewSkillInputs(prev => ({ ...prev, [memberId]: value }));
   };
@@ -122,7 +133,8 @@ export default function ProjectCreationPanel({ open, onClose }: ProjectCreationP
     const members: TeamMember[] = positions.map((position, index) => ({
       id: (index + 1).toString(),
       position,
-      requiredSkills: []
+      requiredSkills: [],
+      expertiseLevel: 'MID' // Default to MID for new positions
     }));
 
     setTeamMembers(members);
@@ -136,6 +148,13 @@ export default function ProjectCreationPanel({ open, onClose }: ProjectCreationP
     const membersWithoutSkills = teamMembers.filter(member => member.requiredSkills.length === 0);
     if (membersWithoutSkills.length > 0) {
       toast.error(`Please add required skills for all team members.`);
+      return;
+    }
+
+    // Validate that each team member has an expertise level selected
+    const membersWithoutExpertiseLevel = teamMembers.filter(member => !member.expertiseLevel);
+    if (membersWithoutExpertiseLevel.length > 0) {
+      toast.error(`Please select expertise level for all team members.`);
       return;
     }
 
@@ -188,7 +207,7 @@ export default function ProjectCreationPanel({ open, onClose }: ProjectCreationP
       const rolePromises = teamMembers.map(async (member) => {
         const roleData = {
           roleName: member.position,
-          expertiseLevel: 'MID', // Available: ENTRY, JUNIOR, MID, SENIOR, RESEARCHER
+          expertiseLevel: member.expertiseLevel, // Use the individual expertise level
           technologies: member.requiredSkills
         };
 
@@ -438,6 +457,24 @@ export default function ProjectCreationPanel({ open, onClose }: ProjectCreationP
                         </span>
                       ))}
                     </div>
+                  </div>
+
+                  {/* Expertise Level for each member */}
+                  <div className={styles.fieldGroup}>
+                    <label>Expertise Level:</label>
+                    <select
+                      value={member.expertiseLevel}
+                      onChange={e => handleExpertiseLevelChange(member.id, e.target.value)}
+                      className={member.expertiseLevel ? styles.hasValue : ''}
+                      required
+                    >
+                      <option value="" disabled>Expertise Level</option>
+                      <option value="ENTRY">Entry</option>
+                      <option value="JUNIOR">Junior</option>
+                      <option value="MID">Mid</option>
+                      <option value="SENIOR">Senior</option>
+                      <option value="RESEARCHER">Researcher</option>
+                    </select>
                   </div>
                 </div>
               ))}

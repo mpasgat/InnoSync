@@ -19,6 +19,7 @@ interface ApiProjectRole {
   projectId: number;
   projectTitle: string;
   projectDescription: string;
+  expertiseLevel?: string;
 }
 
 interface UserApplication {
@@ -62,6 +63,7 @@ interface ProjectListProps {
   projects: Project[];
   onSelect: (project: Project) => void;
   selectedId: number | null;
+  allProjects: Project[];
 }
 
 interface ProjectDescriptionProps {
@@ -305,8 +307,8 @@ const mockProjects: Project[] = [
     teamSize: '4-6',
     projectType: 'Paid',
     positions: [
-      { name: 'Support Engineer', skills: ['Customer Service', 'Troubleshooting'] },
-      { name: 'QA Tester', skills: ['Communication'] },
+      { name: 'Support Engineer', skills: ['Customer Service', 'Troubleshooting'], expertiseLevel: 'Entry Level', roleId: 1 },
+      { name: 'QA Tester', skills: ['Communication'], expertiseLevel: 'Junior', roleId: 2 },
     ],
     badge: 'Full Time',
     badgeType: 'fullTime',
@@ -321,8 +323,8 @@ const mockProjects: Project[] = [
     teamSize: '7+',
     projectType: 'Academic',
     positions: [
-      { name: 'UI Designer', skills: ['Figma', 'Prototyping'] },
-      { name: 'UX Researcher', skills: ['UX Research'] },
+      { name: 'UI Designer', skills: ['Figma', 'Prototyping'], expertiseLevel: 'Junior', roleId: 3 },
+      { name: 'UX Researcher', skills: ['UX Research'], expertiseLevel: 'Mid', roleId: 4 },
     ],
     badge: 'Full Time',
     badgeType: 'fullTime',
@@ -337,7 +339,7 @@ const mockProjects: Project[] = [
     teamSize: '1-3',
     projectType: 'Volunteer',
     positions: [
-      { name: 'Frontend Dev', skills: ['React', 'TypeScript', 'CSS'] },
+      { name: 'Frontend Dev', skills: ['React', 'TypeScript', 'CSS'], expertiseLevel: 'Entry Level', roleId: 5 },
     ],
     badge: 'Internship',
     badgeType: 'internship',
@@ -352,8 +354,8 @@ const mockProjects: Project[] = [
     teamSize: '4-6',
     projectType: 'Paid',
     positions: [
-      { name: 'Marketing Lead', skills: ['SEO', 'Analytics'] },
-      { name: 'Content Writer', skills: ['Content Creation'] },
+      { name: 'Marketing Lead', skills: ['SEO', 'Analytics'], expertiseLevel: 'Mid', roleId: 6 },
+      { name: 'Content Writer', skills: ['Content Creation'], expertiseLevel: 'Entry Level', roleId: 7 },
     ],
     badge: 'Full Time',
     badgeType: 'fullTime',
@@ -368,7 +370,7 @@ const mockProjects: Project[] = [
     teamSize: '7+',
     projectType: 'Paid',
     positions: [
-      { name: 'Network Engineer', skills: ['Networking', 'Python', 'Linux'] },
+      { name: 'Network Engineer', skills: ['Networking', 'Python', 'Linux'], expertiseLevel: 'Senior', roleId: 8 },
     ],
     badge: 'Full Time',
     badgeType: 'fullTime',
@@ -383,8 +385,8 @@ const mockProjects: Project[] = [
     teamSize: '4-6',
     projectType: 'Academic',
     positions: [
-      { name: 'UX Designer', skills: ['UX', 'User Testing'] },
-      { name: 'Product Owner', skills: ['Wireframing'] },
+      { name: 'UX Designer', skills: ['UX', 'User Testing'], expertiseLevel: 'Mid', roleId: 9 },
+      { name: 'Product Owner', skills: ['Wireframing'], expertiseLevel: 'Senior', roleId: 10 },
     ],
     badge: 'Full Time',
     badgeType: 'fullTime',
@@ -400,7 +402,7 @@ const mockProjects: Project[] = [
     teamSize: '1-3',
     projectType: 'Volunteer',
     positions: [
-      { name: 'Graphic Designer', skills: ['Photoshop', 'Illustrator', 'Creativity'] },
+      { name: 'Graphic Designer', skills: ['Photoshop', 'Illustrator', 'Creativity'], expertiseLevel: 'Entry Level', roleId: 11 },
     ],
     badge: 'Full Time',
     badgeType: 'fullTime',
@@ -415,8 +417,8 @@ const mockProjects: Project[] = [
     teamSize: '7+',
     projectType: 'Paid',
     positions: [
-      { name: 'Product Designer', skills: ['Product Design', 'Collaboration'] },
-      { name: 'UI Designer', skills: ['Sketch'] },
+      { name: 'Product Designer', skills: ['Product Design', 'Collaboration'], expertiseLevel: 'Senior', roleId: 12 },
+      { name: 'UI Designer', skills: ['Sketch'], expertiseLevel: 'Mid', roleId: 13 },
     ],
     badge: 'Full Time',
     badgeType: 'fullTime',
@@ -431,7 +433,7 @@ const mockProjects: Project[] = [
     teamSize: '4-6',
     projectType: 'Paid',
     positions: [
-      { name: 'Project Manager', skills: ['Project Management', 'Agile', 'Scrum'] },
+      { name: 'Project Manager', skills: ['Project Management', 'Agile', 'Scrum'], expertiseLevel: 'Mid', roleId: 14 },
     ],
     badge: 'Full Time',
     badgeType: 'fullTime',
@@ -446,7 +448,7 @@ const mockProjects: Project[] = [
     teamSize: '7+',
     projectType: 'Paid',
     positions: [
-      { name: 'Marketing Manager', skills: ['Marketing', 'Strategy', 'Leadership'] },
+      { name: 'Marketing Manager', skills: ['Marketing', 'Strategy', 'Leadership'], expertiseLevel: 'Senior', roleId: 15 },
     ],
     badge: 'Temporary',
     badgeType: 'temporary',
@@ -461,7 +463,7 @@ const mockProjects: Project[] = [
     teamSize: '1-3',
     projectType: 'Academic',
     positions: [
-      { name: 'Visual Designer', skills: ['Design', 'Branding', 'Creativity'] },
+      { name: 'Visual Designer', skills: ['Design', 'Branding', 'Creativity'], expertiseLevel: 'Junior', roleId: 16 },
     ],
     badge: 'Part Time',
     badgeType: 'partTime',
@@ -476,7 +478,7 @@ const mockProjects: Project[] = [
     teamSize: '4-6',
     projectType: 'Volunteer',
     positions: [
-      { name: 'Interaction Designer', skills: ['Prototyping', 'Figma', 'UX'] },
+      { name: 'Interaction Designer', skills: ['Prototyping', 'Figma', 'UX'], expertiseLevel: 'Entry Level', roleId: 17 },
     ],
     badge: 'Remote',
     badgeType: 'remote',
@@ -491,8 +493,8 @@ const mockProjects: Project[] = [
     teamSize: '7+',
     projectType: 'Paid',
     positions: [
-      { name: 'UX Designer', skills: ['UX', 'Research'] },
-      { name: 'Team Lead', skills: ['Leadership'] },
+      { name: 'UX Designer', skills: ['UX', 'Research'], expertiseLevel: 'Mid', roleId: 18 },
+      { name: 'Team Lead', skills: ['Leadership'], expertiseLevel: 'Senior', roleId: 19 },
     ],
     badge: 'Contract Base',
     badgeType: 'contract',
@@ -541,58 +543,116 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, selected }
   </div>
 );
 
-const ProjectList: React.FC<ProjectListProps> = ({ projects, onSelect, selectedId }) => (
-  <div className={styles.projectList}>
-    {projects.map((project, index) => (
-      <React.Fragment key={project.id}>
-        <ProjectCard
-          project={project}
-          onSelect={onSelect}
-          selected={selectedId === project.id}
-        />
-        {index < projects.length - 1 && <div className={styles.projectDivider} />}
-      </React.Fragment>
-    ))}
-  </div>
-);
+const ProjectList: React.FC<ProjectListProps> = ({ projects, onSelect, selectedId, allProjects }) => {
+  if (projects.length === 0) {
+    // Check if this is a "no projects at all" situation or "no projects match filters"
+    const isNoProjectsPosted = allProjects.length === 0;
 
-const ProjectDescription: React.FC<ProjectDescriptionProps & { 
-  onApply?: (projectRoleId: number, positionName: string) => Promise<void>; 
+    return (
+      <div className={styles.projectList}>
+        <div className={styles.emptyState}>
+          <div className={styles.emptyStateIcon}>
+            {isNoProjectsPosted ? (
+              // Icon for no projects posted
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#9CA3AF"/>
+              </svg>
+            ) : (
+              // Icon for filtered results
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 16V8C21 6.89543 20.1046 6 19 6H5C3.89543 6 3 6.89543 3 8V16C3 17.1046 3.89543 18 5 18H19C20.1046 18 21 17.1046 21 16Z" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M7 12H17" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M7 9H12" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </div>
+          <h3 className={styles.emptyStateTitle}>
+            {isNoProjectsPosted ? 'No Projects Available' : 'No Projects Found'}
+          </h3>
+          <p className={styles.emptyStateDescription}>
+            {isNoProjectsPosted
+              ? 'There are currently no projects for you on the platform.'
+              : 'We couldn&apos;t find any projects matching your current filters. Try adjusting your search criteria or clearing filters to see more opportunities.'
+            }
+          </p>
+          <div className={styles.emptyStateSuggestions}>
+            <p className={styles.suggestionText}>
+              {isNoProjectsPosted ? 'What you can do:' : 'Try:'}
+            </p>
+            <ul className={styles.suggestionList}>
+              {isNoProjectsPosted ? (
+                <>
+                  <li>Make sure that you are logged in</li>
+                  <li>Check back later for new project postings</li>
+                  <li>Complete your profile to be ready when projects are available</li>
+                </>
+              ) : (
+                <>
+                  <li>Removing some skill requirements</li>
+                  <li>Expanding experience level criteria</li>
+                  <li>Clearing all filters</li>
+                </>
+              )}
+            </ul>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.projectList}>
+      {projects.map((project, index) => (
+        <React.Fragment key={project.id}>
+          <ProjectCard
+            project={project}
+            onSelect={onSelect}
+            selected={selectedId === project.id}
+          />
+          {index < projects.length - 1 && <div className={styles.projectDivider} />}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+};
+
+const ProjectDescription: React.FC<ProjectDescriptionProps & {
+  onApply?: (projectRoleId: number, positionName: string) => Promise<void>;
 }> = ({ project, onApply, appliedRoleIds }) => {
-  // Track the currently chosen role by its unique id (fallback to first role's id if available)
-  const [selectedRoleId, setSelectedRoleId] = useState<number | null>(project?.positions[0]?.roleId ?? null);
+  // Track the currently chosen role by its unique id (null means no selection)
+  const [selectedRoleId, setSelectedRoleId] = useState<number | null>(null);
   const [isApplying, setIsApplying] = useState(false);
 
-  // When the project changes, default-select the first available role (if any)
+  // When the project changes, clear selection
   React.useEffect(() => {
-    setSelectedRoleId(project?.positions[0]?.roleId ?? null);
+    setSelectedRoleId(null);
   }, [project]);
 
   if (!project) return null;
 
-  // Find the selected position object via roleId (fallback by index if ids are missing)
-  const selectedPositionObj = project.positions.find(pos => pos.roleId === selectedRoleId) ?? project.positions[0];
+  // Find the selected position object via roleId
+  const selectedPositionObj = project.positions.find(pos => pos.roleId === selectedRoleId);
 
-  // Obtain roleName from the object for toast messages etc.
+  // If a position is selected, use its info; otherwise, use project info
+  const experienceLevel = selectedPositionObj?.expertiseLevel || project.complexity;
+  const requiredSkills = selectedPositionObj
+    ? selectedPositionObj.skills
+    : Array.from(new Set(project.positions.flatMap(pos => pos.skills)));
+
+  // For Apply button
   const selectedPositionName = selectedPositionObj?.name ?? 'Role';
-
-  // Determine roleId of the currently selected position (should always be defined)
   const currentRoleId = selectedPositionObj?.roleId ?? project.roleId;
-
-  // Check if user has already applied to this role
   const alreadyApplied = currentRoleId ? appliedRoleIds.has(currentRoleId) : false;
 
-  const selectedExperienceLevel = selectedPositionObj?.expertiseLevel ?? project.complexity;
-
   const handleApply = async () => {
+    if (!selectedPositionObj) {
+      toast.error('Please select a position to apply.');
+      return;
+    }
     if (!currentRoleId || !onApply) return;
-    
-    const roleId = currentRoleId;
-    console.log(`🎯 Applying for roleId: ${roleId} (position "${selectedPositionName}")`);
-    
     setIsApplying(true);
     try {
-      await onApply(roleId, selectedPositionName);
+      await onApply(currentRoleId, selectedPositionName);
     } finally {
       setIsApplying(false);
     }
@@ -608,7 +668,6 @@ const ProjectDescription: React.FC<ProjectDescriptionProps & {
         </div>
         <div className={styles.projectDescTitleBlock}>
           <h2 className={styles.projectDescCompany}>{project.company}</h2>
-          <span className={styles.badge} style={{ background: '#e4e5e8', color: '#18191c', fontWeight: 600, marginLeft: 8, marginTop: 6 }}>{project.complexity}</span>
         </div>
         <div className={styles.projectDescMetaRow}>
           <div className={styles.projectDescMetaItem}>
@@ -622,56 +681,61 @@ const ProjectDescription: React.FC<ProjectDescriptionProps & {
       <div className={styles.projectDescBody}>
         <p className={styles.projectDescText}>{project.description} </p>
         <div className={styles.projectDescSection}>
-          <h4 className={styles.projectDescSectionTitle}>Required Skills</h4>
+          <h4 className={styles.projectDescSectionTitle}>Project Complexity</h4>
           <div className={styles.tagList}>
-            {selectedPositionObj
-              ? selectedPositionObj.skills.map(tech => (
-                  <span key={tech} className={styles.tag}>{tech}</span>
-                ))
-              : project.requiredSkills.map(tech => (
-                  <span key={tech} className={styles.tag}>{tech}</span>
-                ))}
+            <span className={styles.tag}>{project.complexity}</span>
           </div>
         </div>
         <div className={styles.projectDescSection}>
-          <h4 className={styles.projectDescSectionTitle}>Experience Level</h4>
+          <h4 className={styles.projectDescSectionTitle}>Experience Level Required</h4>
           <div className={styles.tagList}>
-            <span className={styles.tag}>{selectedExperienceLevel}</span>
+            <span className={styles.tag}>{experienceLevel}</span>
+          </div>
+        </div>
+        <div className={styles.projectDescSection}>
+          <h4 className={styles.projectDescSectionTitle}>Required Skills</h4>
+          <div className={styles.tagList}>
+            {requiredSkills.map(tech => (
+              <span key={tech} className={styles.tag}>{tech}</span>
+            ))}
           </div>
         </div>
         <div className={styles.projectDescSection}>
           <h4 className={styles.projectDescSectionTitle}>Available Positions</h4>
           <div className={styles.tagList}>
-            {project.positions.map(role => (
-              <span
-                key={role.roleId ?? role.name}
-                className={role.roleId === selectedRoleId ? styles.tag : styles.positionTag}
-                onClick={() => {
-                  console.log(`🎯 Selecting roleId: ${role.roleId} ("${role.name}")`);
-                  setSelectedRoleId(role.roleId ?? null);
-                }}
-                style={{ cursor: 'pointer', transition: 'all 0.2s' }}
-              >
-                {role.name}
-              </span>
-            ))}
-          </div>
-          {/* Debug info */}
-          <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
-            {/* <p>Selected roleId: {currentRoleId ?? 'Not found'}</p> */}
+            {project.positions.map(role => {
+              const isSelected = role.roleId === selectedRoleId;
+              return (
+                <span
+                  key={role.roleId ?? role.name}
+                  className={isSelected ? styles.tag : styles.positionTag}
+                  onClick={() => setSelectedRoleId(isSelected ? null : role.roleId ?? null)}
+                  style={{ cursor: 'pointer', transition: 'all 0.2s' }}
+                >
+                  {role.name}
+                  {role.expertiseLevel && (
+                    <span style={{ marginLeft: '6px', fontSize: '11px', opacity: 0.8, fontWeight: 'normal' }}>
+                      ({role.expertiseLevel})
+                    </span>
+                  )}
+                </span>
+              );
+            })}
           </div>
         </div>
       </div>
-      <button 
-        className={styles.mainApplyBtn} 
+      <button
+        className={styles.mainApplyBtn}
         onClick={handleApply}
-        disabled={isApplying || alreadyApplied}
+        disabled={isApplying || alreadyApplied || !selectedPositionObj}
       >
         {alreadyApplied
           ? 'Applied'
           : isApplying
             ? 'Applying...'
-            : 'Apply Now'}
+            : selectedPositionObj
+              ? 'Apply Now'
+              : 'Select a Position to Apply'}
       </button>
     </aside>
   );
@@ -717,7 +781,7 @@ const transformApiDataToProjects = (apiData: ApiProjectRole[]): Project[] => {
   // Transform each project group to Project interface
   return Object.values(projectGroups).map((roles) => {
     const firstRole = roles[0];
-    
+
     // Create a map of role names to role IDs for easy lookup
     const roleIdMap = roles.reduce((acc, role) => {
       acc[role.roleName] = role.roleId;
@@ -752,12 +816,12 @@ const fetchProjects = async (): Promise<Project[]> => {
   const token = localStorage.getItem('token');
   if (!token) {
     console.error('❌ FETCH PROJECTS: No authentication token found');
-    toast.error('Please log in to view projects');
+    toast.error('You are not logged in');
     return [];
   }
 
   console.log('🔄 FETCH PROJECTS: Starting to fetch projects from API...');
-  
+
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/roles`, {
       method: 'GET',
@@ -774,10 +838,10 @@ const fetchProjects = async (): Promise<Project[]> => {
 
     const apiData: ApiProjectRole[] = await response.json();
     console.log('✅ FETCH PROJECTS: Successfully fetched projects data:', apiData);
-    
+
     const transformedProjects = transformApiDataToProjects(apiData);
     console.log('✅ FETCH PROJECTS: Successfully transformed projects:', transformedProjects);
-    
+
     toast.success(`Successfully loaded ${transformedProjects.length} projects`);
     return transformedProjects;
   } catch (error) {
@@ -818,7 +882,7 @@ const applyForProjectRole = async (projectRoleId: number): Promise<boolean> => {
     const responseData = await response.json().catch(() => null); // In case response is not JSON
     console.log('✅ APPLY PROJECT: Successfully submitted application for role ID:', projectRoleId);
     console.log('✅ APPLY PROJECT: Response data:', responseData);
-    
+
     return true;
   } catch (error) {
     console.error(`❌ APPLY PROJECT: Error occurred while applying for role ID ${projectRoleId}:`, error);
@@ -920,16 +984,14 @@ const fetchProjectRoles = async (projectId: number): Promise<ProjectPosition[]> 
 };
 
 const FindProjectPage = () => {
-  const [selectedTags, setSelectedTags] = useState(['Frontend Dev', 'Sys Admin', 'Backend Dev', 'DB Admin']);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [requiredSkills, setRequiredSkills] = useState([
-    'Angular', 'React', 'Vue', 'PostgreSQL', 'Docker', 'Figma', 'Git', 'Svelte', 'Python',
-  ]);
-  const [selectedExperience, setSelectedExperience] = useState<string[]>([...experienceOptions]);
-  const [selectedProjectType, setSelectedProjectType] = useState<string[]>([...projectTypeOptions]);
-  const [selectedTeamSize, setSelectedTeamSize] = useState<string[]>([...teamSizeOptions]);
+  const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
+  const [selectedExperience, setSelectedExperience] = useState<string[]>([]);
+  const [selectedProjectType, setSelectedProjectType] = useState<string[]>([]);
+  const [selectedTeamSize, setSelectedTeamSize] = useState<string[]>([]);
   const [selectedEmploymentType, setSelectedEmploymentType] = useState<string[]>([]);
   const [appliedRoleIds, setAppliedRoleIds] = useState<Set<number>>(new Set());
 
@@ -1081,7 +1143,7 @@ const FindProjectPage = () => {
   return (
     <div className={styles.pageContainer}>
       <SearchBar tags={selectedTags} onRemoveTag={handleRemoveTag} onAddTag={handleAddTag} />
-      <div className={styles.mainContainer}>
+      <div className={filteredProjects.length === 0 ? styles.mainContainerNoProjects : styles.mainContainer}>
         <FilterSidebar
           skills={requiredSkills}
           onAddSkill={handleAddSkill}
@@ -1101,13 +1163,16 @@ const FindProjectPage = () => {
             projects={filteredProjects}
             onSelect={handleSelectProject}
             selectedId={selectedProject?.id || null}
+            allProjects={projects}
           />
         </main>
-        <ProjectDescription 
-          project={selectedProject} 
-          onApply={handleApplyForProject}
-          appliedRoleIds={appliedRoleIds}
-        />
+        {filteredProjects.length > 0 && (
+          <ProjectDescription
+            project={selectedProject}
+            onApply={handleApplyForProject}
+            appliedRoleIds={appliedRoleIds}
+          />
+        )}
       </div>
       <ToastContainer aria-label="Notification messages" />
     </div>

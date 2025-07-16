@@ -1,7 +1,28 @@
+"use client";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import styles from "./page.module.css"
 
 const HomePage = () => {
+  const router = useRouter();
+
+  const handleGetStarted = () => {
+    // Check if user is logged in by checking for token in localStorage
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+    if (token) {
+      // User is logged in, navigate to projects page
+      router.push("/components/projects");
+    } else {
+      // User is not logged in, navigate to signup page
+      router.push("/authentication/signup");
+    }
+  };
+
+  const handleLearnMore = () => {
+    router.push("/components/about");
+  };
+
   return (
     <div className={styles.container}>
       {/* Hero Section */}
@@ -20,8 +41,8 @@ const HomePage = () => {
 
             {/* CTA Buttons */}
             <div className={styles.ctaButtonsFigma}>
-              <button className={styles.primaryCtaFigma}>Get Started</button>
-              <button className={styles.secondaryCtaFigma}>Learn more</button>
+              <button className={styles.primaryCtaFigma} onClick={handleGetStarted}>Get Started</button>
+              <button className={styles.secondaryCtaFigma} onClick={handleLearnMore}>Learn more</button>
             </div>
 
             {/* Trusted By Section */}
