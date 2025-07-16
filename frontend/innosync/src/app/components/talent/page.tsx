@@ -288,8 +288,16 @@ const InviteModal = ({
     if (open) {
       setLoadingProjects(true);
       const token = getToken();
+      if (!token) {
+        console.error('❌ FETCH PROJECTS: No authentication token found');
+        toast.error('You are not logged in');
+        setProjects([]);
+        setLoadingProjects(false);
+        return;
+      }
+
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/me`, {
-        headers: token ? { "Authorization": `Bearer ${token}` } : {}
+        headers: { "Authorization": `Bearer ${token}` }
       })
         .then(res => res.ok ? res.json() : Promise.resolve([]))
         .then(data => {
@@ -315,8 +323,16 @@ const InviteModal = ({
     if (selectedProject) {
       setLoadingRoles(true);
       const token = getToken();
+      if (!token) {
+        console.error('❌ FETCH ROLES: No authentication token found');
+        toast.error('You are not logged in');
+        setRoles([]);
+        setLoadingRoles(false);
+        return;
+      }
+
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${selectedProject}/roles`, {
-        headers: token ? { "Authorization": `Bearer ${token}` } : {}
+        headers: { "Authorization": `Bearer ${token}` }
       })
         .then(res => res.ok ? res.json() : Promise.resolve([]))
         .then(data => {
@@ -348,16 +364,23 @@ const InviteModal = ({
       toast.error("Invalid recipient.");
       return;
     }
+
+    const token = getToken();
+    if (!token) {
+      console.error('❌ SEND INVITATION: No authentication token found');
+      toast.error('You are not logged in');
+      return;
+    }
+
     setSending(true);
     const payload = { projectRoleId: Number(selectedRole), recipientId };
     console.log("Sending invitation:", payload);
     try {
-      const token = getToken();
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/invitations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(payload),
       });
@@ -546,7 +569,7 @@ const TalentList: React.FC<TalentListProps & { allTalents: Talent[] }> = ({ tale
           </h3>
           <p className={styles.emptyStateDescription}>
             {isNoTalentsPosted
-              ? 'There are currently no talents available on the platform. Check back later as new talent profiles are added regularly.'
+              ? 'There are currently no talents available for you on the platform.'
               : 'We couldn\'t find any talents matching your current filters. Try adjusting your search criteria or clearing filters to see more talent profiles.'
             }
           </p>
@@ -557,8 +580,8 @@ const TalentList: React.FC<TalentListProps & { allTalents: Talent[] }> = ({ tale
             <ul className={styles.suggestionList}>
               {isNoTalentsPosted ? (
                 <>
+                  <li>Make sure that you are logged in</li>
                   <li>Check back later for new talent profiles</li>
-                  <li>Set up notifications for new talent availability</li>
                   <li>Post your project to attract talent</li>
                 </>
               ) : (
@@ -700,43 +723,78 @@ const FindTalentPage = () => {
   const [selectedExpertise, setSelectedExpertise] = useState<string[]>([]);
   const [talents, setTalents] = useState<Talent[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [inviteRecipientId, setInviteRecipientId] = useState<number | null>(null);
   const [inviteRecipientName, setInviteRecipientName] = useState<string | null>(null);
 
-  useEffect(() => {
-    setLoading(true);
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/all`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch profiles");
-        return res.json();
-      })
-      .then((data: BackendProfile[]) => {
-        // Map backend profile to Talent interface
-        const mapped: Talent[] = data.map((profile) => ({
-          id: profile.id,
-          name: profile.fullName || profile.email || "No Name",
-          avatar: profile.profilePicture || "/profile_image.png",
-          positions: profile.position ? [profile.position] : [],
-          expertiseLevel: profile.expertise_level || profile.expertise || "",
-          education: profile.education || "",
-          skills: profile.technologies || [],
-          experience: profile.experience_years === "ZERO_TO_ONE" ? "<1 y." :
-            profile.experience_years === "ONE_TO_TWO" ? "1-2 y." :
-            profile.experience_years === "THREE_TO_FIVE" ? "3-5 y." :
-            profile.experience_years === "FIVE_PLUS" ? "5> y." : "",
-          bio: profile.bio || "",
-          resume: profile.resume,
-        }));
-        setTalents(mapped);
-        setSelectedTalent(mapped[0] || null);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
+  // Function to fetch talents from API
+  const fetchTalents = async (): Promise<Talent[]> => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (!token) {
+      console.error('❌ FETCH TALENTS: No authentication token found');
+      toast.error('You are not logged in');
+      return [];
+    }
+
+    console.log('🔄 FETCH TALENTS: Starting to fetch talents from API...');
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/all`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
+
+      if (!response.ok) {
+        console.error(`❌ FETCH TALENTS: API request failed with status ${response.status}: ${response.statusText}`);
+        throw new Error(`Failed to fetch talents: ${response.status} ${response.statusText}`);
+      }
+
+      const data: BackendProfile[] = await response.json();
+      console.log('✅ FETCH TALENTS: Successfully fetched talents data:', data);
+
+      // Map backend profile to Talent interface
+      const mapped: Talent[] = data.map((profile) => ({
+        id: profile.id,
+        name: profile.fullName || profile.email || "No Name",
+        avatar: profile.profilePicture || "/profile_image.png",
+        positions: profile.position ? [profile.position] : [],
+        expertiseLevel: profile.expertise_level || profile.expertise || "",
+        education: profile.education || "",
+        skills: profile.technologies || [],
+        experience: profile.experience_years === "ZERO_TO_ONE" ? "<1 y." :
+          profile.experience_years === "ONE_TO_TWO" ? "1-2 y." :
+          profile.experience_years === "THREE_TO_FIVE" ? "3-5 y." :
+          profile.experience_years === "FIVE_PLUS" ? "5> y." : "",
+        bio: profile.bio || "",
+        resume: profile.resume,
+      }));
+
+      console.log('✅ FETCH TALENTS: Successfully transformed talents:', mapped);
+      toast.success(`Successfully loaded ${mapped.length} talents`);
+      return mapped;
+    } catch (error) {
+      console.error('❌ FETCH TALENTS: Error occurred:', error);
+      toast.error('Failed to load talents');
+      console.log('🔄 FETCH TALENTS: Returning empty array');
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    const loadTalents = async () => {
+      setLoading(true);
+      const fetchedTalents = await fetchTalents();
+      setTalents(fetchedTalents);
+      if (fetchedTalents.length > 0) {
+        setSelectedTalent(fetchedTalents[0]);
+      }
+      setLoading(false);
+    };
+
+    loadTalents();
   }, []);
 
   const handleRemoveTag = (tag: string) => {
@@ -787,6 +845,13 @@ const FindTalentPage = () => {
   );
 
   const handleOpenInviteModal = (talent: Talent) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (!token) {
+      console.error('❌ OPEN INVITE MODAL: No authentication token found');
+      toast.error('You are not logged in');
+      return;
+    }
+
     setInviteRecipientId(talent.id);
     setInviteRecipientName(talent.name);
     setInviteModalOpen(true);
@@ -795,7 +860,6 @@ const FindTalentPage = () => {
   const handleCloseInviteModal = () => setInviteModalOpen(false);
 
   if (loading) return <div className={styles.pageContainer}><div>Loading...</div></div>;
-  if (error) return <div className={styles.pageContainer}><div>Error: {error}</div></div>;
 
   return (
     <div className={styles.pageContainer}>
