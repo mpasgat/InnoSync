@@ -5,6 +5,8 @@ import styles from "../page.module.css";
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 
@@ -81,30 +83,54 @@ export default function SignUp() {
       if (!res.ok) {
         const errorData = await res.json();
         console.error('Signup failed:', errorData);
-        alert(`Signup failed: ${errorData.error || 'Unknown error'}`);
+        toast.error(`Signup failed: ${errorData.error || 'Unknown error'}`, {
+          position: 'top-center',
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: 'colored',
+        });
         return;
       }
 
       const data = await res.json();
       console.log('Signup successful:', data);
-      alert('Signup successful!');
+      toast.success('Signup successful!', {
+        position: 'top-center',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: 'colored',
+      });
       if (data.accessToken) {
         localStorage.setItem('token', data.accessToken);
       }
       if (data.refreshToken) {
         localStorage.setItem('refreshToken', data.refreshToken);
       }
-      
+
       // Trigger navbar refresh and auth state change
       window.dispatchEvent(new CustomEvent('profileUpdated'));
       window.dispatchEvent(new CustomEvent('authStateChanged'));
-      
+
       router.push('/components/profile-initiation');
 
       // You can redirect to login page here
     } catch (err) {
       console.error('Network error during signup:', err);
-      alert('Signup failed due to network error');
+      toast.error('Signup failed due to network error', {
+        position: 'top-center',
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: 'colored',
+      });
     }
   }
 
@@ -205,6 +231,7 @@ export default function SignUp() {
           <button type="submit" className={styles.submit__btn}>Continue</button>
         </form>
       </div>
+      <ToastContainer aria-label="Notification" />
     </div>
   );
 }
