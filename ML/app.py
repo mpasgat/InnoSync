@@ -6,6 +6,8 @@ from typing import Optional, List
 import numpy as np
 import httpx
 import os
+from datetime import datetime, timedelta
+import asyncio
 
 from recommender import TeamRecommender
 from data_types import Project, Role, Member, Work
@@ -25,11 +27,17 @@ app.add_middleware(
 
 # Configuration
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8080")
-API_TOKEN = os.getenv("API_TOKEN", "")
+
+# Authentication credentials
+ML_USERNAME = os.getenv("ML_USERNAME", "ml-api-user")
+ML_EMAIL = os.getenv("ML_EMAIL", "ml-api@innosync.com")
+ML_PASSWORD = os.getenv("ML_PASSWORD", "ml-api-password")
 
 # Global variables to store data
 candidates = []
 recommender = None
+current_token = None
+token_expiry = None
 
 class ProjectRequest(BaseModel):
     project_id: int
@@ -47,11 +55,86 @@ class TeamResponse(BaseModel):
     members: List[dict]
     synergy_metrics: SynergyResponse
 
+async def get_current_token():
+    """Get current valid token or authenticate to get a new one"""
+    global current_token, token_expiry
+    
+    # Check if we have a valid token
+    if current_token and token_expiry and datetime.utcnow() < token_expiry:
+        return current_token
+    
+    # Authenticate to get a new token
+    try:
+        async with httpx.AsyncClient() as client:
+            # Try to signup first (in case user doesn't exist)
+            signup_data = {
+                "email": ML_EMAIL,
+                "password": ML_PASSWORD,
+                "fullName": ML_USERNAME
+            }
+            
+            try:
+                response = await client.post(f"{BACKEND_URL}/api/auth/signup", json=signup_data)
+                # If signup fails, try login
+                if response.status_code != 200:
+                    login_data = {
+                        "email": ML_EMAIL,
+                        "password": ML_PASSWORD
+                    }
+                    response = await client.post(f"{BACKEND_URL}/api/auth/signin", json=login_data)
+                    response.raise_for_status()
+            except:
+                # If both fail, try login
+                login_data = {
+                    "email": ML_EMAIL,
+                    "password": ML_PASSWORD
+                }
+                response = await client.post(f"{BACKEND_URL}/api/auth/signin", json=login_data)
+                response.raise_for_status()
+            
+            auth_data = response.json()
+            current_token = auth_data.get("accessToken")
+            if current_token:
+                # Set token expiry (assuming 24 hours if not specified)
+                token_expiry = datetime.utcnow() + timedelta(hours=24)
+                return current_token
+            else:
+                raise HTTPException(status_code=401, detail="Failed to get authentication token")
+                
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=f"Authentication failed: {e}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Authentication error: {str(e)}")
+
+async def startup_event():
+    """Startup event to authenticate with backend"""
+    print("🚀 Starting ML API...")
+    print(f"📡 Backend URL: {BACKEND_URL}")
+    print(f"👤 ML Email: {ML_EMAIL}")
+    
+    try:
+        # Try to authenticate on startup
+        token = await get_current_token()
+        if token:
+            print("✅ Successfully authenticated with backend")
+            print(f"🔑 Token obtained: {token[:20]}...")
+        else:
+            print("❌ Failed to authenticate with backend")
+    except Exception as e:
+        print(f"⚠️  Authentication failed on startup: {e}")
+        print("🔄 Will retry authentication on first request")
+
+@app.on_event("startup")
+async def startup():
+    """Startup event handler"""
+    await startup_event()
+
 async def fetch_project_details(project_id: int) -> dict:
     """Fetch project details from backend"""
     try:
+        token = await get_current_token()
         async with httpx.AsyncClient() as client:
-            headers = {"Authorization": f"Bearer {API_TOKEN}"} if API_TOKEN else {}
+            headers = {"Authorization": f"Bearer {token}"}
             response = await client.get(f"{BACKEND_URL}/api/projects/{project_id}", headers=headers)
             response.raise_for_status()
             return response.json()
@@ -63,8 +146,9 @@ async def fetch_project_details(project_id: int) -> dict:
 async def fetch_project_roles(project_id: int) -> List[dict]:
     """Fetch project roles from backend"""
     try:
+        token = await get_current_token()
         async with httpx.AsyncClient() as client:
-            headers = {"Authorization": f"Bearer {API_TOKEN}"} if API_TOKEN else {}
+            headers = {"Authorization": f"Bearer {token}"}
             response = await client.get(f"{BACKEND_URL}/api/projects/{project_id}/roles", headers=headers)
             response.raise_for_status()
             return response.json()
@@ -76,8 +160,9 @@ async def fetch_project_roles(project_id: int) -> List[dict]:
 async def fetch_all_candidates() -> List[dict]:
     """Fetch all candidates from backend"""
     try:
+        token = await get_current_token()
         async with httpx.AsyncClient() as client:
-            headers = {"Authorization": f"Bearer {API_TOKEN}"} if API_TOKEN else {}
+            headers = {"Authorization": f"Bearer {token}"}
             response = await client.get(f"{BACKEND_URL}/api/users/profiles", headers=headers)
             response.raise_for_status()
             return response.json()
@@ -215,39 +300,58 @@ async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "candidates_loaded": len(candidates) if candidates else 0}
 
+@app.get("/auth/status")
+async def auth_status():
+    """Check authentication status"""
+    global current_token, token_expiry
+    
+    if current_token and token_expiry:
+        is_valid = datetime.utcnow() < token_expiry
+        return {
+            "authenticated": is_valid,
+            "token_expires": token_expiry.isoformat() if token_expiry else None,
+            "backend_url": BACKEND_URL
+        }
+    else:
+        return {
+            "authenticated": False,
+            "token_expires": None,
+            "backend_url": BACKEND_URL
+        }
+
 # Keep the old endpoint for backward compatibility
-@app.post("/load-candidates")
-async def load_candidates(candidates_data: List[dict]):
-    """Load candidate data into the recommender (legacy endpoint)"""
-    global candidates, recommender
-    
-    try:
-        candidates = []
-        for candidate_data in candidates_data:
+# @app.post("/load-candidates")
+# async def load_candidates(candidates_data: List[dict]):
+    # """Load candidate data into the recommender (legacy endpoint)"""
+    # global candidates, recommender
+    # 
+    # try:
+        # candidates = []
+        # for candidate_data in candidates_data:
             # Convert work experience data
-            work_experience = []
-            for work_data in candidate_data.get('work_experience', []):
-                work_experience.append(Work(**work_data))
-            
+            # work_experience = []
+            # for work_data in candidate_data.get('work_experience', []):
+                # work_experience.append(Work(**work_data))
+            # 
             # Create Member object
-            member = Member(
-                id=candidate_data['id'],
-                bio=candidate_data.get('bio', ''),
-                position=candidate_data.get('position', ''),
-                education=candidate_data.get('education', ''),
-                expertise=candidate_data.get('expertise', ''),
-                resume=candidate_data.get('resume', ''),
-                technologies=candidate_data.get('technologies', []),
-                expertise_level=candidate_data.get('expertise_level', ''),
-                experience_years=candidate_data.get('experience_years', '0 years'),
-                work_experience=work_experience
-            )
-            candidates.append(member)
-        
+            # member = Member(
+                # id=candidate_data['id'],
+                # bio=candidate_data.get('bio', ''),
+                # position=candidate_data.get('position', ''),
+                # education=candidate_data.get('education', ''),
+                # expertise=candidate_data.get('expertise', ''),
+                # resume=candidate_data.get('resume', ''),
+                # technologies=candidate_data.get('technologies', []),
+                # expertise_level=candidate_data.get('expertise_level', ''),
+                # experience_years=candidate_data.get('experience_years', '0 years'),
+                # work_experience=work_experience
+            # )
+            # candidates.append(member)
+        # 
         # Initialize recommender
-        recommender = TeamRecommender(candidates)
-        
-        return {"status": "success", "candidates_loaded": len(candidates)}
-    
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error loading candidates: {str(e)}")
+        # recommender = TeamRecommender(candidates)
+        # 
+        # return {"status": "success", "candidates_loaded": len(candidates)}
+    # except Exception as e:
+        # raise HTTPException(status_code=400, detail=str(e))
+# 
