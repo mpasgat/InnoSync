@@ -40,10 +40,8 @@ jobs:
             cd /home/aibek/infra/dev/InnoSync
             git pull origin $BRANCH_NAME
 
-            if [ -f .env.$BRANCH_NAME ]; then
-              cp .env.$BRANCH_NAME .env
-            fi
+            [ -f .env.$BRANCH_NAME ] && cp .env.$BRANCH_NAME .env
 
-            docker system prune -af --volumes
+            docker system prune -af
             docker compose down
             docker compose up -d --build
