@@ -28,7 +28,7 @@
 - PostgreSQL
 
 ### DevOps (Aibek & Baha)
-- TBA
+- Docker, Github Actions CI/CD, Nginx, ELK stack.
 
 ### Machine Learning (Gurban)
 - Python
