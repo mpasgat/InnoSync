@@ -68,7 +68,7 @@ class TeamRecommender:
             'recommendation_notes': self._generate_recommendation_notes(synergy, exp_variance)
         }
 
-    def _recommend_team(self, project: Project, roles: List[Role], max_candidates_per_role: int = 5) -> Dict:
+    def _recommend_team(self, project: Project, roles: List[Role], max_candidates_per_role: int = 5, random_seed: int = None) -> Dict:
         """
         Core team recommendation algorithm.
         
@@ -76,10 +76,14 @@ class TeamRecommender:
             project: Project details
             roles: Required roles for the project
             max_candidates_per_role: Maximum candidates to consider per role
+            random_seed: Optional seed for randomization
             
         Returns:
             Dictionary with team recommendation
         """
+        if random_seed is not None:
+            np.random.seed(random_seed)
+            
         required_roles = self._parse_required_roles(roles)
         team = []
 
@@ -98,12 +102,23 @@ class TeamRecommender:
             role_vector = self.tfidf.transform([role_skills_text])
             role_skill_matrix = self.skill_matrix[candidate_indices]
             similarities = cosine_similarity(role_vector, role_skill_matrix).flatten()
+            
+            # Add small random noise to break ties and add variety
+            noise = np.random.normal(0, 0.01, similarities.shape)
+            similarities = similarities + noise
 
-            # Select top candidates
+            # Select top candidates with randomization
             top_indices = np.argsort(similarities)[-max_candidates_per_role:][::-1]
+            
+            # Randomly sample from top candidates instead of always picking the best
+            if len(top_indices) > count:
+                selected_indices = np.random.choice(top_indices, size=count, replace=False)
+            else:
+                selected_indices = top_indices
+                
             selected = 0
             
-            for idx in top_indices:
+            for idx in selected_indices:
                 if selected >= count:
                     break
                 candidate_idx = candidate_indices[idx]
@@ -171,18 +186,13 @@ class TeamRecommender:
         # Experience level diversity
         exp_levels = set()
         for m in team:
-            try:
-                exp_years = float(m['member'].experience_years.split()[0])
-            except (ValueError, IndexError):
-                exp_years = 0
-                
-            if exp_years < 3:
+            exp_enum = m['member'].expertise_level
+            if exp_enum in [ExpertiseLevel.ENTRY, ExpertiseLevel.JUNIOR]:
                 exp_levels.add('Junior')
-            elif exp_years < 7:
+            elif exp_enum == ExpertiseLevel.MID:
                 exp_levels.add('Mid')
-            else:
+            elif exp_enum in [ExpertiseLevel.SENIOR, ExpertiseLevel.RESEARCHER]:
                 exp_levels.add('Senior')
-        
         exp_diversity = len(exp_levels) / 3
         
         return 0.6 * company_diversity + 0.4 * exp_diversity
@@ -207,11 +217,19 @@ class TeamRecommender:
             skills2 = set(member2.technologies)
             jaccard = len(skills1 & skills2) / len(skills1 | skills2) if (skills1 | skills2) else 0
 
-            # Experience balance
+            # Experience balance (ordinal encoding for ExperienceYears enum)
+            exp_order = [
+                ExperienceYears.ZERO_TO_ONE,
+                ExperienceYears.ONE_TO_THREE,
+                ExperienceYears.THREE_TO_FIVE,
+                ExperienceYears.FIVE_TO_SEVEN,
+                ExperienceYears.SEVEN_TO_TEN,
+                ExperienceYears.MORE_THAN_TEN
+            ]
             try:
-                exp1 = float(member1.experience_years.split()[0])
-                exp2 = float(member2.experience_years.split()[0])
-            except (ValueError, IndexError):
+                exp1 = exp_order.index(member1.experience_years)
+                exp2 = exp_order.index(member2.experience_years)
+            except ValueError:
                 exp1 = exp2 = 0
             exp_diff = abs(exp1 - exp2)
             exp_penalty = np.exp(-0.1 * exp_diff)
@@ -227,9 +245,17 @@ class TeamRecommender:
         }
 
     def _calculate_experience_variance(self, team_members: List[Member]) -> float:
-        """Calculate variance in team experience levels."""
+        """Calculate variance in team experience levels using ordinal encoding for ExperienceYears enum."""
+        exp_order = [
+            ExperienceYears.ZERO_TO_ONE,
+            ExperienceYears.ONE_TO_THREE,
+            ExperienceYears.THREE_TO_FIVE,
+            ExperienceYears.FIVE_TO_SEVEN,
+            ExperienceYears.SEVEN_TO_TEN,
+            ExperienceYears.MORE_THAN_TEN
+        ]
         try:
-            exp_values = [float(m.experience_years.split()[0]) for m in team_members]
+            exp_values = [exp_order.index(m.experience_years) for m in team_members]
             return round(np.std(exp_values), 1)
         except (ValueError, IndexError):
             return 0.0
