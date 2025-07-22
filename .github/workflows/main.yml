@@ -23,20 +23,21 @@ jobs:
         run: ./mvnw test
 
   deploy:
-    if: github.ref == 'refs/heads/main'
-    needs: [backend-tests]
+    needs: backend-tests
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
     steps:
       - uses: actions/checkout@v3
 
-      - name: Deploy via SSH to Yandex Cloud
+      - name: Deploy to Main or Develop VM
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.YC_HOST }}
-          username: ${{ secrets.YC_USER }}
-          key: ${{ secrets.YC_SSH_KEY }}
+          host: ${{ github.ref == 'refs/heads/main' && secrets.MAIN_HOST || secrets.DEV_HOST }}
+          username: ${{ github.ref == 'refs/heads/main' && secrets.MAIN_USER || secrets.DEV_USER }}
+          key: ${{ github.ref == 'refs/heads/main' && secrets.MAIN_SSH_KEY || secrets.DEV_SSH_KEY }}
           script: |
             cd /home/aibek/infra/dev/InnoSync
-            git pull origin main
+            git pull origin $(basename ${{ github.ref }})
+            cp .env.${{ github.ref_name }} .env
             docker compose down
             docker compose up -d --build
