@@ -5,6 +5,8 @@ import numpy as np
 import itertools
 from typing import List, Dict
 from data_types import *
+# from synthetic_data import generate_synthetic_team_data_rich
+# from sklearn.ensemble import RandomForestRegressor
 
 class TeamRecommender:
     """
@@ -171,18 +173,13 @@ class TeamRecommender:
         # Experience level diversity
         exp_levels = set()
         for m in team:
-            try:
-                exp_years = float(m['member'].experience_years.split()[0])
-            except (ValueError, IndexError):
-                exp_years = 0
-                
-            if exp_years < 3:
+            exp_enum = m['member'].expertise_level
+            if exp_enum in [ExpertiseLevel.ENTRY, ExpertiseLevel.JUNIOR]:
                 exp_levels.add('Junior')
-            elif exp_years < 7:
+            elif exp_enum == ExpertiseLevel.MID:
                 exp_levels.add('Mid')
-            else:
+            elif exp_enum in [ExpertiseLevel.SENIOR, ExpertiseLevel.RESEARCHER]:
                 exp_levels.add('Senior')
-        
         exp_diversity = len(exp_levels) / 3
         
         return 0.6 * company_diversity + 0.4 * exp_diversity
@@ -207,11 +204,19 @@ class TeamRecommender:
             skills2 = set(member2.technologies)
             jaccard = len(skills1 & skills2) / len(skills1 | skills2) if (skills1 | skills2) else 0
 
-            # Experience balance
+            # Experience balance (ordinal encoding for ExperienceYears enum)
+            exp_order = [
+                ExperienceYears.ZERO_TO_ONE,
+                ExperienceYears.ONE_TO_THREE,
+                ExperienceYears.THREE_TO_FIVE,
+                ExperienceYears.FIVE_TO_SEVEN,
+                ExperienceYears.SEVEN_TO_TEN,
+                ExperienceYears.MORE_THAN_TEN
+            ]
             try:
-                exp1 = float(member1.experience_years.split()[0])
-                exp2 = float(member2.experience_years.split()[0])
-            except (ValueError, IndexError):
+                exp1 = exp_order.index(member1.experience_years)
+                exp2 = exp_order.index(member2.experience_years)
+            except ValueError:
                 exp1 = exp2 = 0
             exp_diff = abs(exp1 - exp2)
             exp_penalty = np.exp(-0.1 * exp_diff)
@@ -227,9 +232,17 @@ class TeamRecommender:
         }
 
     def _calculate_experience_variance(self, team_members: List[Member]) -> float:
-        """Calculate variance in team experience levels."""
+        """Calculate variance in team experience levels using ordinal encoding for ExperienceYears enum."""
+        exp_order = [
+            ExperienceYears.ZERO_TO_ONE,
+            ExperienceYears.ONE_TO_THREE,
+            ExperienceYears.THREE_TO_FIVE,
+            ExperienceYears.FIVE_TO_SEVEN,
+            ExperienceYears.SEVEN_TO_TEN,
+            ExperienceYears.MORE_THAN_TEN
+        ]
         try:
-            exp_values = [float(m.experience_years.split()[0]) for m in team_members]
+            exp_values = [exp_order.index(m.experience_years) for m in team_members]
             return round(np.std(exp_values), 1)
         except (ValueError, IndexError):
             return 0.0

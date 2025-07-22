@@ -1,5 +1,45 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
+from enum import Enum
+
+class ProjectType(str, Enum):
+    FREELANCE = "FREELANCE"
+    RESEARCH = "RESEARCH"
+    ACADEMIC = "ACADEMIC"
+    HACKATHON = "HACKATHON"
+
+class TeamSize(str, Enum):
+    OneThree = "OneThree"
+    FourSix = "FourSix"
+    SevenPlus = "SevenPlus"
+
+class Commitment(str, Enum):
+    FULLTIME = "FULLTIME"
+    PARTTIME = "PARTTIME"
+    INTERNSHIP = "INTERNSHIP"
+    CONTRACT = "CONTRACT"
+    RESEARCH = "RESEARCH"
+
+class Education(str, Enum):
+    NO_DEGREE = "NO_DEGREE"
+    BACHELOR = "BACHELOR"
+    MASTER = "MASTER"
+    PHD = "PHD"
+
+class ExperienceYears(str, Enum):
+    ZERO_TO_ONE = "ZERO_TO_ONE"
+    ONE_TO_THREE = "ONE_TO_THREE"
+    THREE_TO_FIVE = "THREE_TO_FIVE"
+    FIVE_TO_SEVEN = "FIVE_TO_SEVEN"
+    SEVEN_TO_TEN = "SEVEN_TO_TEN"
+    MORE_THAN_TEN = "MORE_THAN_TEN"
+
+class ExpertiseLevel(str, Enum):
+    ENTRY = "ENTRY"
+    JUNIOR = "JUNIOR"
+    MID = "MID"
+    SENIOR = "SENIOR"
+    RESEARCHER = "RESEARCHER"
 
 class ProjectRequest(BaseModel):
     """Request model for team recommendation using project_id."""
@@ -12,8 +52,8 @@ class Project(BaseModel):
     description: str
     createdAt: str
     updatedAt: str
-    projectType: str
-    teamSize: int
+    projectType: ProjectType
+    teamSize: TeamSize
 
 class Role(BaseModel):
     """Role representation within a project."""
@@ -35,10 +75,10 @@ class Member(BaseModel):
     id: int
     bio: str
     position: str
-    education: str
+    education: Education
     expertise: str
     resume: str
     technologies: List[str]
-    expertise_level: str
-    experience_years: str
+    expertise_level: ExpertiseLevel
+    experience_years: ExperienceYears
     work_experience: List[Work]
