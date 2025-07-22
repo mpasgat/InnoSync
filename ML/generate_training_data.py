@@ -29,7 +29,6 @@ def random_member(id):
         position=random.choice(["Backend", "Frontend", "Fullstack", "DevOps", "Data Scientist"]),
         education=random.choice(list(Education)),
         expertise=random_string(10),
-        resume="resume.pdf",
         technologies=random_technologies(n=random.randint(2, 5)),
         expertise_level=random.choice(list(ExpertiseLevel)),
         experience_years=random.choice(list(ExperienceYears)),

@@ -75,10 +75,9 @@ class Member(BaseModel):
     id: int
     bio: str
     position: str
-    education: Education
+    education: Optional[Education] = None
     expertise: str
-    resume: str
     technologies: List[str]
-    expertise_level: ExpertiseLevel
-    experience_years: ExperienceYears
+    expertise_level: Optional[ExpertiseLevel] = None
+    experience_years: Optional[ExperienceYears] = None
     work_experience: List[Work]
