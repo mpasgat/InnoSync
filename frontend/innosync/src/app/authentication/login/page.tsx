@@ -6,7 +6,8 @@ import styles from "../page.module.css";
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import ErrorBanner from "../../components/common/error_banner";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import React from "react";
 
@@ -19,19 +20,41 @@ export default function LoginPage() {
     email: false,
     password: false
   });
-  const [generalError, setGeneralError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setGeneralError(null);
     const newErrors = {
       email: email.trim() === '',
       password: password.trim() === ''
     };
     setErrors(newErrors);
+
     if (newErrors.email || newErrors.password) {
+      if (newErrors.email) {
+        toast.error('Email is required', {
+          position: 'top-center',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: 'colored',
+        });
+      }
+      if (newErrors.password) {
+        toast.error('Password is required', {
+          position: 'top-center',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: 'colored',
+        });
+      }
       return;
     }
+
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
         method: "POST",
@@ -50,7 +73,15 @@ export default function LoginPage() {
           const text = await res.text();
           errorMsg = text || errorMsg;
         } catch {}
-        setGeneralError(errorMsg);
+        toast.error(errorMsg, {
+          position: 'top-center',
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: 'colored',
+        });
         return;
       }
 
@@ -62,14 +93,32 @@ export default function LoginPage() {
       if (data.refreshToken) {
         localStorage.setItem('refreshToken', data.refreshToken);
       }
-      
+
+      toast.success('Login successful!', {
+        position: 'top-center',
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: 'colored',
+      });
+
       // Trigger navbar refresh and auth state change
       window.dispatchEvent(new CustomEvent('profileUpdated'));
       window.dispatchEvent(new CustomEvent('authStateChanged'));
-      
+
       router.push('/components/home');
     } catch (err) {
-      setGeneralError("Network error. Please try again later.");
+      toast.error("Network error. Please try again later.", {
+        position: 'top-center',
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: 'colored',
+      });
       console.error("Fetch error:", err);
     }
   };
@@ -77,7 +126,6 @@ export default function LoginPage() {
   return (
     <div className={styles.parentContainer}>
       <div className={styles.login}>
-        {generalError && <ErrorBanner message={generalError} />}
         <p className={styles.page__title}>Log in with you company account</p>
         <p className={styles.link__title}>Don&apos;t have an account ? <span className={styles.link}><Link href="/authentication/signup">Sign up</Link></span></p>
         <div className={styles.ssoButtons}>
@@ -118,9 +166,6 @@ export default function LoginPage() {
                 </span>
               )}
             </div>
-            {errors.email && (
-              <div className={styles.errorMessage}>Email is required</div>
-            )}
             <div className={styles.inputWrapper}>
               <p className={styles.label}>Password</p>
               <input
@@ -140,13 +185,11 @@ export default function LoginPage() {
                 </span>
               )}
             </div>
-            {errors.password && (
-              <div className={styles.errorMessage}>Password is required</div>
-            )}
           </div>
           <button type="submit" className={styles.submit__btn}>Log in</button>
         </form>
       </div>
+      <ToastContainer aria-label="Notification messages" />
     </div>
   );
 }

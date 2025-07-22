@@ -500,18 +500,19 @@ const TalentCard: React.FC<TalentCardProps & { onContact: (talent: Talent) => vo
             ))}
           </div>
         </div>
-        <div className={styles.projectMeta}>
-          <div className={styles.metaItem}>
-            <Image src="/calendar.svg" alt="Experience" width={16} height={16} />
-            <span>{talent.experience} experience</span>
-          </div>
-          <div className={styles.metaItem}>
-            <Image src="/education.svg" alt="Education" width={16} height={16} />
-            <span>{talent.education}</span>
-          </div>
-          <div className={styles.metaItem}>
-            <span className={styles.badge} style={{ background: '#e4e5e8', color: '#18191c', fontWeight: 600 }}>{talent.expertiseLevel}</span>
-          </div>
+        <div className={styles.detailBadgesFigma}>
+          <span className={styles.detailBadge} style={{display: 'flex', alignItems: 'center', gap: 8}}>
+            <Image src="/verified.svg" alt="verified icon" width={24} height={24} style={{marginRight: 4}} />
+            {talent.expertiseLevel}
+          </span>
+          <span className={styles.detailBadge} style={{display: 'flex', alignItems: 'center', gap: 8}}>
+            <Image src="/education.svg" alt="education icon" width={20} height={20} style={{marginRight: 4}} />
+            {talent.education}
+          </span>
+          <span className={styles.detailBadge} style={{display: 'flex', alignItems: 'center', gap: 8}}>
+            <Image src="/stars.svg" alt="experience icon" width={24} height={24} style={{marginRight: 4}} />
+            {talent.experience} experience
+          </span>
         </div>
         <div className={styles.tagList} style={{ marginTop: 8 }}>
           {talent.skills.map((skill) => (
@@ -639,18 +640,19 @@ const TalentDescription: React.FC<TalentDescriptionProps & { onContact: (talent:
             ))}
           </div>
         </div>
-        <div className={styles.projectDescMetaRow}>
-          <div className={styles.projectDescMetaItem}>
-            <Image src="/calendar.svg" alt="Experience" width={18} height={18} />
-            <span>{talent.experience} experience</span>
-          </div>
-          <div className={styles.projectDescMetaItem}>
-            <Image src="/education.svg" alt="Education" width={18} height={18} />
-            <span>{talent.education}</span>
-          </div>
-          <div className={styles.projectDescMetaItem}>
-            <span className={styles.badge} style={{ background: '#e4e5e8', color: '#18191c', fontWeight: 600 }}>{talent.expertiseLevel}</span>
-          </div>
+        <div className={styles.profileBadges} style={{ display: 'flex', flexDirection: 'row', gap: 16, justifyContent: 'center', margin: '16px 0' }}>
+          <span className={styles.detailBadge} style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#f5f5f5', color: '#6C7278', borderRadius: 20, padding: '4px 16px', fontWeight: 500, fontSize: 15 }}>
+            <Image src="/verified.svg" alt="verified icon" width={24} height={24} style={{ marginRight: 4 }} />
+            {talent.expertiseLevel}
+          </span>
+          <span className={styles.detailBadge} style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#f5f5f5', color: '#6C7278', borderRadius: 20, padding: '4px 16px', fontWeight: 500, fontSize: 15 }}>
+            <Image src="/education.svg" alt="education icon" width={20} height={20} style={{ marginRight: 4 }} />
+            {talent.education}
+          </span>
+          <span className={styles.detailBadge} style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#f5f5f5', color: '#6C7278', borderRadius: 20, padding: '4px 16px', fontWeight: 500, fontSize: 15 }}>
+            <Image src="/stars.svg" alt="experience icon" width={24} height={24} style={{ marginRight: 4 }} />
+            {talent.experience} experience
+          </span>
         </div>
       </div>
       <div className={styles.projectDescBody}>
@@ -729,20 +731,12 @@ const FindTalentPage = () => {
 
   // Function to fetch talents from API
   const fetchTalents = async (): Promise<Talent[]> => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    if (!token) {
-      console.error('❌ FETCH TALENTS: No authentication token found');
-      toast.error('You are not logged in');
-      return [];
-    }
-
     console.log('🔄 FETCH TALENTS: Starting to fetch talents from API...');
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/all`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -778,8 +772,107 @@ const FindTalentPage = () => {
     } catch (error) {
       console.error('❌ FETCH TALENTS: Error occurred:', error);
       toast.error('Failed to load talents');
-      console.log('🔄 FETCH TALENTS: Returning empty array');
-      return [];
+      console.log('🔄 FETCH TALENTS: Returning example data');
+
+      // Return example data when API fails or returns empty
+      return [
+        {
+          id: 1,
+          name: "Ahmed Baha Eddine Alimi",
+          avatar: "https://i.pravatar.cc/150?img=1",
+          positions: ["ML Engineer", "Data Scientist"],
+          expertiseLevel: "Expert",
+          education: "Bachelor",
+          skills: ["Python", "TensorFlow", "Docker", "React", "Machine Learning"],
+          experience: "3-5 y.",
+          bio: "Passionate ML engineer with expertise in deep learning and computer vision. Experienced in building scalable machine learning systems and deploying models to production. Strong background in Python, TensorFlow, and cloud technologies.",
+          resume: null
+        },
+        {
+          id: 2,
+          name: "Rick Sanchez",
+          avatar: "https://i.pravatar.cc/150?img=2",
+          positions: ["Frontend Developer", "UI/UX Designer"],
+          expertiseLevel: "Senior",
+          education: "Master",
+          skills: ["React", "TypeScript", "Vue.js", "CSS", "Figma"],
+          experience: "5> y.",
+          bio: "Senior frontend developer with extensive experience in modern web technologies. Specialized in creating responsive and user-friendly interfaces. Expert in React ecosystem and design systems.",
+          resume: null
+        },
+        {
+          id: 3,
+          name: "Maria Volkov",
+          avatar: "https://i.pravatar.cc/150?img=3",
+          positions: ["Backend Developer", "DevOps Engineer"],
+          expertiseLevel: "Mid",
+          education: "Bachelor",
+          skills: ["Node.js", "PostgreSQL", "AWS", "Docker", "Kubernetes"],
+          experience: "1-2 y.",
+          bio: "Backend developer with strong focus on scalable architecture and cloud deployment. Experienced in building RESTful APIs and microservices. Passionate about DevOps practices and automation.",
+          resume: null
+        },
+        {
+          id: 4,
+          name: "Alex Petrov",
+          avatar: "https://i.pravatar.cc/150?img=4",
+          positions: ["Full Stack Developer", "System Architect"],
+          expertiseLevel: "Expert",
+          education: "PhD",
+          skills: ["Java", "Spring Boot", "React", "MongoDB", "Kafka"],
+          experience: "5> y.",
+          bio: "Full stack developer and system architect with PhD in Computer Science. Expert in building complex distributed systems and microservices architecture. Strong background in Java ecosystem and modern frontend technologies.",
+          resume: null
+        },
+        {
+          id: 5,
+          name: "Sofia Chen",
+          avatar: "https://i.pravatar.cc/150?img=5",
+          positions: ["Data Scientist", "ML Engineer"],
+          expertiseLevel: "Senior",
+          education: "Master",
+          skills: ["Python", "PyTorch", "SQL", "Pandas", "Scikit-learn"],
+          experience: "3-5 y.",
+          bio: "Data scientist specializing in machine learning and statistical analysis. Experienced in developing predictive models and data pipelines. Strong background in Python data science ecosystem and big data technologies.",
+          resume: null
+        },
+        {
+          id: 6,
+          name: "David Kim",
+          avatar: "https://i.pravatar.cc/150?img=6",
+          positions: ["Mobile Developer", "iOS Developer"],
+          expertiseLevel: "Mid",
+          education: "Bachelor",
+          skills: ["Swift", "iOS", "React Native", "Firebase", "Git"],
+          experience: "1-2 y.",
+          bio: "Mobile developer focused on iOS development with React Native experience. Passionate about creating smooth user experiences and native mobile applications. Strong understanding of mobile app architecture and performance optimization.",
+          resume: null
+        },
+        {
+          id: 7,
+          name: "Elena Rodriguez",
+          avatar: "https://i.pravatar.cc/150?img=7",
+          positions: ["QA Engineer", "Test Automation Engineer"],
+          expertiseLevel: "Junior",
+          education: "Bachelor",
+          skills: ["Selenium", "JUnit", "Cypress", "Postman", "Jenkins"],
+          experience: "<1 y.",
+          bio: "QA engineer with focus on test automation and quality assurance. Experienced in setting up CI/CD pipelines and implementing comprehensive testing strategies. Passionate about ensuring software quality and reliability.",
+          resume: null
+        },
+        {
+          id: 8,
+          name: "Michael Johnson",
+          avatar: "https://i.pravatar.cc/150?img=8",
+          positions: ["DevOps Engineer", "Cloud Architect"],
+          expertiseLevel: "Expert",
+          education: "Master",
+          skills: ["AWS", "Terraform", "Kubernetes", "Jenkins", "Linux"],
+          experience: "5> y.",
+          bio: "DevOps engineer and cloud architect with extensive experience in infrastructure automation and cloud technologies. Expert in designing scalable cloud solutions and implementing CI/CD pipelines. Strong background in AWS and containerization technologies.",
+          resume: null
+        }
+      ];
     }
   };
 
@@ -847,8 +940,10 @@ const FindTalentPage = () => {
   const handleOpenInviteModal = (talent: Talent) => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     if (!token) {
-      console.error('❌ OPEN INVITE MODAL: No authentication token found');
-      toast.error('You are not logged in');
+      console.log('❌ OPEN INVITE MODAL: No authentication token found');
+      toast.error('Please log in to contact talents');
+      // Optionally redirect to login page
+      // window.location.href = '/authentication/login';
       return;
     }
 
