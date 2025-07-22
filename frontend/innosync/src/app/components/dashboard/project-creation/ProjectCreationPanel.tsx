@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 import styles from "./ProjectCreationPanel.module.css";
 import closeIcon from "/public/close_icon.svg";
 
@@ -17,6 +18,7 @@ interface ProjectCreationPanelProps {
 }
 
 export default function ProjectCreationPanel({ open, onClose }: ProjectCreationPanelProps) {
+  const router = useRouter();
   // Step management
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -235,18 +237,24 @@ export default function ProjectCreationPanel({ open, onClose }: ProjectCreationP
         autoClose: 3000,
       });
 
-      // Reset form and close panel
-      setCurrentStep(1);
-      setTitle('');
-      setDescription('');
-      setProjectType('');
-      setTeamSize('');
-      setPositions([]);
-      setTeamMembers([]);
-      setQuickSync(false);
-      setExperienceLevel("");
-      setCommitment("");
-      onClose();
+      // Check if QuickSync is enabled
+      if (quickSync) {
+        // Navigate to QuickSync page
+        router.push('/dashboard/projects/quicksync');
+      } else {
+        // Reset form and close panel
+        setCurrentStep(1);
+        setTitle('');
+        setDescription('');
+        setProjectType('');
+        setTeamSize('');
+        setPositions([]);
+        setTeamMembers([]);
+        setQuickSync(false);
+        setExperienceLevel("");
+        setCommitment("");
+        onClose();
+      }
 
     } catch (error) {
       console.error('Error creating project:', error);
