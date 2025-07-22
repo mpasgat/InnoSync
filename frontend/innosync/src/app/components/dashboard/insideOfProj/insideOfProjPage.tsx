@@ -1,15 +1,16 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./insideOfProjPage.module.css";
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 interface TeamMember {
   id: string;
   name: string;
   role: string;
-  level: "Expert" | "Intermediate" | "Beginner";
-  education: "Bachelor" | "Master" | "PhD";
+  level: string;
+  education: string;
   experience: string;
   email: string;
   bio: string;
@@ -21,82 +22,230 @@ interface ProjectRole {
   id: string;
   roleName: string;
   requiredTechnologies: string[];
-  complexity: "Low" | "Medium" | "High";
-  expertiseLevel: "Entry" | "Junior" | "Mid" | "Senior" | "Expert";
+  complexity: string;
+  expertiseLevel: string;
+}
+
+interface ProjectDetails {
+  id: number;
+  title: string;
+  description: string;
+  projectType: string;
+  teamSize: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface BackendInvitation {
+  id: number;
+  projectRoleId: number;
+  roleName: string;
+  projectId: number;
+  projectTitle: string;
+  recipientId: number;
+  recipientName: string;
+  senderId: number;
+  senderName: string;
+  senderEmail: string;
+  status: "INVITED" | "ACCEPTED" | "REJECTED";
+  sentAt: string;
+  respondedAt: string | null;
+}
+
+interface BackendProjectRole {
+  id: number;
+  roleName: string;
+  expertiseLevel: string;
+  technologies: string[];
 }
 
 const ProjectDetails = () => {
   const router = useRouter();
+  const params = useParams();
+  const projectId = params?.projectId as string;
+
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [showKickModal, setShowKickModal] = useState(false);
   const [memberToKick, setMemberToKick] = useState<TeamMember | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Project roles configuration
-  const projectRoles: ProjectRole[] = [
-    {
-      id: "frontend",
-      roleName: "Frontend Developer",
-      requiredTechnologies: ["React.js", "TypeScript", "Next.js", "CSS", "JavaScript"],
-      complexity: "Medium",
-      expertiseLevel: "Mid"
-    },
-    {
-      id: "backend",
-      roleName: "Backend Developer",
-      requiredTechnologies: ["Java", "Spring Boot", "PostgreSQL", "Docker", "AWS"],
-      complexity: "High",
-      expertiseLevel: "Senior"
-    },
-    {
-      id: "ml",
-      roleName: "ML Engineer",
-      requiredTechnologies: ["Python", "TensorFlow", "Docker", "Scikit-learn", "Pandas"],
-      complexity: "High",
-      expertiseLevel: "Expert"
+  // Real data states
+  const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [projectRoles, setProjectRoles] = useState<ProjectRole[]>([]);
+  const [availableRoles, setAvailableRoles] = useState<ProjectRole[]>([]);
+
+  // Helper to get token
+  const getToken = () => (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+
+  // Fetch project details
+  const fetchProjectDetails = async () => {
+    if (!projectId) return;
+
+    const token = getToken();
+    if (!token) {
+      setError('Authentication required');
+      setLoading(false);
+      return;
     }
-  ];
 
-  const teamMembers: TeamMember[] = [
-    {
-      id: "1",
-      name: "Ahmed Baha Eddine Alimi",
-      role: "Frontend Developer",
-      level: "Expert",
-      education: "Bachelor",
-      experience: "2 years",
-      email: "ahmed.alimi@innopolis.ru",
-      bio: "Passionate frontend developer with expertise in modern web technologies. Experienced in building responsive and user-friendly interfaces using React and Next.js. Strong background in UX/UI design principles and modern development practices.",
-      skills: ["React.js", "TypeScript", "Next.js", "CSS", "JavaScript"],
-      avatar: "https://i.pravatar.cc/150?img=1",
-    },
-    {
-      id: "2",
-      name: "Maria Volkov",
-      role: "Backend Developer",
-      level: "Intermediate",
-      education: "Master",
-      experience: "3 years",
-      email: "maria.volkov@innopolis.ru",
-      bio: "Backend developer with strong experience in Java and Spring Boot. Specializes in building scalable APIs and microservices architecture. Proficient in database design and cloud technologies.",
-      skills: ["Java", "Spring Boot", "PostgreSQL", "Docker", "AWS"],
-      avatar: "https://i.pravatar.cc/150?img=3",
-    },
-    {
-      id: "3",
-      name: "Alex Petrov",
-      role: "ML Engineer",
-      level: "Expert",
-      education: "Master",
-      experience: "4 years",
-      email: "alex.petrov@innopolis.ru",
-      bio: "Machine learning engineer with expertise in Python and TensorFlow. Focuses on developing intelligent solutions and data analysis. Experienced in deep learning and natural language processing.",
-      skills: ["Python", "TensorFlow", "Docker", "Scikit-learn", "Pandas"],
-      avatar: "https://i.pravatar.cc/150?img=4",
-    },
-  ];
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${projectId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-  const [currentTeamMembers, setCurrentTeamMembers] = useState<TeamMember[]>(teamMembers);
-  const [removedRoles, setRemovedRoles] = useState<string[]>([]);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch project details: ${response.status}`);
+      }
+
+      const data: ProjectDetails = await response.json();
+      setProjectDetails(data);
+    } catch (err) {
+      console.error('Error fetching project details:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch project details');
+    }
+  };
+
+  // Fetch project roles
+  const fetchProjectRoles = async () => {
+    if (!projectId) return;
+
+    const token = getToken();
+    if (!token) return;
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${projectId}/roles`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch project roles: ${response.status}`);
+      }
+
+      const data: BackendProjectRole[] = await response.json();
+      const transformedRoles: ProjectRole[] = data.map(role => ({
+        id: role.id.toString(),
+        roleName: role.roleName,
+        requiredTechnologies: role.technologies,
+        complexity: getComplexityFromExpertiseLevel(role.expertiseLevel),
+        expertiseLevel: role.expertiseLevel
+      }));
+
+      setProjectRoles(transformedRoles);
+    } catch (err) {
+      console.error('Error fetching project roles:', err);
+    }
+  };
+
+  // Fetch team members (accepted invitations)
+  const fetchTeamMembers = async () => {
+    if (!projectId) return;
+
+    const token = getToken();
+    if (!token) return;
+
+    try {
+      // Get all invitations for this project
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/invitations/sent`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch invitations: ${response.status}`);
+      }
+
+      const allInvitations: BackendInvitation[] = await response.json();
+
+      // Filter for this project and accepted invitations
+      const projectInvitations = allInvitations.filter(inv =>
+        inv.projectId.toString() === projectId && inv.status === "ACCEPTED"
+      );
+
+      // Transform to team members
+      const members: TeamMember[] = projectInvitations.map(inv => ({
+        id: inv.recipientId.toString(),
+        name: inv.recipientName,
+        role: inv.roleName,
+        level: getLevelFromExpertiseLevel(inv.roleName), // This would need to be fetched from user profile
+        education: "Bachelor", // This would need to be fetched from user profile
+        experience: "2 years", // This would need to be fetched from user profile
+        email: inv.recipientName, // Using name as email for now
+        bio: `Team member working on ${inv.roleName} role.`, // This would need to be fetched from user profile
+        skills: [], // This would need to be fetched from user profile
+        avatar: "/profile_image.png", // Default avatar
+      }));
+
+      setTeamMembers(members);
+    } catch (err) {
+      console.error('Error fetching team members:', err);
+    }
+  };
+
+  // Helper functions
+  const getComplexityFromExpertiseLevel = (level: string): string => {
+    switch (level.toUpperCase()) {
+      case 'ENTRY':
+      case 'JUNIOR':
+        return 'Low';
+      case 'MID':
+        return 'Medium';
+      case 'SENIOR':
+      case 'EXPERT':
+        return 'High';
+      default:
+        return 'Medium';
+    }
+  };
+
+  const getLevelFromExpertiseLevel = (roleName: string): string => {
+    // This is a simplified mapping - in a real app, you'd fetch user profile data
+    const roleLower = roleName.toLowerCase();
+    if (roleLower.includes('senior') || roleLower.includes('lead')) return 'Expert';
+    if (roleLower.includes('junior')) return 'Beginner';
+    return 'Intermediate';
+  };
+
+  // Load all data on component mount
+  useEffect(() => {
+    const loadProjectData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        await Promise.all([
+          fetchProjectDetails(),
+          fetchProjectRoles(),
+          fetchTeamMembers()
+        ]);
+      } catch (err) {
+        console.error('Error loading project data:', err);
+        setError('Failed to load project data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (projectId) {
+      loadProjectData();
+    }
+  }, [projectId]);
+
+  // Update available roles when team members or project roles change
+  useEffect(() => {
+    const filledRoles = teamMembers.map(member => member.role);
+    const available = projectRoles.filter(role => !filledRoles.includes(role.roleName));
+    setAvailableRoles(available);
+  }, [teamMembers, projectRoles]);
 
   const selectMember = (member: TeamMember) => {
     setSelectedMember(member);
@@ -116,18 +265,18 @@ const ProjectDetails = () => {
     e.stopPropagation();
     // Handle chat functionality here
     console.log(`Opening chat with ${member.name}`);
+    toast.info(`Chat functionality coming soon!`);
   };
 
   const confirmKick = () => {
     if (memberToKick) {
-      setCurrentTeamMembers(prev => prev.filter(member => member.id !== memberToKick.id));
+      setTeamMembers(prev => prev.filter(member => member.id !== memberToKick.id));
       if (selectedMember?.id === memberToKick.id) {
         setSelectedMember(null);
       }
-      // Add the role to removed roles
-      setRemovedRoles(prev => [...prev, memberToKick.role]);
       setShowKickModal(false);
       setMemberToKick(null);
+      toast.success(`${memberToKick.name} has been removed from the project`);
     }
   };
 
@@ -151,10 +300,41 @@ const ProjectDetails = () => {
     router.push('/dashboard/projects');
   };
 
-  // Get available roles (roles that have been removed)
-  const availableRoles = projectRoles.filter(role =>
-    removedRoles.includes(role.roleName)
-  );
+  if (loading) {
+    return (
+      <div className={styles.projectDetails}>
+        <div className={styles.loadingContainer}>
+          <p>Loading project details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.projectDetails}>
+        <div className={styles.errorContainer}>
+          <p>Error: {error}</p>
+          <button onClick={handleBackToProjects} className={styles.backButton}>
+            Back to Projects
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!projectDetails) {
+    return (
+      <div className={styles.projectDetails}>
+        <div className={styles.errorContainer}>
+          <p>Project not found</p>
+          <button onClick={handleBackToProjects} className={styles.backButton}>
+            Back to Projects
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.projectDetails}>
@@ -165,42 +345,36 @@ const ProjectDetails = () => {
             <Image src="/next_arrow.svg" alt="back arrow" width={20} height={20} />
             Back to Projects
           </button>
-          <h1 className={styles.projectTitle}>InnoSync - Project Management Platform</h1>
+          <h1 className={styles.projectTitle}>{projectDetails.title}</h1>
         </div>
         <div className={styles.projectMeta}>
           <div className={styles.projectDate}>
             <Image src="/calendar.svg" alt="calendar icon" width={20} height={20} />
-            <span>Started: June 1st, 2024</span>
+            <span>Started: {new Date(projectDetails.createdAt).toLocaleDateString()}</span>
           </div>
         </div>
       </div>
 
       {/* Project Description */}
-        <div className={styles.projectDescriptionCard}>
-          <div className={styles.cardHeader}>
+      <div className={styles.projectDescriptionCard}>
+        <div className={styles.cardHeader}>
           <h2>Project Description</h2>
-          </div>
-          <div className={styles.descriptionContent}>
-            <p>
-            InnoSync is an innovative project management platform designed to solve critical
-            development challenges for the 21st century. Our platform aims to revolutionize
-            how teams collaborate, manage projects, and achieve their goals in the IT world.
-            With advanced features and intuitive design, InnoSync helps developers and teams
-            accomplish more in their careers while fostering better collaboration and productivity.
-          </p>
-          </div>
         </div>
+        <div className={styles.descriptionContent}>
+          <p>{projectDetails.description}</p>
+        </div>
+      </div>
 
       {/* Team Section - Full Width when no description */}
       {!selectedMember ? (
         <div className={styles.teamSectionFull}>
           <div className={styles.teamHeader}>
             <h2>Team Members</h2>
-            <span className={styles.teamCount}>{currentTeamMembers.length} members</span>
+            <span className={styles.teamCount}>{teamMembers.length} members</span>
           </div>
 
           <div className={styles.teamGrid}>
-            {currentTeamMembers.map((member) => (
+            {teamMembers.map((member) => (
               <div
                 key={member.id}
                 className={styles.teamMemberCardGrid}
@@ -216,7 +390,7 @@ const ProjectDetails = () => {
                   <div className={styles.memberHeadingRowGrid}>
                     <span className={styles.memberNameGrid}>{member.name}</span>
                     <span className={styles.roleBadgeGrid}>{member.role}</span>
-                    </div>
+                  </div>
 
                   <div className={styles.memberDetailsGrid}>
                     {/* Level */}
@@ -279,10 +453,10 @@ const ProjectDetails = () => {
                             <span key={index} className={styles.techTag}>
                               {tech}
                             </span>
-            ))}
-          </div>
-        </div>
-      </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
 
                     {/* Find Talent Button */}
                     <div className={styles.roleActions}>
@@ -303,11 +477,11 @@ const ProjectDetails = () => {
           <div className={styles.teamSection}>
             <div className={styles.teamHeader}>
               <h2>Team Members</h2>
-              <span className={styles.teamCount}>{currentTeamMembers.length} members</span>
+              <span className={styles.teamCount}>{teamMembers.length} members</span>
             </div>
 
             <div className={styles.teamList}>
-              {currentTeamMembers.map((member) => (
+              {teamMembers.map((member) => (
                 <div
                   key={member.id}
                   className={`${styles.teamMemberCard} ${selectedMember?.id === member.id ? styles.selected : ""}`}
@@ -469,13 +643,17 @@ const ProjectDetails = () => {
                   <div className={styles.skillsSection}>
                     <h4 className={styles.sectionTitle}>Skills</h4>
                     <div className={styles.tagsList}>
-                      {selectedMember.skills.map((skill, index) => (
-                        <span key={index} className={styles.skillTag}>
-                          {skill}
-                        </span>
-          ))}
-        </div>
-      </div>
+                      {selectedMember.skills.length > 0 ? (
+                        selectedMember.skills.map((skill, index) => (
+                          <span key={index} className={styles.skillTag}>
+                            {skill}
+                          </span>
+                        ))
+                      ) : (
+                        <span className={styles.noSkills}>No skills listed</span>
+                      )}
+                    </div>
+                  </div>
 
                   {/* Contact Section */}
                   <div className={styles.contactSection}>

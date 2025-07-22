@@ -1538,3 +1538,45 @@
 .findTalentButtonInline img {
   filter: brightness(0) invert(1);
 }
+
+/* Loading and Error States */
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  text-align: center;
+}
+
+.loadingContainer p {
+  font-size: 18px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  text-align: center;
+  gap: 20px;
+}
+
+.errorContainer p {
+  font-size: 18px;
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.errorContainer .backButton {
+  position: static;
+  margin-top: 20px;
+}
+
+.noSkills {
+  color: #94a3b8;
+  font-style: italic;
+  font-size: 14px;
+}
