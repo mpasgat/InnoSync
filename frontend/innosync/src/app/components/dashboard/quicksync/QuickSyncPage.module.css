@@ -1,38 +1,39 @@
+/* Set Montserrat as the base font for the whole page */
 .container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 40px 20px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+    padding: 20px 20px;
+    font-family: 'Montserrat', sans-serif;
     background: linear-gradient(135deg, white 0%, white 100%);
     min-height: 100vh;
   }
-  
+
   .header {
     text-align: center;
     margin-bottom: 3rem;
     color: green;
   }
-  
+
   .header h1 {
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
-  
+
   .header p {
     font-size: 1.1rem;
     opacity: 0.9;
     margin: 0;
   }
-  
+
   .content {
     background: white;
     border-radius: 16px;
     padding: 2rem;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   }
-  
+
   .browserContent {
     display: grid;
     grid-template-columns: 1fr 400px;
@@ -40,190 +41,227 @@
     align-items: start;
     margin-bottom: 2rem;
   }
-  
+
   /* Candidates Section */
   .candidatesSection {
     display: flex;
     flex-direction: column;
     gap: 20px;
   }
-  
+
   .candidatesList {
     display: flex;
     flex-direction: column;
     gap: 16px;
   }
-  
-  .candidateCard {
-    background: #ffffff;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  }
-  
-  .candidateCard:hover {
-    border-color: #22c55e;
-    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.1);
-  }
-  
-  .candidateCard.selected {
-    border-color: #22c55e;
-    background-color: #f0fdf4;
-  }
-  
-  .candidateAvatar {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    overflow: hidden;
-    flex-shrink: 0;
-    background-color: #e2e8f0;
-  }
-  
-  .candidateAvatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .candidateInfo {
-    flex: 1;
-    min-width: 0;
-  }
-  
-  .candidateName {
-    font-size: 18px;
-    font-weight: 600;
-    color: #1e293b;
-    margin: 0 0 4px 0;
-  }
-  
-  .candidateRole {
-    font-size: 14px;
-    color: #22c55e;
-    margin: 0 0 12px 0;
-    font-weight: 500;
-  }
-  
-  .candidateDetails {
-    margin-top: 8px;
-  }
-  
-  .detailBadges {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  
-  .badge {
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-  }
-  
-  .badge.expert {
-    background-color: #1e293b;
-    color: #ffffff;
-  }
-  
-  .badge.education {
-    background-color: #e2e8f0;
-    color: #475569;
-  }
-  
-  .badge.experience {
-    background-color: #e2e8f0;
-    color: #475569;
-  }
-  
-  .candidateActions {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    flex-shrink: 0;
-  }
-  
-  .rerollBtn {
-    background-color: #f87171;
-    color: #ffffff;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  .rerollBtn:hover {
-    background-color: #ef4444;
-  }
-  
-  .contactBtn {
-    background-color: #22c55e;
-    color: #ffffff;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  .contactBtn:hover {
-    background-color: #16a34a;
-  }
-  
+
+  /* Figma-style candidate card */
+.candidateCard {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 20px;
+  max-width: 984px;
+  width: 100%;
+  height: 102px;
+  background: #fff;
+  border-radius: 8px;
+  border-bottom: 5px solid #6C7278;
+  box-shadow: 0px 4px 4px rgba(0,0,0,0.25);
+  margin: 0 auto 24px auto;
+  transition: border 0.2s, box-shadow 0.2s, background 0.2s;
+  cursor: pointer;
+}
+.candidateCard.selected {
+  border-bottom: 5px solid #34A853;
+  background: #F0FDF4;
+  box-shadow: 0px 4px 12px rgba(52,168,83,0.15);
+}
+.candidateAvatarFigma {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #cec3ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.candidateAvatarFigma img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.candidateInfoFigma {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.candidateHeadingRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+/* Candidate name and role badge use Inter font as in Figma */
+.candidateNameFigma {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: #18191C;
+}
+.roleBadge {
+  font-family: 'Inter', sans-serif;
+  background: #e8f1ff;
+  color: #298217;
+  font-weight: 400;
+  font-size: 14px;
+  border-radius: 63px;
+  padding: 3px 12px;
+  display: inline-block;
+}
+.detailBadgesFigma {
+  display: flex;
+  gap: 15px;
+}
+/* Badges and detail badges use Montserrat as in Figma */
+.detailBadge {
+  font-family: 'Montserrat', sans-serif;
+  background: #f5f5f5;
+  color: #6C7278;
+  font-weight: 500;
+  font-size: 15px;
+  border-radius: 20px;
+  padding: 4px 16px;
+  text-align: center;
+}
+.candidateActionsFigma {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+  height: 48px;
+}
+/* Buttons use Inter font as in Figma */
+.rerollBtnFigma {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 138px;
+  height: 48px;
+  padding: 12px 24px;
+  background: #EF4444;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.rerollBtnFigma:hover {
+  background: #d32f2f;
+}
+/* Buttons use Inter font as in Figma */
+.contactBtnFigma {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 163px;
+  height: 48px;
+  padding: 12px 24px;
+  background: #298217;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.contactBtnFigma:hover {
+  background: #176b0a;
+  color: #fff;
+}
+
   .rerollAllBtn {
-    background-color: #22c55e;
-    color: #ffffff;
-    border: none;
-    padding: 16px 32px;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
     display: flex;
-    align-items: center;
+    flex-direction: row;
     justify-content: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-    align-self: center;
-    box-shadow: 0 4px 6px rgba(34, 197, 94, 0.2);
+    align-items: center;
+    padding: 10px 24px;
+    gap: 6px;
+
+    position: absolute;
+    width: 154px;
+    height: 44px;
+    left: 50%;
+    top: calc(50% + 285.5px);
+    transform: translate(-50%, -50%);
+
+    background: #298217;
+    border-radius: 6px;
+    border: none;
+    box-shadow: none;
+
+    font-family: 'Montserrat', sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 20px;
+    text-align: center;
+    color: #FFFFFF;
+    cursor: pointer;
+    transition: background 0.2s;
   }
-  
+
   .rerollAllBtn:hover {
-    background-color: #16a34a;
-    transform: translateY(-2px);
+    background: #176b0a;
   }
-  
+
+  .rerollAllBtnIcon {
+    width: 24px;
+    height: 24px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+  }
+
+  .rerollAllBtnText {
+    width: 76px;
+    height: 20px;
+    flex: none;
+    order: 1;
+    flex-grow: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 20px;
+    text-align: center;
+    color: #FFFFFF;
+  }
+
   /* Profile Section */
   .profileSection {
     position: sticky;
     top: 20px;
   }
-  
+
   .profileCard {
     background: #ffffff;
     border: 2px solid #e2e8f0;
@@ -231,15 +269,15 @@
     padding: 24px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   }
-  
+
   .profileHeader {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 5px;
     position: relative;
   }
-  
+
   .profileAvatar {
     width: 120px;
     height: 120px;
@@ -248,45 +286,53 @@
     margin-bottom: 16px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   }
-  
+
   .profileAvatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  
+
   .profileBadges {
     display: flex;
-    gap: 8px;
     flex-wrap: wrap;
     justify-content: center;
+    gap: 10px;
+    margin: 12px 0 0 0;
+    row-gap: 10px;
+    column-gap: 10px;
+    max-width: 100%;
   }
-  
+
   .profileInfo {
     text-align: center;
   }
-  
+
+  /* Profile name and section titles use Montserrat as in Figma */
   .profileName {
     font-size: 24px;
     font-weight: 700;
     color: #1e293b;
     margin: 0 0 16px 0;
   }
-  
+
+  /* Profile bio uses Montserrat as in Figma */
   .profileBio {
     font-size: 14px;
     color: #64748b;
     line-height: 1.6;
     margin: 0 0 24px 0;
     text-align: left;
+    font-family: 'Montserrat', sans-serif;
   }
-  
+
   .profileSections {
     display: flex;
     flex-direction: column;
     gap: 20px;
   }
-  
+
+  /* Profile name and section titles use Montserrat as in Figma */
   .sectionTitle {
     font-size: 16px;
     font-weight: 600;
@@ -294,31 +340,33 @@
     margin: 0 0 12px 0;
     text-align: left;
   }
-  
+
   .tagsList {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
   }
-  
+
+  /* Skill and position tags use Montserrat as in Figma */
   .skillTag {
-    background-color: #22c55e;
+    background-color: #298217;
     color: #ffffff;
     padding: 6px 12px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 500;
   }
-  
+
+  /* Skill and position tags use Montserrat as in Figma */
   .positionTag {
-    background-color: #22c55e;
+    background-color: #298217;
     color: #ffffff;
     padding: 6px 12px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 500;
   }
-  
+
   /* Actions Section */
   .actions {
     display: flex;
@@ -328,7 +376,7 @@
     padding-top: 2rem;
     border-top: 1px solid #e1e5e9;
   }
-  
+
   .skipButton {
     background: transparent;
     color: #666;
@@ -339,12 +387,12 @@
     cursor: pointer;
     transition: all 0.3s ease;
   }
-  
+
   .skipButton:hover {
     border-color: #999;
     color: #333;
   }
-  
+
   .inviteButton {
     background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
@@ -356,85 +404,230 @@
     transition: all 0.3s ease;
     min-width: 180px;
   }
-  
+
   .inviteButton:hover:not(:disabled) {
     transform: translateY(-1px);
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
   }
-  
+
   .inviteButton:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
-  
+
   /* Responsive Design */
   @media (max-width: 1024px) {
     .browserContent {
       grid-template-columns: 1fr;
       gap: 30px;
     }
-  
+
     .profileSection {
       position: static;
     }
+    .candidateCard {
+      max-width: 100%;
+      height: auto;
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px;
+    }
+    .candidateActionsFigma {
+      flex-direction: column;
+      width: 100%;
+      gap: 8px;
+      align-items: stretch;
+      height: auto;
+    }
+    .rerollBtnFigma, .contactBtnFigma {
+      width: 100%;
+      min-width: 0;
+    }
   }
-  
+
   @media (max-width: 768px) {
     .container {
       padding: 20px 16px;
     }
-  
+
     .header h1 {
       font-size: 2rem;
     }
-  
+
     .candidateCard {
       flex-direction: column;
       text-align: center;
       gap: 12px;
     }
-  
-    .candidateActions {
-      flex-direction: row;
+
+    .candidateActionsFigma {
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
       width: 100%;
+      gap: 8px;
     }
-  
+
     .profileCard {
       padding: 20px;
     }
-  
+
     .profileAvatar {
       width: 100px;
       height: 100px;
     }
-  
+
     .profileName {
       font-size: 20px;
     }
-  
+
     .actions {
       flex-direction: column;
     }
-  
+
     .inviteButton,
     .skipButton {
       width: 100%;
     }
   }
-  
+
   @media (max-width: 480px) {
     .candidateActions {
       flex-direction: column;
     }
-  
+
     .detailBadges {
       justify-content: center;
     }
-  
+
     .profileBadges {
       flex-direction: column;
       align-items: center;
+      gap: 8px;
+    }
+    .profileSection .detailBadge {
+      font-size: 12px;
+      padding: 3px 8px;
+      min-width: 60px;
+      max-width: 100px;
     }
   }
-    
+
+/* Shared button styles for both states */
+.rerollBtnFigma,
+.contactBtnFigma {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 12px 24px;
+  margin: 0;
+  border: none;
+  border-radius: 3px;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              color 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              filter 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rerollBtnFigma:hover, .contactBtnFigma:hover {
+  transform: scale(1.03) translateY(-2px);
+  box-shadow: 0 4px 16px 0 rgba(52,168,83,0.10), 0 1px 4px 0 rgba(0,0,0,0.08);
+  filter: none;
+}
+
+.rerollBtnFigma:hover {
+  background: linear-gradient(90deg, #EF4444 90%, #fff0f0 100%);
+  color: #fff;
+}
+
+.contactBtnFigma:hover {
+  background: linear-gradient(90deg, #298217 90%, #e8f5e9 100%);
+  color: #fff;
+}
+
+.rerollBtnFigma:disabled, .contactBtnFigma:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #e7e7e7 !important;
+  color: #b0b0b0 !important;
+  box-shadow: none !important;
+  filter: none !important;
+  transform: none !important;
+}
+
+/* Reroll button width */
+.rerollBtnFigma {
+  width: 138px;
+}
+
+/* Contact button width */
+.contactBtnFigma {
+  width: 163px;
+}
+
+/* Unselected state */
+.candidateCard:not(.selected) .rerollBtnFigma {
+  background: #E7F0FA;
+  color: #EF4444;
+}
+.candidateCard:not(.selected) .contactBtnFigma {
+  background: #E7F0FA;
+  color: #298217;
+}
+
+/* Selected state */
+.candidateCard.selected .rerollBtnFigma {
+  background: #EF4444;
+  color: #fff;
+}
+.candidateCard.selected .contactBtnFigma {
+  background: #298217;
+  color: #fff;
+}
+
+/* Icon coloring for <img> (Next.js Image) using filter */
+.candidateCard:not(.selected) .rerollBtnFigma img {
+  filter: invert(41%) sepia(97%) saturate(7492%) hue-rotate(349deg) brightness(97%) contrast(101%);
+}
+.candidateCard.selected .rerollBtnFigma img {
+  filter: brightness(0) invert(1);
+}
+.candidateCard:not(.selected) .contactBtnFigma img {
+  filter: invert(27%) sepia(97%) saturate(1112%) hue-rotate(61deg) brightness(92%) contrast(101%);
+}
+.candidateCard.selected .contactBtnFigma img {
+  filter: brightness(0) invert(1);
+}
+
+.candidateCard, .candidateCard.selected {
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.32s cubic-bezier(0.22, 1, 0.36, 1), background 0.32s cubic-bezier(0.22, 1, 0.36, 1), border 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.candidateCard:hover {
+  transform: scale(1.015) translateY(-1px);
+  box-shadow: 0px 6px 16px rgba(52,168,83,0.10), 0px 2px 8px rgba(0,0,0,0.08);
+  border-bottom: 5px solid #B6EFC6;
+  background: #F6FFF9;
+  transition: transform 0.18s cubic-bezier(0.4,0,0.2,1), box-shadow 0.18s cubic-bezier(0.4,0,0.2,1), background 0.18s, border 0.18s;
+  z-index: 2;
+}
+
+.candidateCard.selected:hover {
+  /* Disable hover animation for selected card */
+  background: #F0FDF4;
+  border-bottom: 5px solid #34A853;
+  box-shadow: 0px 4px 12px rgba(52,168,83,0.15);
+  transform: none;
+}
