@@ -36,7 +36,12 @@ jobs:
           username: ${{ github.ref == 'refs/heads/main' && secrets.MAIN_USER || secrets.DEV_USER }}
           key: ${{ github.ref == 'refs/heads/main' && secrets.MAIN_SSH_KEY || secrets.DEV_SSH_KEY }}
           script: |
+            BRANCH_NAME=$(basename ${{ github.ref }})
             cd /home/aibek/infra/dev/InnoSync
-            git pull origin $(basename ${{ github.ref }})
+            git pull origin $BRANCH_NAME
+
+            [ -f .env.$BRANCH_NAME ] && cp .env.$BRANCH_NAME .env
+
+            docker system prune -af
             docker compose down
             docker compose up -d --build
