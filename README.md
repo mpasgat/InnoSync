@@ -1,120 +1,273 @@
-# InnoSync
+# InnoSync 🚀
 
-## Table of Contents
-- [Overview](#overview)
-- [Tech Stack](#tech-stack)
-- [Key User Roles](#key-user-roles)
-- [FastSyncing](#fastsyncing-aiml-powered-auto-match)
-- [Collaboration Tools](#collaboration-tools)
-- [Similar Platforms](#similar-platforms)
-- [Competitive Advantages](#what-sets-innosync-apart)
-- [Setting up the project](#setting-up-the-project)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.java.net/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-green.svg)](https://spring.io/projects/spring-boot)
+[![React](https://img.shields.io/badge/React-18-blue.svg)](https://reactjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
+[![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://python.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-✓-blue.svg)](https://docker.com/)
 
-## Overview
+> **Smart talent-matching and project collaboration platform for university communities and innovation hubs**
 
-**InnoSync** is a smart talent-matching and project collaboration platform tailored for university communities and innovation hubs. It connects _recruiters_ (project creators) with _recruitees_ (talent) by streamlining team formation through detailed profile creation, role-based filtering, and AI-powered fast matchmaking.
+InnoSync connects recruiters (project creators) with talent through AI-powered team formation, detailed profile matching, and integrated collaboration tools.
 
-## Tech Stack
+## 🎬 Demo
 
-### Frontend (Asgat & Anvar)
-- React
-- Next.js
-- TypeScript
-- Figma (for UI/UX design)
+![InnoSync Demo](assets/Week4_Capstone.gif)
 
-### Backend (Yusuf & Egor)
-- Java
-- Spring Boot
-- PostgreSQL
+*Experience the seamless team formation and AI-powered matching in action*
 
-### DevOps (Aibek & Baha)
-- Docker, Github Actions CI/CD, Nginx, ELK stack.
+## 📋 Table of Contents
 
-### Machine Learning (Gurban)
-- Python
+- [✨ Features](#-features)
+- [🏗️ Architecture](#️-architecture)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [🚀 Quick Start](#-quick-start)
+- [📖 Detailed Setup](#-detailed-setup)
+- [🎯 User Roles](#-user-roles)
+- [🤖 FastSyncing AI](#-fastsyncing-ai)
+- [🔧 Development](#-development)
+- [📚 API Documentation](#-api-documentation)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
 
-## Key User Roles
+## ✨ Features
 
-### Recruitee (Talent/Applicant)
+### 🎯 Core Features
+- **AI-Powered Team Formation** - FastSyncing algorithm matches optimal team members
+- **Comprehensive Profile System** - Detailed skill mapping and experience tracking
+- **Real-time Collaboration** - Integrated chat and communication tools
+- **Advanced Filtering** - Role-based, skill-based, and expertise-level filtering
+- **Invitation Management** - Streamlined application and invitation workflow
 
-- Sign up and specify role as _Recruitee_
-- Build a comprehensive profile including:
-  - Desired positions (e.g., Frontend Developer, ML Engineer)
-  - Tech stack and tools proficiency
-  - Expertise level (Entry, Junior, Mid, Senior, Researcher)
-  - LinkedIn and GitHub integration
-- Browse open projects using advanced filters
-- Apply directly to projects of interest
-- Receive and manage invitations from recruiters
+### 🚀 Advanced Capabilities
+- **Smart Matching Algorithm** - ML-powered candidate recommendation
+- **Team Synergy Analysis** - Compatibility scoring for optimal team formation
+- **Real-time Notifications** - Instant updates on applications and invitations
+- **File Management** - Resume and profile picture uploads
+- **Role-based Access Control** - Secure authentication and authorization
 
-### Recruiter (Project Creator)
+## 🏗️ Architecture
 
-- Sign up and specify role as _Recruiter_
-- Create a project with:
-  - Title and description
-  - Team size and required positions
-  - Tech stack and technologies per role
-  - Expertise level expectations (Entry to Researcher)
-- Choose between:
-  1. **Manual Search:** Browse and filter to discover talent
-  2. **FastSyncing:** Use AI/ML to automatically match suitable team members
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │    Backend      │    │   ML Service    │
+│   (Next.js)     │◄──►│  (Spring Boot)  │◄──►│   (FastAPI)     │
+│   Port: 3000    │    │   Port: 8080    │    │   Port: 8000    │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                              │
+                              ▼
+                       ┌─────────────────┐
+                       │   PostgreSQL    │
+                       │   Port: 5440    │
+                       └─────────────────┘
+```
 
-## FastSyncing (AI/ML-Powered Auto-Match)
+## 🛠️ Tech Stack
 
-- Recruiters opt-in to FastSyncing
-- AI/ML models suggest optimal team members based on:
-  - Role requirements
-  - Past experience and availability
-  - Skill compatibility
-- Recruiters can:
-  - Review full profiles
-  - _Revoll_ any suggestion for a better fit
-  - Send batch invites to proposed team
-- Recruitees may accept or decline invitations
+### Frontend
+- **Framework**: Next.js 14 with React 18
+- **Language**: TypeScript
+- **Styling**: CSS Modules
+- **State Management**: React Hooks
+- **UI/UX**: Custom design system
 
-## Collaboration Tools
+### Backend
+- **Framework**: Spring Boot 3.x
+- **Language**: Java 21
+- **Database**: PostgreSQL 15
+- **Authentication**: JWT with Spring Security
+- **API Documentation**: Swagger/OpenAPI
 
-- Upon all invite acceptances:
-  - Recruiter is notified to finalize the team
-  - A group chat is created for all team members
-  - One-on-one messaging is also enabled
+### Machine Learning
+- **Framework**: FastAPI
+- **Language**: Python 3.11
+- **ML Libraries**: Pandas, NumPy, Scikit-learn
+- **Algorithms**: Team synergy analysis, skill matching
 
-## Similar Platforms
+### DevOps & Infrastructure
+- **Containerization**: Docker & Docker Compose
+- **CI/CD**: GitHub Actions
+- **Web Server**: Nginx
+- **Monitoring**: ELK Stack (Elasticsearch, Logstash, Kibana)
 
-- LinkedIn
-- Upwork
-- Topta
-- Freelancer
-- Fiverr
-- GitHub Projects
+## 🚀 Quick Start
 
-## What Sets InnoSync Apart
+### Prerequisites
+- Docker and Docker Compose
+- Git
+- Node.js 18+ (for local development)
+- Java 21+ (for local development)
 
-- **AI/ML-Powered Team Formation (FastSyncing):** Offers AI-powered team formation through FastSyncing, allowing recruiters to auto-match with suitable candidates based on roles, skills, and expertise levels.
-- **Team-Centric Recruitment:** Focuses on building entire collaborative teams for projects, not just filling isolated job positions.
-- **Integrated Onboarding and Communication:** Includes built-in group and individual chat features to streamline onboarding and collaboration without relying on external tools.
-- Provides a fast, game-inspired user experience
-
-## Setting up the project
-Follow these steps to clone the **InnoSync** repository using either HTTPS or SSH.
-### 1) Clone the Repository
-#### **Option 1: HTTPS (Recommended for beginners)**
+### One-Command Setup
 ```bash
+# Clone the repository
 git clone https://github.com/IU-Capstone-Project-2025/InnoSync.git
-```
-#### **Option 2: SSH (Requires SSH key setup)**
-```bash
-git clone git@github.com:IU-Capstone-Project-2025/InnoSync.git
-```
-### 2) Navigate to the Project Directory
-```bash
 cd InnoSync
-```
-### 3) Create .env file in ```backend``` directory, contact us through telegram for credentials (@abdugafforzoda)
-### 4)  Come back to root folder (```InnoSync```) and build and start containers
-```bash
+
+# Start all services
 docker-compose up --build
 ```
-### 5)  Make simple hello request
-http://localhost:3000/
 
+### Access Points
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8080
+- **ML Service**: http://localhost:8000
+- **Database**: localhost:5440
+- **API Documentation**: http://localhost:8080/swagger-ui/index.html
+
+## 📖 Detailed Setup
+
+### 1. Environment Configuration
+
+#### Backend Configuration
+Create `.env` file in the `backend` directory:
+```bash
+# Database Configuration
+DB_URL=jdbc:postgresql://postgres:5432/registration
+DB_USERNAME=myuser
+DB_PASSWORD=mypass
+```
+
+### 2. Database Setup
+The PostgreSQL database will be automatically initialized with the required schema when the containers start.
+
+### 3. Service Verification
+```bash
+# Check if all services are running
+docker-compose ps
+
+# View logs
+docker-compose logs -f
+
+# Test API endpoints
+curl http://localhost:8080/api/health
+curl http://localhost:8000/health
+```
+
+## 🎯 User Roles
+
+### 👤 Recruitee (Talent/Applicant)
+- **Profile Creation**: Comprehensive skill and experience mapping
+- **Project Discovery**: Advanced filtering and search capabilities
+- **Application Management**: Direct project applications
+- **Invitation Handling**: Accept/decline team invitations
+
+### 👥 Recruiter (Project Creator)
+- **Project Management**: Create and manage project requirements
+- **Talent Discovery**: Manual search with advanced filters
+- **FastSyncing**: AI-powered automatic team matching
+- **Team Formation**: Invitation and team finalization
+
+## 🤖 FastSyncing AI
+
+### How It Works
+1. **Recruiter Opt-in**: Enable FastSyncing for project
+2. **AI Analysis**: ML algorithms analyze requirements and candidate profiles
+3. **Team Recommendation**: Optimal team composition suggestions
+4. **Review & Revoll**: Recruiters can review and request better matches
+5. **Batch Invitations**: Send invitations to recommended team members
+
+### ML Features
+- **Skill Compatibility Scoring**: Advanced matching algorithms
+- **Team Synergy Analysis**: Experience variance and skill overlap
+- **Role-Specific Matching**: Expertise level and technology alignment
+- **Performance Optimization**: Continuous learning from user feedback
+
+## 🔧 Development
+
+### Local Development Setup
+
+#### Backend Development
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+#### Frontend Development
+```bash
+cd frontend/innosync
+npm install
+npm run dev
+```
+
+#### ML Service Development
+```bash
+cd ML
+pip install -r requirements.txt
+python -m uvicorn app:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Testing
+```bash
+# Backend tests
+cd backend
+./mvnw test
+
+# Frontend tests
+cd frontend/innosync
+npm test
+
+# ML service tests
+cd ML
+python -m pytest
+```
+
+### Code Quality
+- **Backend**: Maven with Spring Boot conventions
+- **Frontend**: ESLint, Prettier, TypeScript strict mode
+- **ML**: Black, isort, mypy for Python code quality
+
+## 📚 API Documentation
+
+### Interactive Documentation
+- **Swagger UI**: http://localhost:8080/swagger-ui/index.html
+- **OpenAPI Spec**: http://localhost:8080/v3/api-docs
+
+### Key Endpoints
+- **Authentication**: `/api/auth/*`
+- **Profiles**: `/api/profile/*`
+- **Projects**: `/api/projects/*`
+- **Applications**: `/api/applications/*`
+- **Invitations**: `/api/invitations/*`
+- **ML Recommendations**: `/api/recommendations/*`
+
+## 🤝 Contributing
+
+### Development Workflow
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Code Standards
+- Follow existing code style and conventions
+- Write comprehensive tests for new features
+- Update documentation for API changes
+- Ensure all tests pass before submitting PR
+
+### Team Structure
+- **Frontend**: Asgat & Anvar
+- **Backend**: Yusuf & Egor
+- **ML/AI**: Gurban
+- **DevOps**: Aibek & Baha
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📞 Support
+
+For technical support or questions:
+- **Telegram**: @abdugafforzoda
+- **Issues**: [GitHub Issues](https://github.com/IU-Capstone-Project-2025/InnoSync/issues)
+
+---
+
+<div align="center">
+  <p>Built with ❤️ by the InnoSync Team</p>
+  <p>Innopolis University Capstone Project 2025</p>
+</div>
