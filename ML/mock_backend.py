@@ -94,113 +94,128 @@ async def get_all_profiles():
     return [
         {
             "id": 1,
-            "profile": {
-                "bio": "Test developer",
-                "position": "Developer",
-                "education": "BACHELOR",
-                "expertise": "Python",
-                "resume": "Test resume",
-                "technologies": [{"name": "Python"}, {"name": "FastAPI"}],
-                "expertiseLevel": "MID",
-                "experienceYears": "ONE_TO_THREE",
-                "workExperiences": [
-                    {
-                        "startDate": "2022-01-01",
-                        "endDate": "2023-01-01",
-                        "position": "Developer",
-                        "company": "MockCorp",
-                        "description": "Worked on mock projects."
-                    }
-                ]
-            }
+            "email": "test1@example.com",
+            "fullName": "Test Developer",
+            "telegram": "test1",
+            "github": "test1",
+            "bio": "Test developer",
+            "position": "Developer",
+            "education": "BACHELOR",
+            "expertise": "Python",
+            "resume": "Test resume",
+            "profilePicture": None,
+            "technologies": ["Python", "FastAPI"],
+            "expertise_level": "MID",
+            "experience_years": "ONE_TO_THREE",
+            "work_experience": [
+                {
+                    "startDate": "2022-01-01",
+                    "endDate": "2023-01-01",
+                    "position": "Developer",
+                    "company": "MockCorp",
+                    "description": "Worked on mock projects."
+                }
+            ]
         },
         {
             "id": 2,
-            "profile": {
-                "bio": "Test designer",
-                "position": "Designer",
-                "education": "BACHELOR",
-                "expertise": "UI/UX",
-                "resume": "Test resume",
-                "technologies": [{"name": "Figma"}],
-                "expertiseLevel": "JUNIOR",
-                "experienceYears": "ZERO_TO_ONE",
-                "workExperiences": [
-                    {
-                        "startDate": "2023-01-01",
-                        "endDate": "2024-01-01",
-                        "position": "Designer",
-                        "company": "MockDesign",
-                        "description": "Designed mock interfaces."
-                    }
-                ]
-            }
+            "email": "test2@example.com",
+            "fullName": "Test Designer",
+            "telegram": "test2",
+            "github": "test2",
+            "bio": "Test designer",
+            "position": "Designer",
+            "education": "BACHELOR",
+            "expertise": "UI/UX",
+            "resume": "Test resume",
+            "profilePicture": None,
+            "technologies": ["Figma"],
+            "expertise_level": "JUNIOR",
+            "experience_years": "ZERO_TO_ONE",
+            "work_experience": [
+                {
+                    "startDate": "2023-01-01",
+                    "endDate": "2024-01-01",
+                    "position": "Designer",
+                    "company": "MockDesign",
+                    "description": "Designed mock interfaces."
+                }
+            ]
         },
         {
             "id": 3,
-            "profile": {
-                "bio": "Senior developer with ML expertise",
-                "position": "ML Engineer",
-                "education": "MASTER",
-                "expertise": "Machine Learning",
-                "resume": "Senior ML engineer resume",
-                "technologies": [{"name": "Python"}, {"name": "TensorFlow"}, {"name": "PyTorch"}],
-                "expertiseLevel": "SENIOR",
-                "experienceYears": "FIVE_TO_SEVEN",
-                "workExperiences": [
-                    {
-                        "startDate": "2019-01-01",
-                        "endDate": "2024-01-01",
-                        "position": "ML Engineer",
-                        "company": "TechCorp",
-                        "description": "Built ML models for production."
-                    }
-                ]
-            }
+            "email": "ml@example.com",
+            "fullName": "ML Engineer",
+            "telegram": "ml_engineer",
+            "github": "ml_engineer",
+            "bio": "Senior developer with ML expertise",
+            "position": "ML Engineer",
+            "education": "MASTER",
+            "expertise": "Machine Learning",
+            "resume": "Senior ML engineer resume",
+            "profilePicture": None,
+            "technologies": ["Python", "TensorFlow", "PyTorch"],
+            "expertise_level": "SENIOR",
+            "experience_years": "FIVE_TO_SEVEN",
+            "work_experience": [
+                {
+                    "startDate": "2019-01-01",
+                    "endDate": "2024-01-01",
+                    "position": "ML Engineer",
+                    "company": "TechCorp",
+                    "description": "Built ML models for production."
+                }
+            ]
         },
         {
             "id": 4,
-            "profile": {
-                "bio": "Frontend specialist",
-                "position": "Frontend Developer",
-                "education": "BACHELOR",
-                "expertise": "React",
-                "resume": "Frontend developer resume",
-                "technologies": [{"name": "React"}, {"name": "TypeScript"}, {"name": "Next.js"}],
-                "expertiseLevel": "MID",
-                "experienceYears": "THREE_TO_FIVE",
-                "workExperiences": [
-                    {
-                        "startDate": "2020-01-01",
-                        "endDate": "2024-01-01",
-                        "position": "Frontend Developer",
-                        "company": "WebCorp",
-                        "description": "Built responsive web applications."
-                    }
-                ]
-            }
+            "email": "frontend@example.com",
+            "fullName": "Frontend Developer",
+            "telegram": "frontend_dev",
+            "github": "frontend_dev",
+            "bio": "Frontend specialist",
+            "position": "Frontend Developer",
+            "education": "BACHELOR",
+            "expertise": "React",
+            "resume": "Frontend developer resume",
+            "profilePicture": None,
+            "technologies": ["React", "TypeScript", "Next.js"],
+            "expertise_level": "MID",
+            "experience_years": "THREE_TO_FIVE",
+            "work_experience": [
+                {
+                    "startDate": "2020-01-01",
+                    "endDate": "2024-01-01",
+                    "position": "Frontend Developer",
+                    "company": "WebCorp",
+                    "description": "Built responsive web applications."
+                }
+            ]
         },
         {
             "id": 5,
-            "profile": {
-                "bio": "DevOps engineer",
-                "position": "DevOps Engineer",
-                "education": "BACHELOR",
-                "expertise": "Infrastructure",
-                "resume": "DevOps engineer resume",
-                "technologies": [{"name": "Docker"}, {"name": "Kubernetes"}, {"name": "AWS"}],
-                "expertiseLevel": "SENIOR",
-                "experienceYears": "SEVEN_TO_TEN",
-                "workExperiences": [
-                    {
-                        "startDate": "2018-01-01",
-                        "endDate": "2024-01-01",
-                        "position": "DevOps Engineer",
-                        "company": "CloudCorp",
-                        "description": "Managed cloud infrastructure."
-                    }
-                ]
-            }
+            "email": "devops@example.com",
+            "fullName": "DevOps Engineer",
+            "telegram": "devops_engineer",
+            "github": "devops_engineer",
+            "bio": "DevOps engineer",
+            "position": "DevOps Engineer",
+            "education": "BACHELOR",
+            "expertise": "Infrastructure",
+            "resume": "DevOps engineer resume",
+            "profilePicture": None,
+            "technologies": ["Docker", "Kubernetes", "AWS"],
+            "expertise_level": "SENIOR",
+            "experience_years": "SEVEN_TO_TEN",
+            "work_experience": [
+                {
+                    "startDate": "2018-01-01",
+                    "endDate": "2024-01-01",
+                    "position": "DevOps Engineer",
+                    "company": "CloudCorp",
+                    "description": "Managed cloud infrastructure."
+                }
+            ]
         }
     ]
 

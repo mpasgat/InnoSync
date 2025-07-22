@@ -174,12 +174,12 @@ async def fetch_all_candidates() -> List[dict]:
 
 def convert_backend_user_to_member(user_data: dict) -> Member:
     """Convert backend user data to Member object"""
-    # Extract profile data
-    profile = user_data.get('profile', {})
+    # Extract technologies from the technologies array
+    technologies = user_data.get('technologies', [])
     
-    # Convert work experience data
+    # Convert work experience
     work_experience = []
-    for work_data in profile.get('workExperiences', []):
+    for work_data in user_data.get('work_experience', []):
         work_experience.append(Work(
             startDate=work_data.get('startDate', ''),
             endDate=work_data.get('endDate', ''),
@@ -188,20 +188,16 @@ def convert_backend_user_to_member(user_data: dict) -> Member:
             description=work_data.get('description', '')
         ))
     
-    # Extract technologies from profile
-    technologies = [tech.get('name', '') for tech in profile.get('technologies', [])]
-    
-    # Create Member object
     return Member(
         id=user_data.get('id', 0),
-        bio=profile.get('bio', ''),
-        position=profile.get('position', ''),
-        education=profile.get('education', ''),
-        expertise=profile.get('expertise', ''),
-        resume=profile.get('resume', ''),
+        bio=user_data.get('bio', ''),
+        position=user_data.get('position', ''),
+        education=user_data.get('education'),
+        expertise=user_data.get('expertise', ''),
+        resume=user_data.get('resume', ''),
         technologies=technologies,
-        expertise_level=profile.get('expertiseLevel', ''),
-        experience_years=profile.get('experienceYears', '0 years'),
+        expertise_level=user_data.get('expertise_level'),
+        experience_years=user_data.get('experience_years'),
         work_experience=work_experience
     )
 
@@ -213,8 +209,8 @@ def convert_backend_project_to_project(project_data: dict) -> Project:
         description=project_data.get('description', ''),
         createdAt=project_data.get('createdAt', ''),
         updatedAt=project_data.get('updatedAt', ''),
-        projectType=project_data.get('projectType', ''),
-        teamSize=project_data.get('teamSize', 1)
+        projectType=project_data.get('projectType'),
+        teamSize=project_data.get('teamSize')
     )
 
 def convert_backend_role_to_role(role_data: dict) -> Role:
@@ -327,40 +323,3 @@ async def auth_status():
             "token_expires": None,
             "backend_url": BACKEND_URL
         }
-
-# Keep the old endpoint for backward compatibility
-# @app.post("/load-candidates")
-# async def load_candidates(candidates_data: List[dict]):
-    # """Load candidate data into the recommender (legacy endpoint)"""
-    # global candidates, recommender
-    # 
-    # try:
-        # candidates = []
-        # for candidate_data in candidates_data:
-            # Convert work experience data
-            # work_experience = []
-            # for work_data in candidate_data.get('work_experience', []):
-                # work_experience.append(Work(**work_data))
-            # 
-            # Create Member object
-            # member = Member(
-                # id=candidate_data['id'],
-                # bio=candidate_data.get('bio', ''),
-                # position=candidate_data.get('position', ''),
-                # education=candidate_data.get('education', ''),
-                # expertise=candidate_data.get('expertise', ''),
-                # resume=candidate_data.get('resume', ''),
-                # technologies=candidate_data.get('technologies', []),
-                # expertise_level=candidate_data.get('expertise_level', ''),
-                # experience_years=candidate_data.get('experience_years', '0 years'),
-                # work_experience=work_experience
-            # )
-            # candidates.append(member)
-        # 
-        # Initialize recommender
-        # recommender = TeamRecommender(candidates)
-        # 
-        # return {"status": "success", "candidates_loaded": len(candidates)}
-    # except Exception as e:
-        # raise HTTPException(status_code=400, detail=str(e))
-# 

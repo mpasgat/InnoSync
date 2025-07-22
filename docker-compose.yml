@@ -24,17 +24,10 @@ services:
     build: ./ML
     ports:
       - "8000:8000"
-    # Use the real backend for production
     depends_on:
       - app
     environment:
       - BACKEND_URL=http://app:8080
-    
-    # Use the mock backend for local testing
-    # depends_on:
-    #   - mock-backend
-    # environment:
-    #   - BACKEND_URL=http://mock-backend:8080
     env_file:
       - ML/.env
     restart: unless-stopped
