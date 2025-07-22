@@ -253,18 +253,6 @@ async def get_team_with_synergy(request: ProjectRequest):
             model_path="team_quality_model.joblib", n_teams=10
         )
         
-        # Convert team members to the expected format for synergy calculation
-        team_data = [{'member': member, 'role': 'Unknown', 'role_match_score': 0.0} 
-                   for member in best_team_members]
-        
-        # Calculate synergy metrics for the selected team
-        synergy = recommender._calculate_team_synergy(best_team_members)
-        exp_variance = recommender._calculate_experience_variance(best_team_members)
-        synergy['experience_variance'] = exp_variance
-        
-        # Calculate combined score (ML score + synergy)
-        combined_score = 0.7 * ml_score + 0.3 * synergy['avg_synergy']
-        
         # Convert team members to response format
         team_members = []
         for member in best_team_members:
@@ -282,6 +270,14 @@ async def get_team_with_synergy(request: ProjectRequest):
                 "role_match_score": 0.0
             })
         
+        # Calculate synergy metrics for the selected team
+        synergy = recommender._calculate_team_synergy(best_team_members)
+        exp_variance = recommender._calculate_experience_variance(best_team_members)
+        synergy['experience_variance'] = exp_variance
+        
+        # Calculate combined score (ML score + synergy)
+        combined_score = 0.7 * ml_score + 0.3 * synergy['avg_synergy']
+        
         return {
             "project_id": str(project_id),
             "team_score": round(ml_score, 2),
@@ -289,12 +285,11 @@ async def get_team_with_synergy(request: ProjectRequest):
             "combined_score": round(combined_score, 2),
             "members": team_members,
             "synergy_metrics": {
-                "avg_synergy": synergy['avg_synergy'],
-                "shared_skills": synergy['shared_skills'],
-                "experience_variance": synergy.get('experience_variance', 0)
+                "avg_synergy": round(synergy['avg_synergy'], 2),
+                "shared_skills": round(synergy['shared_skills'], 1),
+                "experience_variance": round(synergy.get('experience_variance', 0), 1)
             },
-            "recommendation_notes": ["Selected using hybrid ML approach"],
-            "method": "hybrid"
+            "recommendation_notes": ["Selected using hybrid ML approach"]
         }
 
     except Exception as e:
