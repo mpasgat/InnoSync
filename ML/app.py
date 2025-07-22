@@ -11,6 +11,7 @@ import asyncio
 
 from recommender import TeamRecommender
 from data_types import Project, Role, Member, Work
+from hybrid_selector import hybrid_team_selection
 
 app = FastAPI(
     title="Team Recommendation API",
@@ -163,7 +164,7 @@ async def fetch_all_candidates() -> List[dict]:
         token = await get_current_token()
         async with httpx.AsyncClient() as client:
             headers = {"Authorization": f"Bearer {token}"}
-            response = await client.get(f"{BACKEND_URL}/api/users/profiles", headers=headers)
+            response = await client.get(f"{BACKEND_URL}/api/profile/all", headers=headers)
             response.raise_for_status()
             return response.json()
     except httpx.HTTPStatusError as e:
@@ -250,20 +251,27 @@ async def get_team_with_synergy(request: ProjectRequest):
         # Initialize recommender with fresh data
         recommender = TeamRecommender(candidates)
         
-        # Get recommendation
-        recommendation = recommender.recommend_team_with_synergy(
-            project=project,
-            roles=roles,
-            n_candidates=5
+        # Use hybrid ML approach
+        best_team_members, ml_score = hybrid_team_selection(
+            candidates, project, roles, recommender, 
+            model_path="team_quality_model.joblib", n_teams=10
         )
         
-        if not recommendation['team']:
-            raise HTTPException(status_code=404, detail="No suitable candidates found")
-
+        # Convert team members to the expected format for synergy calculation
+        team_data = [{'member': member, 'role': 'Unknown', 'role_match_score': 0.0} 
+                   for member in best_team_members]
+        
+        # Calculate synergy metrics for the selected team
+        synergy = recommender._calculate_team_synergy(best_team_members)
+        exp_variance = recommender._calculate_experience_variance(best_team_members)
+        synergy['experience_variance'] = exp_variance
+        
+        # Calculate combined score (ML score + synergy)
+        combined_score = 0.7 * ml_score + 0.3 * synergy['avg_synergy']
+        
         # Convert team members to response format
         team_members = []
-        for member_data in recommendation['team']:
-            member = member_data['member']
+        for member in best_team_members:
             team_members.append({
                 "id": member.id,
                 "bio": member.bio,
@@ -275,21 +283,22 @@ async def get_team_with_synergy(request: ProjectRequest):
                 "expertise_level": member.expertise_level,
                 "experience_years": member.experience_years,
                 "work_experience": [work.dict() for work in member.work_experience],
-                "role_match_score": member_data.get('role_match_score', 0)
+                "role_match_score": 0.0
             })
-
+        
         return {
             "project_id": str(project_id),
-            "team_score": round(recommendation['team_score'], 2),
-            "synergy_score": round(recommendation['synergy_metrics']['avg_synergy'], 2),
-            "combined_score": round(recommendation['updated_team_score'], 2),
+            "team_score": round(ml_score, 2),
+            "synergy_score": round(synergy['avg_synergy'], 2),
+            "combined_score": round(combined_score, 2),
             "members": team_members,
             "synergy_metrics": {
-                "avg_synergy": recommendation['synergy_metrics']['avg_synergy'],
-                "shared_skills": recommendation['synergy_metrics']['shared_skills'],
-                "experience_variance": recommendation['synergy_metrics'].get('experience_variance', 0)
+                "avg_synergy": synergy['avg_synergy'],
+                "shared_skills": synergy['shared_skills'],
+                "experience_variance": synergy.get('experience_variance', 0)
             },
-            "recommendation_notes": recommendation.get('recommendation_notes', [])
+            "recommendation_notes": ["Selected using hybrid ML approach"],
+            "method": "hybrid"
         }
 
     except Exception as e:

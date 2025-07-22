@@ -5,8 +5,6 @@ import numpy as np
 import itertools
 from typing import List, Dict
 from data_types import *
-# from synthetic_data import generate_synthetic_team_data_rich
-# from sklearn.ensemble import RandomForestRegressor
 
 class TeamRecommender:
     """
@@ -70,7 +68,7 @@ class TeamRecommender:
             'recommendation_notes': self._generate_recommendation_notes(synergy, exp_variance)
         }
 
-    def _recommend_team(self, project: Project, roles: List[Role], max_candidates_per_role: int = 5) -> Dict:
+    def _recommend_team(self, project: Project, roles: List[Role], max_candidates_per_role: int = 5, random_seed: int = None) -> Dict:
         """
         Core team recommendation algorithm.
         
@@ -78,10 +76,14 @@ class TeamRecommender:
             project: Project details
             roles: Required roles for the project
             max_candidates_per_role: Maximum candidates to consider per role
+            random_seed: Optional seed for randomization
             
         Returns:
             Dictionary with team recommendation
         """
+        if random_seed is not None:
+            np.random.seed(random_seed)
+            
         required_roles = self._parse_required_roles(roles)
         team = []
 
@@ -100,12 +102,23 @@ class TeamRecommender:
             role_vector = self.tfidf.transform([role_skills_text])
             role_skill_matrix = self.skill_matrix[candidate_indices]
             similarities = cosine_similarity(role_vector, role_skill_matrix).flatten()
+            
+            # Add small random noise to break ties and add variety
+            noise = np.random.normal(0, 0.01, similarities.shape)
+            similarities = similarities + noise
 
-            # Select top candidates
+            # Select top candidates with randomization
             top_indices = np.argsort(similarities)[-max_candidates_per_role:][::-1]
+            
+            # Randomly sample from top candidates instead of always picking the best
+            if len(top_indices) > count:
+                selected_indices = np.random.choice(top_indices, size=count, replace=False)
+            else:
+                selected_indices = top_indices
+                
             selected = 0
             
-            for idx in top_indices:
+            for idx in selected_indices:
                 if selected >= count:
                     break
                 candidate_idx = candidate_indices[idx]
