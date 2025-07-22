@@ -250,10 +250,11 @@ python -m pytest
 - Ensure all tests pass before submitting PR
 
 ### Team Structure
+- **Team Lead**: Baha
 - **Frontend**: Asgat & Anvar
 - **Backend**: Yusuf & Egor
 - **ML/AI**: Gurban
-- **DevOps**: Aibek & Baha
+- **DevOps**: Aibek
 
 ## 📄 License
 
