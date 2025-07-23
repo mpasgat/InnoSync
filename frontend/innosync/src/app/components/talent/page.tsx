@@ -482,13 +482,16 @@ const TalentCard: React.FC<TalentCardProps & { onContact: (talent: Talent) => vo
   >
     <div className={styles.projectInfo}>
       <div className={styles.companyLogoWrapper}>
-        <Image
-          src={talent.avatar || "/profile_image.png"}
+        <img
+          src={talent.avatar}
           alt={talent.name}
           width={60}
           height={60}
           style={{ borderRadius: 50 }}
-          onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/profile_image.png"; }}
+          onError={(e) => {
+            console.log(`Failed to load profile picture for talent ${talent.id}:`, e.currentTarget.src);
+            e.currentTarget.src = "/profile_image.png";
+          }}
         />
       </div>
       <div className={styles.projectDetails}>
@@ -622,14 +625,17 @@ const TalentDescription: React.FC<TalentDescriptionProps & { onContact: (talent:
     <aside className={styles.projectDescription}>
       <div className={styles.projectDescHeader}>
         <div className={styles.projectDescLogoWrapper} style={{ minWidth: 120, minHeight: 120, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Image
-            src={talent.avatar || "/profile_image.png"}
+          <img
+            src={talent.avatar}
             alt={talent.name}
             width={120}
             height={120}
             className={styles.projectDescLogo}
             style={{ borderRadius: 50 }}
-            onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/profile_image.png"; }}
+            onError={(e) => {
+              console.log(`Failed to load profile picture for talent ${talent.id}:`, e.currentTarget.src);
+              e.currentTarget.src = "/profile_image.png";
+            }}
           />
         </div>
         <div className={styles.projectDescTitleBlock}>
@@ -750,21 +756,26 @@ const FindTalentPage = () => {
       console.log('✅ FETCH TALENTS: Successfully fetched talents data:', data);
 
       // Map backend profile to Talent interface
-      const mapped: Talent[] = data.map((profile) => ({
-        id: profile.id,
-        name: profile.fullName || profile.email || "No Name",
-        avatar: profile.profilePicture || "/profile_image.png",
-        positions: profile.position ? [profile.position] : [],
-        expertiseLevel: profile.expertise_level || profile.expertise || "",
-        education: profile.education || "",
-        skills: profile.technologies || [],
-        experience: profile.experience_years === "ZERO_TO_ONE" ? "<1 y." :
-          profile.experience_years === "ONE_TO_TWO" ? "1-2 y." :
-          profile.experience_years === "THREE_TO_FIVE" ? "3-5 y." :
-          profile.experience_years === "FIVE_PLUS" ? "5> y." : "",
-        bio: profile.bio || "",
-        resume: profile.resume,
-      }));
+      const mapped: Talent[] = data.map((profile) => {
+        const avatarUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/profile/${profile.id}/picture`;
+        console.log(`Generated avatar URL for talent ${profile.id}:`, avatarUrl);
+        
+        return {
+          id: profile.id,
+          name: profile.fullName || profile.email || "No Name",
+          avatar: avatarUrl,
+          positions: profile.position ? [profile.position] : [],
+          expertiseLevel: profile.expertise_level || profile.expertise || "",
+          education: profile.education || "",
+          skills: profile.technologies || [],
+          experience: profile.experience_years === "ZERO_TO_ONE" ? "<1 y." :
+            profile.experience_years === "ONE_TO_TWO" ? "1-2 y." :
+            profile.experience_years === "THREE_TO_FIVE" ? "3-5 y." :
+            profile.experience_years === "FIVE_PLUS" ? "5> y." : "",
+          bio: profile.bio || "",
+          resume: profile.resume,
+        };
+      });
 
       console.log('✅ FETCH TALENTS: Successfully transformed talents:', mapped);
       toast.success(`Successfully loaded ${mapped.length} talents`);

@@ -49,7 +49,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      BACKEND_URL: ${BACKEND_URL}      # ← now injected from .env
+      BACKEND_URL: ${BACKEND_URL}
     env_file: ./ML/.env
     restart: unless-stopped
     depends_on:
