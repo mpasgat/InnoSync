@@ -516,10 +516,16 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, selected }
         </div>
         <div className={styles.projectMeta}>
           <div className={styles.metaItem}>
-            <span>Type: {project.projectType}</span>
+            <Image src="/complexity-icon.svg" alt="Complexity" width={16} height={16} className={styles.metaIcon} />
+            <span>Complexity: {project.complexity}</span>
           </div>
           <div className={styles.metaItem}>
+            <Image src="/team-size-icon.svg" alt="Team Size" width={16} height={16} className={styles.metaIcon} />
             <span>Team Size: {project.teamSize}</span>
+          </div>
+          <div className={styles.metaItem}>
+            <Image src="/project-type-icon.svg" alt="Project Type" width={16} height={16} className={styles.metaIcon} />
+            <span>Type: {project.projectType}</span>
           </div>
         </div>
         <div className={styles.tagList} style={{ marginTop: 8 }}>
@@ -650,6 +656,13 @@ const ProjectDescription: React.FC<ProjectDescriptionProps & {
       return;
     }
     if (!currentRoleId || !onApply) return;
+
+    // Check if already applied
+    if (alreadyApplied) {
+      toast.info('You have already applied to this project.');
+      return;
+    }
+
     setIsApplying(true);
     try {
       await onApply(currentRoleId, selectedPositionName);
@@ -671,10 +684,16 @@ const ProjectDescription: React.FC<ProjectDescriptionProps & {
         </div>
         <div className={styles.projectDescMetaRow}>
           <div className={styles.projectDescMetaItem}>
-            <span>Type: {project.projectType}</span>
+            <Image src="/complexity-icon.svg" alt="Complexity" width={16} height={16} className={styles.metaIcon} />
+            <span>Complexity: {project.complexity}</span>
           </div>
           <div className={styles.projectDescMetaItem}>
+            <Image src="/team-size-icon.svg" alt="Team Size" width={16} height={16} className={styles.metaIcon} />
             <span>Team Size: {project.teamSize}</span>
+          </div>
+          <div className={styles.projectDescMetaItem}>
+            <Image src="/project-type-icon.svg" alt="Project Type" width={16} height={16} className={styles.metaIcon} />
+            <span>Type: {project.projectType}</span>
           </div>
         </div>
       </div>
@@ -727,7 +746,7 @@ const ProjectDescription: React.FC<ProjectDescriptionProps & {
       <button
         className={styles.mainApplyBtn}
         onClick={handleApply}
-        disabled={isApplying || alreadyApplied || !selectedPositionObj}
+        disabled={isApplying || !selectedPositionObj}
       >
         {alreadyApplied
           ? 'Applied'

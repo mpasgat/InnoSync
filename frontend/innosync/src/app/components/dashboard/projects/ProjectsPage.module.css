@@ -59,6 +59,7 @@
   box-sizing: border-box;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
 }
 
 .projectCard:hover {
@@ -83,43 +84,98 @@
 .projectContent {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
   max-width: 240px;
+  padding: 0 4px;
+  padding-bottom: 40px;
 }
 
 .projectHeader {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  align-items: flex-start;
+  justify-content: flex-start;
   width: 100%;
 }
 
 .projectTitle {
   font-family: 'Montserrat', sans-serif;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 1.219;
-  color: #181A1B;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.25;
+  color: #1a1a1a;
   margin: 0;
-  flex: 1;
+  width: 100%;
+  letter-spacing: -0.01em;
 }
 
 .moreOptions {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.2s;
+  opacity: 0.8;
+  transition: opacity 0.2s, transform 0.2s;
   flex-shrink: 0;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  z-index: 10;
 }
 
 .moreOptions:hover {
   opacity: 1;
+  background: #f5f5f5;
+  transform: scale(1.1);
+}
+
+.moreOptions:hover {
+  opacity: 1;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 120px;
+  margin-top: 4px;
+  z-index: 1001;
+}
+
+.dropdownItem {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  color: #181A1B;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dropdownItem:hover {
+  background-color: #f5f5f5;
+}
+
+.dropdownItem:first-child {
+  border-radius: 6px 6px 0 0;
+}
+
+.dropdownItem:last-child {
+  border-radius: 0 0 6px 6px;
 }
 
 .projectTag {
@@ -129,12 +185,14 @@
 .statusTag {
   background: #34A853;
   color: #fff;
-  padding: 2px 8px;
-  border-radius: 2.94px;
+  padding: 3px 10px;
+  border-radius: 12px;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 1.219;
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .projectStats {
@@ -229,5 +287,147 @@
 
   .addProjectCard {
     padding: 15px 30px;
+  }
+}
+
+/* Loading and Error States */
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  color: #666;
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px;
+  text-align: center;
+}
+
+.errorContainer p {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  color: #d32f2f;
+  margin: 0;
+}
+
+.retryButton {
+  padding: 8px 16px;
+  background: #298217;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.retryButton:hover {
+  background: #1f6b12;
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px;
+  text-align: center;
+}
+
+.emptyStateIcon {
+  color: #9EA3A9;
+}
+
+.emptyStateTitle {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.emptyStateDescription {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  max-width: 300px;
+}
+
+/* Project Info Styles */
+.projectInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.projectDescription {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.projectMeta {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 8px;
+  align-items: center;
+}
+
+.projectTypeBadge,
+.projectTeamBadge,
+.projectDate {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f8f9fa;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.metaIcon {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+/* Responsive styles for mobile */
+@media (max-width: 768px) {
+  .projectMeta {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .projectTypeBadge,
+  .projectTeamBadge,
+  .projectDate {
+    font-size: 10px;
+    padding: 2px 4px;
+  }
+
+  .moreOptions {
+    width: 20px;
+    height: 20px;
   }
 }

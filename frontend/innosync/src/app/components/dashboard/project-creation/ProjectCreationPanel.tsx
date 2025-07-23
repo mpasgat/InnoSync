@@ -15,9 +15,10 @@ interface TeamMember {
 interface ProjectCreationPanelProps {
   open: boolean;
   onClose: () => void;
+  onProjectCreated?: () => void;
 }
 
-export default function ProjectCreationPanel({ open, onClose }: ProjectCreationPanelProps) {
+export default function ProjectCreationPanel({ open, onClose, onProjectCreated }: ProjectCreationPanelProps) {
   const router = useRouter();
   // Step management
   const [currentStep, setCurrentStep] = useState(1);
@@ -236,6 +237,11 @@ export default function ProjectCreationPanel({ open, onClose }: ProjectCreationP
         position: 'top-center',
         autoClose: 3000,
       });
+
+      // Call the callback if provided
+      if (onProjectCreated) {
+        onProjectCreated();
+      }
 
       // Check if QuickSync is enabled
       if (quickSync) {

@@ -470,6 +470,31 @@
   color: #298217;
 }
 
+/* Detail badges for talent cards (same as quicksync) */
+.detailBadgesFigma {
+  display: flex;
+  gap: 15px;
+}
+
+.detailBadge {
+  font-family: 'Montserrat', sans-serif;
+  background: #f5f5f5;
+  color: #6C7278;
+  font-weight: 500;
+  font-size: 15px;
+  border-radius: 20px;
+  padding: 4px 16px;
+  text-align: center;
+}
+
+.profileBadges {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  justify-content: center;
+  margin: 16px 0;
+}
+
 .projectMeta {
   display: flex;
   align-items: center;
@@ -485,6 +510,13 @@
   font-weight: 400;
   color: #636a80;
   line-height: 1.428;
+}
+
+.metaIcon {
+  width: 16px;
+  height: 16px;
+  color: #636a80;
+  flex-shrink: 0;
 }
 
 .locationIcon,
