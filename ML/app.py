@@ -67,31 +67,14 @@ async def get_current_token():
     # Authenticate to get a new token
     try:
         async with httpx.AsyncClient() as client:
-            # Try to signup first (in case user doesn't exist)
-            signup_data = {
-                "email": ML_EMAIL,
-                "password": ML_PASSWORD,
-                "fullName": ML_USERNAME
-            }
-            
-            try:
+            # Try login first
+            login_data = {"email": ML_EMAIL, "password": ML_PASSWORD}
+            response = await client.post(f"{BACKEND_URL}/api/auth/login", json=login_data)
+            if response.status_code != 200:
+                # If login fails, try signup
+                signup_data = {"email": ML_EMAIL, "password": ML_PASSWORD, "fullName": ML_USERNAME}
                 response = await client.post(f"{BACKEND_URL}/api/auth/signup", json=signup_data)
-                # If signup fails, try login
-                if response.status_code != 200:
-                    login_data = {
-                        "email": ML_EMAIL,
-                        "password": ML_PASSWORD
-                    }
-                    response = await client.post(f"{BACKEND_URL}/api/auth/signin", json=login_data)
-                    response.raise_for_status()
-            except:
-                # If both fail, try login
-                login_data = {
-                    "email": ML_EMAIL,
-                    "password": ML_PASSWORD
-                }
-                response = await client.post(f"{BACKEND_URL}/api/auth/signin", json=login_data)
-                response.raise_for_status()
+            response.raise_for_status()
             
             auth_data = response.json()
             current_token = auth_data.get("accessToken")
