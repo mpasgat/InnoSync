@@ -850,13 +850,24 @@ const fetchProjects = async (): Promise<Project[]> => {
       },
     });
 
+    console.log(`📊 FETCH PROJECTS: Response status: ${response.status}`);
+
     if (!response.ok) {
+      const errorText = await response.text();
       console.error(`❌ FETCH PROJECTS: API request failed with status ${response.status}: ${response.statusText}`);
+      console.error(`❌ FETCH PROJECTS: Error response body:`, errorText);
       throw new Error(`Failed to fetch projects: ${response.status} ${response.statusText}`);
     }
 
     const apiData: ApiProjectRole[] = await response.json();
     console.log('✅ FETCH PROJECTS: Successfully fetched projects data:', apiData);
+    console.log(`📊 FETCH PROJECTS: Number of roles found: ${apiData.length}`);
+
+    if (apiData.length === 0) {
+      console.warn('⚠️ FETCH PROJECTS: No project roles found in database');
+      toast.warning('No projects available. Create a project first to see available roles.');
+      return [];
+    }
 
     const transformedProjects = transformApiDataToProjects(apiData);
     console.log('✅ FETCH PROJECTS: Successfully transformed projects:', transformedProjects);
@@ -891,10 +902,24 @@ const applyForProjectRole = async (projectRoleId: number): Promise<boolean> => {
       },
     });
 
+    console.log(`📊 APPLY PROJECT: Response status: ${response.status}`);
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`❌ APPLY PROJECT: API request failed with status ${response.status}: ${response.statusText}`);
       console.error(`❌ APPLY PROJECT: Error response body:`, errorText);
+
+      // Provide more specific error messages
+      if (response.status === 409) {
+        toast.error('You have already applied to this role');
+      } else if (response.status === 404) {
+        toast.error('Project role not found');
+      } else if (response.status === 401) {
+        toast.error('Authentication failed. Please log in again.');
+      } else {
+        toast.error(`Failed to submit application: ${response.status} ${response.statusText}`);
+      }
+
       throw new Error(`Failed to submit application: ${response.status} ${response.statusText}`);
     }
 
@@ -905,7 +930,7 @@ const applyForProjectRole = async (projectRoleId: number): Promise<boolean> => {
     return true;
   } catch (error) {
     console.error(`❌ APPLY PROJECT: Error occurred while applying for role ID ${projectRoleId}:`, error);
-    toast.error('Failed to submit application');
+    // Don't show toast here as it's already shown above
     return false;
   }
 };

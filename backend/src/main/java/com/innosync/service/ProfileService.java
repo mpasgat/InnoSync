@@ -107,6 +107,7 @@ public class ProfileService {
         final ProfileResponse response = new ProfileResponse();
         response.setEmail(user.getEmail());
         response.setFullName(user.getFullName());
+        response.setUserId(user.getId());
         response.setTelegram(profile.getTelegram());
         response.setGithub(profile.getGithub());
         response.setBio(profile.getBio());

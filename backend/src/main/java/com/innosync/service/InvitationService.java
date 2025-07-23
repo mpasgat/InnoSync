@@ -25,6 +25,7 @@ public class InvitationService {
     private final InvitationRepository invitationRepository;
     private final ProjectRoleRepository projectRoleRepository;
     private final UserRepository userRepository;
+    private final ProjectTeamMemberService teamMemberService;
 
     @Transactional
     public InvitationResponse createInvitation(InvitationRequest request, String recruiterEmail) {
@@ -81,6 +82,22 @@ public class InvitationService {
 
         invitation.setStatus(response);
         invitation.setRespondedAt(LocalDateTime.now());
+
+        // If invitation is accepted, add user to the project team
+        if (response == InvitationStatus.ACCEPTED) {
+            try {
+                teamMemberService.addTeamMember(
+                    invitation.getProjectRole().getId(),
+                    invitation.getRecipient().getId(),
+                    com.innosync.model.ProjectTeamMember.JoinMethod.INVITATION
+                );
+                logger.info("User {} added to project team via invitation acceptance", invitation.getRecipient().getEmail());
+            } catch (Exception e) {
+                logger.error("Failed to add user to project team: {}", e.getMessage());
+                // Don't fail the invitation response if team member addition fails
+                // The invitation status is still updated
+            }
+        }
 
         return mapToResponse(invitationRepository.save(invitation));
     }

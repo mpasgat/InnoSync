@@ -5,6 +5,7 @@ import com.innosync.dto.project.ProjectResponse;
 import com.innosync.dto.project.ProjectRoleResponse;
 import com.innosync.dto.project.ProjectRoleWithProjectResponse;
 import com.innosync.model.Project;
+import com.innosync.model.ProjectTeamMember;
 import com.innosync.model.User;
 import com.innosync.repository.ProjectRepository;
 import com.innosync.repository.ProjectRoleRepository;
@@ -28,6 +29,7 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final ProjectRoleRepository projectRoleRepository;
+    private final ProjectTeamMemberService teamMemberService;
 
     public ProjectResponse createProject(ProjectRequest request, String email) {
         logger.info("Creating project for recruiter: {}", email);
@@ -67,11 +69,41 @@ public class ProjectService {
         }
     }
 
+    public List<ProjectResponse> getJoinedProjects(String email) {
+        logger.debug("Getting joined projects for user: {}", email);
+        try {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Get all team memberships for this user
+            List<ProjectTeamMember> teamMemberships = teamMemberService.getTeamMembersByUser(user.getId());
+
+            // Extract unique projects from team memberships
+            List<Project> joinedProjects = teamMemberships.stream()
+                    .map(ProjectTeamMember::getProject)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            logger.info("Found {} joined projects for user: {}", joinedProjects.size(), email);
+            return joinedProjects.stream()
+                    .map(this::mapToDTO)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.error("Failed to get joined projects for user: {}", email, e);
+            throw e;
+        }
+    }
+
     public ProjectResponse getProject(Long id) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
 
         return mapToDTO(project);
+    }
+
+    public Project getProjectEntity(Long id) {
+        return projectRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
     }
 
     private ProjectResponse mapToDTO(Project project) {

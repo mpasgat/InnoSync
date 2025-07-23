@@ -26,6 +26,7 @@ public class RoleApplicationService {
     private final RoleApplicationRepository applicationRepository;
     private final ProjectRoleRepository projectRoleRepository;
     private final UserRepository userRepository;
+    private final ProjectTeamMemberService teamMemberService;
 
     @Transactional
     public RoleApplicationResponse createApplication(Long projectRoleId, String userEmail) {
@@ -60,6 +61,22 @@ public class RoleApplicationService {
 
         application.setStatus(status);
         application.setUpdatedAt(LocalDateTime.now());
+
+        // If application is accepted, add user to the project team
+        if (status == ApplicationStatus.ACCEPTED) {
+            try {
+                teamMemberService.addTeamMember(
+                    application.getProjectRole().getId(),
+                    application.getUser().getId(),
+                    com.innosync.model.ProjectTeamMember.JoinMethod.APPLICATION
+                );
+                logger.info("User {} added to project team via application acceptance", application.getUser().getEmail());
+            } catch (Exception e) {
+                logger.error("Failed to add user to project team: {}", e.getMessage());
+                // Don't fail the application status update if team member addition fails
+                // The application status is still updated
+            }
+        }
 
         return mapToResponse(applicationRepository.save(application));
     }
