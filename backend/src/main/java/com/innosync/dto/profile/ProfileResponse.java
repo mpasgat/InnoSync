@@ -11,6 +11,8 @@ import java.util.List;
 @Data
 public class ProfileResponse {
     private Long id;
+    @JsonProperty("user_id")
+    private Long userId;
     private String email;
     private String fullName;
     private String telegram;

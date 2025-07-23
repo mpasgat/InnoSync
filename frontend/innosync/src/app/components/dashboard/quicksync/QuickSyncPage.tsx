@@ -84,8 +84,8 @@ interface Candidate {
   id: string;
   name: string;
   role: string;
-  level: "Expert" | "Intermediate" | "Beginner";
-  education: "Bachelor" | "Master" | "PhD";
+  level: "Entry" | "Junior" | "Mid" | "Senior" | "Researcher";
+  education: "No Degree" | "Bachelor" | "Master" | "PhD";
   experience: string;
   email: string;
   bio: string;
@@ -96,11 +96,11 @@ interface Candidate {
 
 const QuickSyncPage = () => {
   //const router = useRouter();
-  
+
   // State for API data
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // State for UI candidates (transformed from API data)
   const [currentCandidates, setCurrentCandidates] = useState<Candidate[]>([]);
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
@@ -108,8 +108,10 @@ const QuickSyncPage = () => {
   const [noTalentMatch, setNoTalentMatch] = useState(false);
 
   // Helper function to map API education to UI format
-  const mapEducation = (education: string): "Bachelor" | "Master" | "PhD" => {
+  const mapEducation = (education: string): "No Degree" | "Bachelor" | "Master" | "PhD" => {
     switch (education) {
+      case "NO_DEGREE":
+        return "No Degree";
       case "BACHELOR":
         return "Bachelor";
       case "MASTER":
@@ -117,22 +119,25 @@ const QuickSyncPage = () => {
       case "PHD":
         return "PhD";
       default:
-        return "Bachelor";
+        return "No Degree";
     }
   };
 
   // Helper function to map API expertise level to UI format
-  const mapExpertiseLevel = (level: string): "Expert" | "Intermediate" | "Beginner" => {
+  const mapExpertiseLevel = (level: string): "Entry" | "Junior" | "Mid" | "Senior" | "Researcher" => {
     switch (level) {
-      case "SENIOR":
-        return "Expert";
-      case "MIDDLE":
-        return "Intermediate";
-      case "JUNIOR":
       case "ENTRY":
-        return "Beginner";
+        return "Entry";
+      case "JUNIOR":
+        return "Junior";
+      case "MID":
+        return "Mid";
+      case "SENIOR":
+        return "Senior";
+      case "RESEARCHER":
+        return "Researcher";
       default:
-        return "Intermediate";
+        return "Entry";
     }
   };
 
@@ -140,17 +145,19 @@ const QuickSyncPage = () => {
   const mapExperienceYears = (years: string): string => {
     switch (years) {
       case "ZERO_TO_ONE":
-        return "0-1 years";
+        return "< 1 y.";
       case "ONE_TO_THREE":
-        return "1-3 years";
+        return "1-3 y.";
       case "THREE_TO_FIVE":
-        return "3-5 years";
-      case "FIVE_TO_TEN":
-        return "5-10 years";
+        return "3-5 y.";
+      case "FIVE_TO_SEVEN":
+        return "5-7 y.";
+      case "SEVEN_TO_TEN":
+        return "7-10 y.";
       case "MORE_THAN_TEN":
-        return "10+ years";
+        return "10+ y.";
       default:
-        return "0-1 years";
+        return "< 1 y.";
     }
   };
 
@@ -160,10 +167,10 @@ const QuickSyncPage = () => {
     const profile = profiles.find(p => p.id === member.id);
     const fullName = profile?.fullName || `User ${member.id}`;
     const email = profile?.email || `user${member.id}@example.com`;
-    
+
     const avatarUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/profile/${member.id}/picture`;
     console.log(`Generated avatar URL for member ${member.id}:`, avatarUrl);
-    
+
     return {
       id: member.id.toString(),
       name: fullName, // Use real name from profile
@@ -214,10 +221,10 @@ const QuickSyncPage = () => {
       setLoading(true);
       setError(null);
       setNoTalentMatch(false);
-      
+
       // First, fetch all profiles to get real names
       const profilesData = await fetchProfiles();
-      
+
       // Then, get the user's projects to find the last created project
       const token = localStorage.getItem('token');
       if (!token) {
@@ -237,19 +244,19 @@ const QuickSyncPage = () => {
       }
 
       const projects: Project[] = await projectsResponse.json();
-      
+
       if (projects.length === 0) {
         throw new Error('No projects found. Please create a project first.');
       }
 
       // Get the last created project (assuming projects are sorted by creation date)
       const lastProject = projects[projects.length - 1];
-      
+
       // Now fetch team recommendations using the last project ID
       const requestBody: { project_id: string } = {
         project_id: lastProject.id
       };
-      
+
       const teamResponse = await fetch('http://localhost:8000/recommend-team', {
         method: 'POST',
         headers: {
@@ -269,16 +276,16 @@ const QuickSyncPage = () => {
       }
 
       const data: TeamRecommendationResponse = await teamResponse.json();
-      
+
       // Transform API members to candidates
       const candidates = data.members.map(member => transformApiMemberToCandidate(member, profilesData));
       setCurrentCandidates(candidates);
-      
+
       // Set the first candidate as selected
       if (candidates.length > 0) {
         setSelectedCandidate(candidates[0]);
       }
-      
+
     } catch (err) {
       console.error('Error fetching team recommendations:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch recommendations');
@@ -431,13 +438,13 @@ const QuickSyncPage = () => {
         <div className={styles.browserContent}>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px', flexDirection: 'column', gap: '16px' }}>
             <div style={{ color: 'red' }}>Error: {error}</div>
-            <button 
+            <button
               onClick={() => fetchTeamRecommendations()}
-              style={{ 
-                padding: '8px 16px', 
-                backgroundColor: '#007bff', 
-                color: 'white', 
-                border: 'none', 
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
                 borderRadius: '4px',
                 cursor: 'pointer'
               }}
@@ -457,13 +464,13 @@ const QuickSyncPage = () => {
         <div className={styles.browserContent}>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px', flexDirection: 'column', gap: '16px' }}>
             <div style={{ color: '#64748b', fontSize: 20 }}>No talent match for desired roles.</div>
-            <button 
+            <button
               onClick={() => fetchTeamRecommendations()}
-              style={{ 
-                padding: '8px 16px', 
-                backgroundColor: '#007bff', 
-                color: 'white', 
-                border: 'none', 
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
                 borderRadius: '4px',
                 cursor: 'pointer'
               }}
@@ -504,8 +511,8 @@ const QuickSyncPage = () => {
                 >
                   {/* Avatar */}
                   <div className={styles.candidateAvatarFigma}>
-                    <img 
-                      src={candidate.avatar} 
+                    <img
+                      src={candidate.avatar}
                       alt={candidate.name}
                       onError={(e) => {
                         // Fallback to local placeholder if profile picture fails to load
@@ -585,8 +592,8 @@ const QuickSyncPage = () => {
                 {/* Avatar */}
                 <div className={styles.profileHeader}>
                                   <div className={styles.profileAvatar}>
-                  <img 
-                    src={selectedCandidate.avatar} 
+                  <img
+                    src={selectedCandidate.avatar}
                     alt={selectedCandidate.name}
                     onError={(e) => {
                       // Fallback to local placeholder if profile picture fails to load

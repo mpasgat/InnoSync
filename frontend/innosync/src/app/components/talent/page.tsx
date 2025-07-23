@@ -51,6 +51,7 @@ interface FilterSidebarProps {
 
 type BackendProfile = {
   id: number;
+  user_id: number;
   email: string;
   fullName: string;
   telegram: string;
@@ -76,9 +77,9 @@ type BackendProfile = {
 type Project = { id: number; title: string };
 type Role = { id: number; roleName: string };
 
-const experienceOptions = ["< 1", "1-2", "3-5", "5+"];
+const experienceOptions = ["< 1 y.", "1-3 y.", "3-5 y.", "5-7 y.", "7-10 y.", "10+ y."];
 const educationOptions = ["No Degree", "Bachelor", "Master", "PhD"];
-const expertiseOptions = ["Entry", "Junior", "Mid", "Senior", "Expert"];
+const expertiseOptions = ["Entry", "Junior", "Mid", "Senior", "Researcher"];
 
 const FilterSidebar: React.FC<FilterSidebarProps & {
   selectedExperience: string[];
@@ -699,25 +700,20 @@ function filterTalents(
   requiredSkills: string[]
 ) {
   return talents.filter(talent => {
-    // Experience (years)
-    const expMatch = selectedExperience.length === 0 || selectedExperience.includes(
-      (() => {
-        const years = parseInt(talent.experience);
-        if (years < 1) return '< 1';
-        if (years >= 1 && years <= 2) return '1-2';
-        if (years >= 3 && years <= 5) return '3-5';
-        if (years > 5) return '5+';
-        return '';
-      })()
-    );
-    // Education
+    // Experience (years) - match the formatted experience strings
+    const expMatch = selectedExperience.length === 0 || selectedExperience.includes(talent.experience);
+
+    // Education - match the formatted education strings
     const eduMatch = selectedEducation.length === 0 || selectedEducation.includes(talent.education);
-    // Expertise
+
+    // Expertise - match the formatted expertise level strings
     const expLevelMatch = selectedExpertise.length === 0 || selectedExpertise.includes(talent.expertiseLevel);
+
     // Required Skills (all must be present, case-insensitive)
     const skillsMatch = requiredSkills.length === 0 || requiredSkills.every(skill =>
       talent.skills.some(tskill => tskill.toLowerCase() === skill.toLowerCase())
     );
+
     return expMatch && eduMatch && expLevelMatch && skillsMatch;
   });
 }
@@ -755,23 +751,74 @@ const FindTalentPage = () => {
       const data: BackendProfile[] = await response.json();
       console.log('✅ FETCH TALENTS: Successfully fetched talents data:', data);
 
+      // Helper function to format experience years
+      const formatExperienceYears = (experienceYears: string): string => {
+        switch (experienceYears) {
+          case 'ZERO_TO_ONE':
+            return '< 1 y.';
+          case 'ONE_TO_THREE':
+            return '1-3 y.';
+          case 'THREE_TO_FIVE':
+            return '3-5 y.';
+          case 'FIVE_TO_SEVEN':
+            return '5-7 y.';
+          case 'SEVEN_TO_TEN':
+            return '7-10 y.';
+          case 'MORE_THAN_TEN':
+            return '10+ y.';
+          default:
+            return '< 1 y.';
+        }
+      };
+
+      // Helper function to format education
+      const formatEducation = (education: string): string => {
+        switch (education) {
+          case 'NO_DEGREE':
+            return 'No Degree';
+          case 'BACHELOR':
+            return 'Bachelor';
+          case 'MASTER':
+            return 'Master';
+          case 'PHD':
+            return 'PhD';
+          default:
+            return 'No Degree';
+        }
+      };
+
+      // Helper function to format expertise level
+      const formatExpertiseLevel = (expertiseLevel: string): string => {
+        switch (expertiseLevel) {
+          case 'ENTRY':
+            return 'Entry';
+          case 'JUNIOR':
+            return 'Junior';
+          case 'MID':
+            return 'Mid';
+          case 'SENIOR':
+            return 'Senior';
+          case 'RESEARCHER':
+            return 'Researcher';
+          default:
+            return 'Entry';
+        }
+      };
+
       // Map backend profile to Talent interface
       const mapped: Talent[] = data.map((profile) => {
         const avatarUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/profile/${profile.id}/picture`;
         console.log(`Generated avatar URL for talent ${profile.id}:`, avatarUrl);
-        
+
         return {
-          id: profile.id,
+          id: profile.user_id, // Use user_id instead of profile id for invitations
           name: profile.fullName || profile.email || "No Name",
           avatar: avatarUrl,
           positions: profile.position ? [profile.position] : [],
-          expertiseLevel: profile.expertise_level || profile.expertise || "",
-          education: profile.education || "",
+          expertiseLevel: formatExpertiseLevel(profile.expertise_level || profile.expertise || ""),
+          education: formatEducation(profile.education || ""),
           skills: profile.technologies || [],
-          experience: profile.experience_years === "ZERO_TO_ONE" ? "<1 y." :
-            profile.experience_years === "ONE_TO_TWO" ? "1-2 y." :
-            profile.experience_years === "THREE_TO_FIVE" ? "3-5 y." :
-            profile.experience_years === "FIVE_PLUS" ? "5> y." : "",
+          experience: formatExperienceYears(profile.experience_years || ""),
           bio: profile.bio || "",
           resume: profile.resume,
         };

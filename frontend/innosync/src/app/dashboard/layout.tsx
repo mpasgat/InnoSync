@@ -10,6 +10,7 @@ import styles from "./layout.module.css";
 const tabs = [
   { id: "overview", label: "Overview", href: "/dashboard/overview" },
   { id: "projects", label: "Projects", href: "/dashboard/projects" },
+  { id: "applications", label: "Applications", href: "/dashboard/applications" },
   { id: "invitations", label: "Invitations", href: "/dashboard/invitations" },
   { id: "proposals", label: "Proposals", href: "/dashboard/proposals" },
   { id: "chats", label: "Chats", href: "/dashboard/chats" },

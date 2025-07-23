@@ -22,7 +22,7 @@ type Step2Props = {
 };
 
 const EXPERTISE_LEVELS = ["ENTRY", "JUNIOR", "MID", "SENIOR", "RESEARCHER"];
-const EXPERIENCE_YEARS = ["< 1 year", "1-2 years", "3-5 years", "5+ years"];
+const EXPERIENCE_YEARS = ["< 1 year", "1-3 years", "3-5 years", "5-7 years", "7-10 years", "10+ years"];
 const EDUCATION_DEGREES = ["NO_DEGREE", "BACHELOR", "MASTER", "PHD"];
 
 export default function Step2({ formData, setFormData, onNext, onBack }: Step2Props) {

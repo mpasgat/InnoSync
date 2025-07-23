@@ -29,7 +29,7 @@ interface BackendInvitation {
   senderId: number;
   senderName: string;
   senderEmail: string;
-  status: "INVITED" | "ACCEPTED" | "REJECTED";
+  status: "INVITED" | "ACCEPTED" | "DECLINED" | "REVOKED" | "PENDING" | "EXPIRED";
   sentAt: string;
   respondedAt: string | null;
 }
@@ -37,12 +37,14 @@ interface BackendInvitation {
 export default function InvitationsPage() {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [processingInvitation, setProcessingInvitation] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Fetch real invitations on mount
-  useEffect(() => {
+  // Function to fetch invitations
     const fetchInvitations = async () => {
       try {
+      setLoading(true);
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/invitations/received`, {
           headers: token ? { "Authorization": `Bearer ${token}` } : {}
@@ -59,13 +61,18 @@ export default function InvitationsPage() {
           },
           position: inv.roleName || "",
           date: inv.sentAt ? new Date(inv.sentAt).toLocaleDateString() : "",
-          status: inv.status === "INVITED" ? "pending" : inv.status === "ACCEPTED" ? "accepted" : inv.status === "REJECTED" ? "rejected" : "pending",
+        status: inv.status === "INVITED" ? "pending" : inv.status === "ACCEPTED" ? "accepted" : inv.status === "DECLINED" ? "rejected" : "pending",
         }));
         setInvitations(mapped);
       } catch (err) {
         toast.error((err as Error).message || "Failed to fetch invitations");
+    } finally {
+      setLoading(false);
       }
     };
+
+  // Fetch real invitations on mount
+  useEffect(() => {
     fetchInvitations();
   }, []);
 
@@ -127,11 +134,35 @@ export default function InvitationsPage() {
     setActiveMenu(null); // Close dropdown after action
   };
 
-  const handleAccept = (invitationId: string) => {
+  const handleAccept = async (invitationId: string) => {
     const invitation = invitations.find(inv => inv.id === invitationId);
-    handleStatusChange(invitationId, "accepted");
+    if (!invitation) return;
 
-    toast.success(`You have accepted the ${invitation?.position} invitation from ${invitation?.author.name}!`, {
+    setProcessingInvitation(invitationId);
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (!token) {
+        toast.error('You are not logged in');
+        return;
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/invitations/${invitationId}/respond?response=ACCEPTED`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to accept invitation: ${response.status}`);
+      }
+
+      // Update local state after successful API call
+    handleStatusChange(invitationId, "accepted");
+      await fetchInvitations(); // Refresh invitations
+
+      toast.success(`You have accepted the ${invitation?.position} invitation from ${invitation?.author.name}. You have joined the project team!`, {
       position: 'bottom-right',
       autoClose: 4000,
       hideProgressBar: false,
@@ -141,11 +172,49 @@ export default function InvitationsPage() {
       progress: undefined,
       theme: 'colored',
     });
+    } catch (err) {
+      toast.error((err as Error).message || "Failed to accept invitation", {
+        position: 'bottom-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'colored',
+      });
+    } finally {
+      setProcessingInvitation(null);
+    }
   };
 
-  const handleReject = (invitationId: string) => {
+  const handleReject = async (invitationId: string) => {
     const invitation = invitations.find(inv => inv.id === invitationId);
+    if (!invitation) return;
+
+    setProcessingInvitation(invitationId);
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (!token) {
+        toast.error('You are not logged in');
+        return;
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/invitations/${invitationId}/respond?response=DECLINED`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to reject invitation: ${response.status}`);
+      }
+
+      // Update local state after successful API call
     handleStatusChange(invitationId, "rejected");
+      await fetchInvitations(); // Refresh invitations
 
     toast.error(`You have rejected the ${invitation?.position} invitation from ${invitation?.author.name}.`, {
       position: 'bottom-right',
@@ -157,6 +226,20 @@ export default function InvitationsPage() {
       progress: undefined,
       theme: 'colored',
     });
+    } catch (err) {
+      toast.error((err as Error).message || "Failed to reject invitation", {
+        position: 'bottom-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'colored',
+      });
+    } finally {
+      setProcessingInvitation(null);
+    }
   };
 
   const handleDelete = (invitationId: string) => {
@@ -193,6 +276,42 @@ export default function InvitationsPage() {
       theme: 'colored',
     });
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.tableContainer}>
+          <div style={{
+            padding: '2rem',
+            textAlign: 'center',
+            color: '#697077',
+            fontSize: '16px'
+          }}>
+            Loading invitations...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (invitations.length === 0) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.tableContainer}>
+          <div style={{
+            padding: '2rem',
+            textAlign: 'center',
+            color: '#697077',
+            fontSize: '16px'
+          }}>
+            No invitations found. You&apos;ll see invitations here when recruiters invite you to join their projects!
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -285,6 +404,7 @@ export default function InvitationsPage() {
                     <button
                       className={styles.menuButton}
                       onClick={() => handleMenuToggle(invitation.id)}
+                      disabled={processingInvitation === invitation.id}
                     >
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                         <path d="M1.33 8C1.33 8.74 1.93 9.33 2.67 9.33C3.4 9.33 4 8.74 4 8C4 7.26 3.4 6.67 2.67 6.67C1.93 6.67 1.33 7.26 1.33 8ZM6.67 8C6.67 8.74 7.26 9.33 8 9.33C8.74 9.33 9.33 8.74 9.33 8C9.33 7.26 8.74 6.67 8 6.67C7.26 6.67 6.67 7.26 6.67 8ZM12 8C12 8.74 12.59 9.33 13.33 9.33C14.07 9.33 14.67 8.74 14.67 8C14.67 7.26 14.07 6.67 13.33 6.67C12.59 6.67 12 7.26 12 8Z" fill="#697077"/>
@@ -295,24 +415,28 @@ export default function InvitationsPage() {
                         <button
                           className={styles.dropdownItem}
                           onClick={() => handleViewDetails(invitation.id)}
+                          disabled={processingInvitation === invitation.id}
                         >
                           View Details
                         </button>
                         <button
                           className={styles.dropdownItem}
                           onClick={() => handleAccept(invitation.id)}
+                          disabled={processingInvitation === invitation.id}
                         >
-                          Accept
+                          {processingInvitation === invitation.id ? 'Processing...' : 'Accept'}
                         </button>
                         <button
                           className={styles.dropdownItem}
                           onClick={() => handleReject(invitation.id)}
+                          disabled={processingInvitation === invitation.id}
                         >
-                          Reject
+                          {processingInvitation === invitation.id ? 'Processing...' : 'Reject'}
                         </button>
                         <button
                           className={styles.dropdownItem}
                           onClick={() => handleDelete(invitation.id)}
+                          disabled={processingInvitation === invitation.id}
                         >
                           Delete
                         </button>

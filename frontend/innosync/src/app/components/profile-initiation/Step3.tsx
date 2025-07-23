@@ -59,9 +59,11 @@ const initialWorkExp: WorkExperience = {
 function mapExperienceToEnum(experience?: string): string {
   switch (experience) {
     case "< 1 year": return "ZERO_TO_ONE";
-    case "1-2 years": return "ONE_TO_THREE";
+    case "1-3 years": return "ONE_TO_THREE";
     case "3-5 years": return "THREE_TO_FIVE";
-    case "5+ years": return "MORE_THAN_TEN";
+    case "5-7 years": return "FIVE_TO_SEVEN";
+    case "7-10 years": return "SEVEN_TO_TEN";
+    case "10+ years": return "MORE_THAN_TEN";
     default: return "ZERO_TO_ONE";
   }
 }

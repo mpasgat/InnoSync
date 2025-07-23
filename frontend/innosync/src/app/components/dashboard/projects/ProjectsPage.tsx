@@ -19,6 +19,7 @@ interface Project {
   messages?: number;
   attachments?: number;
   progress?: string;
+  ownershipType?: "owned" | "joined";
 }
 
 export default function ProjectsPage() {
@@ -41,30 +42,60 @@ export default function ProjectsPage() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/me`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      // Fetch both owned and joined projects
+      const [ownedResponse, joinedResponse] = await Promise.all([
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/joined`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+      ]);
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch projects: ${response.status} ${response.statusText}`);
+      if (!ownedResponse.ok) {
+        throw new Error(`Failed to fetch owned projects: ${ownedResponse.status} ${ownedResponse.statusText}`);
       }
 
-      const data: Project[] = await response.json();
+      if (!joinedResponse.ok) {
+        throw new Error(`Failed to fetch joined projects: ${joinedResponse.status} ${joinedResponse.statusText}`);
+      }
+
+      const ownedData: Project[] = await ownedResponse.json();
+      const joinedData: Project[] = await joinedResponse.json();
 
       // Transform the data to include UI-specific fields
-      const transformedProjects = data.map(project => ({
+      const transformedOwnedProjects = ownedData.map(project => ({
         ...project,
-        status: "active" as const, // Default status since backend doesn't have this field
-        messages: 0, // Default values since backend doesn't have these fields
+        status: "active" as const,
+        messages: 0,
         attachments: 0,
-        progress: "0/0" // Default progress
+        progress: "0/0",
+        ownershipType: "owned" as const
       }));
 
-      setProjects(transformedProjects);
-      toast.success(`Successfully loaded ${transformedProjects.length} projects`);
+      const transformedJoinedProjects = joinedData.map(project => ({
+        ...project,
+        status: "active" as const,
+        messages: 0,
+        attachments: 0,
+        progress: "0/0",
+        ownershipType: "joined" as const
+      }));
+
+      // Combine and deduplicate projects (in case user owns and is a member of the same project)
+      const allProjects = [...transformedOwnedProjects, ...transformedJoinedProjects];
+      const uniqueProjects = allProjects.filter((project, index, self) =>
+        index === self.findIndex(p => p.id === project.id)
+      );
+
+      setProjects(uniqueProjects);
+      toast.success(`Successfully loaded ${uniqueProjects.length} projects`);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch projects';
       setError(errorMessage);
@@ -155,7 +186,7 @@ export default function ProjectsPage() {
               <div className={styles.emptyStateIcon}>
                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M24 4L44 24L24 44L4 24L24 4Z" stroke="#9EA3A9" strokeWidth="2"/>
-                  <path d="M24 12L36 24L24 36L12 24L24 12Z" fill="#9EA3A9"/>
+                  <path d="M24 12L36 24L12 24L24 12Z" fill="#9EA3A9"/>
                 </svg>
               </div>
               <h3 className={styles.emptyStateTitle}>No projects yet</h3>
@@ -164,15 +195,17 @@ export default function ProjectsPage() {
               </p>
             </div>
           ) : (
-            projects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                router={router}
-                onArchive={() => handleArchiveProject(project.id)}
-                onDelete={() => handleDeleteProject(project.id)}
-              />
-            ))
+            <div className={styles.projectsList}>
+              {projects.map((project) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  router={router}
+                  onArchive={() => handleArchiveProject(project.id)}
+                  onDelete={() => handleDeleteProject(project.id)}
+                />
+              ))}
+            </div>
           )}
           {/* Add Project Button */}
           <button type="button" className={styles.addProjectCard} onClick={handleNewProject}>
@@ -312,6 +345,12 @@ function ProjectCard({ project, router, onArchive, onDelete }: ProjectCardProps)
             <img src="/calendar.svg" alt="Date" className={styles.metaIcon} />
             <span>{formatDate(project.createdAt)}</span>
           </div>
+          {project.ownershipType && (
+            <div className={styles.ownershipBadge}>
+              <img src="/verified.svg" alt="Ownership" className={styles.metaIcon} />
+              <span>{project.ownershipType === "owned" ? "Owner" : "Member"}</span>
+            </div>
+          )}
         </div>
 
         <div className={styles.projectTag}>

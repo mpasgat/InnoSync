@@ -36,20 +36,15 @@ interface ProjectDetails {
   updatedAt: string;
 }
 
-interface BackendInvitation {
+interface BackendTeamMember {
   id: number;
+  userId: number;
+  userName: string;
+  userEmail: string;
   projectRoleId: number;
   roleName: string;
-  projectId: number;
-  projectTitle: string;
-  recipientId: number;
-  recipientName: string;
-  senderId: number;
-  senderName: string;
-  senderEmail: string;
-  status: "INVITED" | "ACCEPTED" | "REJECTED";
-  sentAt: string;
-  respondedAt: string | null;
+  joinedAt: string;
+  joinedVia: "INVITATION" | "APPLICATION";
 }
 
 interface BackendProjectRole {
@@ -144,7 +139,7 @@ const ProjectDetails = () => {
     }
   };
 
-  // Fetch team members (accepted invitations)
+  // Fetch team members from the new team member API
   const fetchTeamMembers = async () => {
     if (!projectId) return;
 
@@ -152,8 +147,7 @@ const ProjectDetails = () => {
     if (!token) return;
 
     try {
-      // Get all invitations for this project
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/invitations/sent`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${projectId}/team-members`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -161,26 +155,21 @@ const ProjectDetails = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch invitations: ${response.status}`);
+        throw new Error(`Failed to fetch team members: ${response.status}`);
       }
 
-      const allInvitations: BackendInvitation[] = await response.json();
-
-      // Filter for this project and accepted invitations
-      const projectInvitations = allInvitations.filter(inv =>
-        inv.projectId.toString() === projectId && inv.status === "ACCEPTED"
-      );
+      const teamMembersData = await response.json();
 
       // Transform to team members
-      const members: TeamMember[] = projectInvitations.map(inv => ({
-        id: inv.recipientId.toString(),
-        name: inv.recipientName,
-        role: inv.roleName,
-        level: getLevelFromExpertiseLevel(inv.roleName), // This would need to be fetched from user profile
+      const members: TeamMember[] = teamMembersData.map((member: BackendTeamMember) => ({
+        id: member.userId.toString(),
+        name: member.userName,
+        role: member.roleName,
+        level: getLevelFromExpertiseLevel(member.roleName),
         education: "Bachelor", // This would need to be fetched from user profile
         experience: "2 years", // This would need to be fetched from user profile
-        email: inv.recipientName, // Using name as email for now
-        bio: `Team member working on ${inv.roleName} role.`, // This would need to be fetched from user profile
+        email: member.userEmail,
+        bio: `Team member working on ${member.roleName} role.`,
         skills: [], // This would need to be fetched from user profile
         avatar: "/profile_image.png", // Default avatar
       }));
@@ -268,8 +257,29 @@ const ProjectDetails = () => {
     toast.info(`Chat functionality coming soon!`);
   };
 
-  const confirmKick = () => {
-    if (memberToKick) {
+  const confirmKick = async () => {
+    if (!memberToKick || !projectId) return;
+
+    try {
+      const token = getToken();
+      if (!token) {
+        toast.error('Authentication required');
+        return;
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${projectId}/team-members/${memberToKick.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to remove team member: ${response.status}`);
+      }
+
+      // Update local state
       setTeamMembers(prev => prev.filter(member => member.id !== memberToKick.id));
       if (selectedMember?.id === memberToKick.id) {
         setSelectedMember(null);
@@ -277,6 +287,9 @@ const ProjectDetails = () => {
       setShowKickModal(false);
       setMemberToKick(null);
       toast.success(`${memberToKick.name} has been removed from the project`);
+    } catch (error) {
+      console.error('Error removing team member:', error);
+      toast.error('Failed to remove team member');
     }
   };
 
