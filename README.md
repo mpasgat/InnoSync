@@ -27,7 +27,7 @@ InnoSync connects recruiters (project creators) with talent through AI-powered t
 - [🚀 Quick Start](#-quick-start)
 - [📖 Detailed Setup](#-detailed-setup)
 - [🎯 User Roles](#-user-roles)
-- [🤖 FastSyncing AI](#-fastsyncing-ai)
+- [🤖 Quicksyncing AI](#-fastsyncing-ai)
 - [🔧 Development](#-development)
 - [📚 API Documentation](#-api-documentation)
 - [🤝 Contributing](#-contributing)
@@ -36,7 +36,7 @@ InnoSync connects recruiters (project creators) with talent through AI-powered t
 ## ✨ Features
 
 ### 🎯 Core Features
-- **AI-Powered Team Formation** - FastSyncing algorithm matches optimal team members
+- **AI-Powered Team Formation** - Quicksyncing algorithm matches optimal team members
 - **Comprehensive Profile System** - Detailed skill mapping and experience tracking
 - **Real-time Collaboration** - Integrated chat and communication tools
 - **Advanced Filtering** - Role-based, skill-based, and expertise-level filtering
@@ -158,13 +158,13 @@ curl http://localhost:8000/health
 ### 👥 Recruiter (Project Creator)
 - **Project Management**: Create and manage project requirements
 - **Talent Discovery**: Manual search with advanced filters
-- **FastSyncing**: AI-powered automatic team matching
+- **Quicksyncing**: AI-powered automatic team matching
 - **Team Formation**: Invitation and team finalization
 
-## 🤖 FastSyncing AI
+## 🤖 Quicksyncing AI
 
 ### How It Works
-1. **Recruiter Opt-in**: Enable FastSyncing for project
+1. **Recruiter Opt-in**: Enable Quicksyncing for project
 2. **AI Analysis**: ML algorithms analyze requirements and candidate profiles
 3. **Team Recommendation**: Optimal team composition suggestions
 4. **Review & Revoll**: Recruiters can review and request better matches
