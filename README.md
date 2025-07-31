@@ -251,10 +251,11 @@ python -m pytest
 
 ### Team Structure
 - **Team Lead**: Baha
-- **Frontend**: Asgat & Anvar
-- **Backend**: Yusuf & Egor
+- **Frontend**: Baha & Anvar
+- **Backend**: Yusuf & Asgat
 - **ML/AI**: Gurban
 - **DevOps**: Aibek
+- **CustDev**: Egor
 
 ## 📄 License
 
