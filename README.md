@@ -263,7 +263,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 For technical support or questions:
-- **Telegram**: @abdugafforzoda
+- **Telegram**: @east511
 - **Issues**: [GitHub Issues](https://github.com/IU-Capstone-Project-2025/InnoSync/issues)
 
 ---
